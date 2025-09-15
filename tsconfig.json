@@ -22,6 +22,7 @@
     "allowJs": true,
     "typeRoots": ["./node_modules/@types"],
     "baseUrl": ".",
+    "composite": true,
     "paths": {
       "*": ["node_modules/*"]
     }
