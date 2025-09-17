@@ -59,7 +59,7 @@
     "@typescript-eslint/parser": "^8.8.0",
     "@typescript-eslint/types": "^8.8.0",
     "chai": "^4.5.0",
-    "diamonds": "https://github.com/GeniusVentures/diamonds.git",
+    "diamonds": "https://github.com/GeniusVentures/diamonds.git#develop",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",

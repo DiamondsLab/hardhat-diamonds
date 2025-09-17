@@ -23,3 +23,4 @@ declare module "hardhat/types/runtime" {
     }
 }
 export declare const _hardhatDiamondsTypesLoaded = true;
+export type { DiamondAbiTaskArgs, DiamondAbiTypechainTaskArgs, DiamondAbiGenerationOptions, DiamondAbiGenerationResult, TypeChainGenerationOptions, TypeChainGenerationResult, } from "./tasks/shared/TaskOptions";

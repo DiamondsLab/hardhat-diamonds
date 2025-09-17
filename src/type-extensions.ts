@@ -31,3 +31,13 @@ declare module "hardhat/types/runtime" {
 
 // Export a dummy value to ensure the module is executed
 export const _hardhatDiamondsTypesLoaded = true;
+
+// Re-export task option types for external use
+export type {
+  DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs,
+  DiamondAbiGenerationOptions,
+  DiamondAbiGenerationResult,
+  TypeChainGenerationOptions,
+  TypeChainGenerationResult,
+} from "./tasks/shared/TaskOptions";
