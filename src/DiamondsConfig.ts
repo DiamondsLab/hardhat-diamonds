@@ -2,7 +2,7 @@
  * HardhatRuntimeEnvironment class
  */
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DiamondPathsConfig, DiamondsPathsConfig } from "./types/diamonds";
+import { DiamondPathsConfig, DiamondsPathsConfig } from "./type-extensions";
 
 // interface DiamondsPathsConfig extends OriginalDiamondsPathsConfig {
 //   [key: string]: any; // Add index signature to allow string indexing
@@ -15,7 +15,7 @@ export class DiamondsConfig {
 
   constructor(hre: HardhatRuntimeEnvironment) {
     this.hre = hre;
-    this.diamonds = this.hre.config.diamonds;
+    this.diamonds = (this.hre.config as any).diamonds;
     // this.paths = {};
   }
 

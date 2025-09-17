@@ -1,9 +1,8 @@
 import { extendConfig, extendEnvironment } from "hardhat/config";
 import { HardhatConfig, HardhatUserConfig } from "hardhat/types";
 import { lazyObject } from "hardhat/plugins";
-import { DiamondsPathsConfig } from "./types/diamonds";
+import { DiamondsPathsConfig } from "./type-extensions";
 import { DiamondsConfig } from "./DiamondsConfig";
-import "./type-extensions";
 
 extendConfig(
   (config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
