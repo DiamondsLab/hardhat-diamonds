@@ -1,3 +1,3 @@
-import "./type-extensions";
-export { DiamondsConfig } from "./DiamondsConfig";
-export * from "./interfaces";
+import "./tasks";
+export { default as DiamondsConfig } from "./DiamondsConfig";
+export * from "./tasks";

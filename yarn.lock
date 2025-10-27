@@ -2608,9 +2608,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diamonds@https://github.com/GeniusVentures/diamonds.git":
+"diamonds@https://github.com/GeniusVentures/diamonds.git#develop":
   version: 1.0.0
-  resolution: "diamonds@https://github.com/GeniusVentures/diamonds.git#commit=cdad0b2bb6af019f21f1a7568cdd285320c0017a"
+  resolution: "diamonds@https://github.com/GeniusVentures/diamonds.git#commit=c84b230b7504e4bd4c6ac35d86499a29c8297157"
   dependencies:
     "@ethersproject/abstract-signer": "npm:^5.8.0"
     axios: "npm:^1.10.0"
@@ -2622,7 +2622,9 @@ __metadata:
     hardhat: ^2.0.0
     ts-node: ^10.0.0
     typescript: ^5.0.0
-  checksum: 10c0/bf6fca6a700eed8958d36b01de0fcc1faba26461559d8cb9db8dd0301aa677671b5c51e0763dc79ee68e80b593da1ea7575dd8888816c1c9ae6ae29b20feadd2
+  bin:
+    diamond-abi: dist/scripts/diamond-abi-cli.js
+  checksum: 10c0/1c2688c077c33f4223d32d1a9521f7dbe4304dae58de7207a9a07061b6b8fccbb1caf6b55e65f7132e388494c17b1e3a1c6659ea31ccc9a7326989c1137cae19
   languageName: node
   linkType: hard
 
@@ -3741,7 +3743,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^8.8.0"
     "@typescript-eslint/types": "npm:^8.8.0"
     chai: "npm:^4.5.0"
-    diamonds: "https://github.com/GeniusVentures/diamonds.git"
+    diamonds: "https://github.com/GeniusVentures/diamonds.git#develop"
     eslint: "npm:^8.57.1"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-prettier: "npm:^5.2.1"

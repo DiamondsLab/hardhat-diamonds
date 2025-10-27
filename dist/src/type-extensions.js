@@ -1,3 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-require("./hardhat-types");
+exports._hardhatDiamondsTypesLoaded = void 0;
+require("hardhat/types/config");
+// Export a dummy value to ensure the module is executed
+exports._hardhatDiamondsTypesLoaded = true;

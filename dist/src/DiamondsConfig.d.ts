@@ -2,7 +2,7 @@
  * HardhatRuntimeEnvironment class
  */
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DiamondPathsConfig, DiamondsPathsConfig } from "./interfaces";
+import { DiamondPathsConfig, DiamondsPathsConfig } from "./type-extensions";
 export declare class DiamondsConfig {
     private hre;
     diamonds: DiamondsPathsConfig;

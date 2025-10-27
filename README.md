@@ -16,7 +16,10 @@ This plugin works in conjunction with the [`diamonds`](https://github.com/Genius
 ## Features
 
 - **Diamond Configuration Management**: Centralized configuration for multiple Diamond contracts
+- **Diamond ABI Generation**: Generate combined ABIs from Diamond proxy configurations
+- **TypeScript Type Generation**: Automatic TypeChain integration for type-safe contract interactions
 - **Type-Safe Integration**: Full TypeScript support with proper type definitions
+- **Hardhat Tasks**: Built-in tasks for Diamond operations and development workflow
 - **Hardhat Integration**: Seamless integration with existing Hardhat workflows
 - **ERC-2535 Compliance**: Built specifically for the Diamond Proxy Standard
 
@@ -72,26 +75,264 @@ export default config;
 
 ## Usage
 
-Once configured, the plugin extends the Hardhat Runtime Environment with a `diamonds` object:
+Once configured, the plugin extends the Hardhat Runtime Environment with a `diamonds` object and provides built-in tasks for Diamond operations.
+
+### Hardhat Tasks
+
+The plugin provides several built-in tasks for Diamond contract operations:
+
+#### `diamond:generate-abi`
+
+Generate a combined ABI for a Diamond proxy contract from its facet configurations.
+
+```bash
+# Basic usage
+npx hardhat diamond:generate-abi --diamond-name ExampleDiamond
+
+# With custom output directory
+npx hardhat diamond:generate-abi --diamond-name MyDiamond --output-dir ./custom-abi
+
+# With verbose logging
+npx hardhat diamond:generate-abi --diamond-name MyDiamond --verbose
+
+# For specific network
+npx hardhat diamond:generate-abi --diamond-name MyDiamond --network sepolia
+```
+
+**Parameters:**
+
+- `--diamond-name` (required): Name of the diamond to generate ABI for
+- `--output-dir` (optional): Output directory for generated ABI files (default: `./diamond-abi`)
+- `--verbose` (flag): Enable verbose logging
+- `--validate-selectors` (flag): Validate function selector uniqueness (default: enabled)
+- `--include-source-info` (flag): Include compilation metadata in ABI (default: enabled)
+- `--network` (optional): Target network (uses current network if not specified)
+
+#### `diamond:generate-abi-typechain`
+
+Generate both a Diamond ABI and TypeScript types using TypeChain.
+
+```bash
+# Basic usage
+npx hardhat diamond:generate-abi-typechain --diamond-name ExampleDiamond
+
+# With custom TypeChain target
+npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --typechain-target ethers-v6
+
+# With custom output directories
+npx hardhat diamond:generate-abi-typechain \
+  --diamond-name MyDiamond \
+  --output-dir ./custom-abi \
+  --typechain-out-dir ./custom-types
+
+# Full verbose output
+npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose
+```
+
+**Parameters:**
+
+- `--diamond-name` (required): Name of the diamond to generate ABI and types for
+- `--output-dir` (optional): Output directory for generated ABI files (default: `./diamond-abi`)
+- `--typechain-target` (optional): TypeChain target (default: `ethers-v6`)
+  - Supported targets: `ethers-v6`, `ethers-v5`, `web3-v1`, `truffle-v5`
+- `--typechain-out-dir` (optional): TypeChain output directory (default: `./diamond-typechain-types`)
+- `--verbose` (flag): Enable verbose logging
+- `--validate-selectors` (flag): Validate function selector uniqueness
+- `--include-source-info` (flag): Include compilation metadata in ABI
+- `--network` (optional): Target network
+
+### Programmatic Usage
+
+You can also use the Diamond functionality programmatically in your scripts and tasks:
 
 ```typescript
 import { task } from "hardhat/config";
+import { generateDiamondAbi } from "hardhat-diamonds";
 
 task("diamond-info", "Get diamond configuration")
   .addParam("name", "Diamond name")
   .setAction(async (taskArgs, hre) => {
+    // Get diamond configuration
     const config = hre.diamonds.getDiamondConfig(taskArgs.name);
     console.log("Diamond configuration:", config);
+    
+    // Generate ABI programmatically
+    const abiResult = await generateDiamondAbi(hre, {
+      diamondName: taskArgs.name,
+      verbose: true,
+    });
+    
+    console.log("Generated ABI with", abiResult.stats.totalFunctions, "functions");
   });
 ```
 
-### API Reference
+### Frontend Integration
 
-#### `hre.diamonds`
+After generating types with TypeChain, you can use them in your frontend applications:
+
+```typescript
+// Import generated types
+import { ExampleDiamond__factory } from "./diamond-typechain-types";
+import { ethers } from "ethers";
+
+// Connect to your Diamond contract with full type safety
+const provider = new ethers.JsonRpcProvider("https://your-rpc-url");
+const signer = provider.getSigner();
+
+// Use the factory to connect to deployed Diamond
+const diamond = ExampleDiamond__factory.connect("0x...", signer);
+
+// All function calls are now type-safe
+const result = await diamond.someFunction();
+```
+
+## Migration Guide
+
+If you're currently using the standalone scripts, here's how to migrate to the new Hardhat tasks:
+
+### From `scripts/diamond-abi-generator.ts`
+
+**Before:**
+
+```bash
+npx ts-node scripts/diamond-abi-generator.ts --diamond-name ExampleDiamond
+```
+
+**After:**
+
+```bash
+npx hardhat diamond:generate-abi --diamond-name ExampleDiamond
+```
+
+### From `scripts/generate-diamond-abi-with-typechain.ts`
+
+**Before:**
+
+```bash
+npx ts-node scripts/generate-diamond-abi-with-typechain.ts --diamond-name ExampleDiamond
+```
+
+**After:**
+
+```bash
+npx hardhat diamond:generate-abi-typechain --diamond-name ExampleDiamond
+```
+
+### Benefits of Migration
+
+1. **Better Integration**: Tasks are fully integrated with Hardhat's runtime environment
+2. **Improved Error Handling**: Professional error messages and validation
+3. **Network Support**: Automatic network configuration from Hardhat config
+4. **Progress Feedback**: Real-time progress indicators for long operations
+5. **Consistent CLI**: Follows Hardhat's parameter and flag conventions
+6. **Type Safety**: Full TypeScript support with proper type checking
+
+### Breaking Changes
+
+- Parameter names follow Hardhat conventions (kebab-case instead of camelCase)
+- Default output directories have changed:
+  - ABI output: `./diamond-abi` (was `./artifacts/diamond-abi`)
+  - TypeChain output: `./diamond-typechain-types` (was `./typechain-types`)
+- Requires plugin installation and configuration in `hardhat.config.ts`
+
+### Configuration Migration
+
+Update your `hardhat.config.ts` to include the plugin:
+
+```typescript
+import { HardhatUserConfig } from "hardhat/config";
+import "hardhat-diamonds";
+
+const config: HardhatUserConfig = {
+  // ... your existing config
+};
+
+export default config;
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### "Diamond configuration not found"
+
+Make sure your diamond configuration file exists in the expected location:
+
+```text
+diamonds/
+  YourDiamondName/
+    yourdiamondname.config.json
+```
+
+The diamond name is case-sensitive and should match the directory name.
+
+#### "TypeChain not found" or "Unknown TypeChain target"
+
+Install TypeChain and the required target package:
+
+```bash
+# For ethers-v6 (default)
+yarn add --dev typechain @typechain/ethers-v6
+
+# For ethers-v5
+yarn add --dev typechain @typechain/ethers-v5
+
+# For web3-v1
+yarn add --dev typechain @typechain/web3-v1
+```
+
+#### "No facets found for diamond"
+
+Ensure your diamond configuration includes valid facet contracts:
+
+```json
+{
+  "facets": [
+    {
+      "name": "ExampleOwnershipFacet",
+      "contract": "ExampleOwnershipFacet"
+    }
+  ]
+}
+```
+
+#### "Function selector collision detected"
+
+This indicates duplicate function selectors across facets. Use `--verbose` to see details:
+
+```bash
+npx hardhat diamond:generate-abi --diamond-name MyDiamond --verbose
+```
+
+Review your facet contracts to ensure unique function signatures.
+
+#### Permission errors on output directories
+
+Ensure you have write permissions to the output directory, or specify a different one:
+
+```bash
+npx hardhat diamond:generate-abi --diamond-name MyDiamond --output-dir ./custom-path
+```
+
+### Performance Tips
+
+- Use `--no-validate-selectors` to skip validation for faster generation during development
+- Specify `--typechain-target` explicitly to avoid auto-detection overhead
+- Use absolute paths for output directories to avoid path resolution issues
+
+### Getting Help
+
+- Use `--verbose` flag for detailed logging
+- Check the generated files in `diamond-abi/` for ABI structure
+- Review TypeChain documentation for target-specific usage patterns
+
+## API Reference
+
+### `hre.diamonds`
 
 The main interface for accessing Diamond functionality.
 
-##### `getDiamondConfig(diamondName: string): DiamondPathsConfig`
+#### `getDiamondConfig(diamondName: string): DiamondPathsConfig`
 
 Retrieves the configuration for a specific Diamond contract.
 

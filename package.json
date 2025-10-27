@@ -1,6 +1,6 @@
 {
   "name": "hardhat-diamonds",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Tools for deploying and interfacing with ERC-2535 Diamond Proxies",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -59,7 +59,7 @@
     "@typescript-eslint/parser": "^8.8.0",
     "@typescript-eslint/types": "^8.8.0",
     "chai": "^4.5.0",
-    "diamonds": "https://github.com/GeniusVentures/diamonds.git",
+    "diamonds": "https://github.com/GeniusVentures/diamonds.git#develop",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
@@ -79,5 +79,5 @@
     "ethers": "^6.0.0",
     "hardhat": "^2.0.0"
   },
-  "packageManager": "yarn@4.6.0"
+  "packageManager": "yarn@4.9.3"
 }

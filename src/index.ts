@@ -1,9 +1,11 @@
 import { extendConfig, extendEnvironment } from "hardhat/config";
 import { HardhatConfig, HardhatUserConfig } from "hardhat/types";
 import { lazyObject } from "hardhat/plugins";
-import { DiamondsPathsConfig } from "./interfaces";
+import { DiamondsPathsConfig } from "./type-extensions";
 import { DiamondsConfig } from "./DiamondsConfig";
-import "./type-extensions";
+
+// Import tasks to register them with Hardhat
+import "./tasks";
 
 extendConfig(
   (config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
@@ -25,5 +27,8 @@ extendEnvironment((hre) => {
   hre.diamonds = lazyObject(() => new DiamondsConfig(hre));
 });
 
-export { DiamondsConfig } from "./DiamondsConfig";
-export * from "./interfaces";
+// Export main configuration class
+export { default as DiamondsConfig } from "./DiamondsConfig";
+
+// Re-export all task-related exports for external use
+export * from "./tasks";
