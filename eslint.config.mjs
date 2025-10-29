@@ -49,10 +49,10 @@ export default [
       "@typescript-eslint/no-namespace": "off",
       "@typescript-eslint/no-var-requires": "off",
       "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
 
       // General
-      "no-console": "warn",
+      "no-console": "off",
       "no-debugger": "error",
       "no-unused-vars": "off",
     },
