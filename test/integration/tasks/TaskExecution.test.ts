@@ -1,28 +1,31 @@
 import { expect } from "chai";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { 
-  generateDiamondAbi, 
-  HardhatDiamondAbiGenerator 
+import { tmpdir } from "os";
+import { mkdtempSync, rmSync } from "fs";
+import { join } from "path";
+import {
+  generateDiamondAbi,
+  HardhatDiamondAbiGenerator,
 } from "../../../src/lib/DiamondAbiGenerator";
-import { 
-  generateTypeChainTypes, 
-  HardhatTypeChainIntegration 
+import {
+  generateTypeChainTypes,
+  HardhatTypeChainIntegration,
 } from "../../../src/lib/TypeChainIntegration";
-import { 
-  getDiamondTasks, 
-  isDiamondTask, 
-  getDiamondTasksHelp 
+import {
+  getDiamondTasks,
+  isDiamondTask,
+  getDiamondTasksHelp,
 } from "../../../src/tasks";
 
 // Mock Hardhat Runtime Environment for integration testing
-const createMockHRE = (): any => ({
+const createMockHRE = (testRoot: string): any => ({
   config: {
     paths: {
-      root: "/test/project",
-      sources: "/test/project/contracts",
-      artifacts: "/test/project/artifacts",
-      cache: "/test/project/cache",
-      tests: "/test/project/test",
+      root: testRoot,
+      sources: join(testRoot, "contracts"),
+      artifacts: join(testRoot, "artifacts"),
+      cache: join(testRoot, "cache"),
+      tests: join(testRoot, "test"),
     },
   },
   network: {
@@ -53,8 +56,8 @@ const createMockHRE = (): any => ({
     getDiamondConfig: (name: string) => {
       if (name === "ExampleDiamond") {
         return {
-          deploymentsPath: "/test/project/diamonds/ExampleDiamond",
-          contractsPath: "/test/project/contracts/examplediamond",
+          deploymentsPath: join(testRoot, "diamonds/ExampleDiamond"),
+          contractsPath: join(testRoot, "contracts/examplediamond"),
         };
       }
       throw new Error(`Diamond configuration for "${name}" not found.`);
@@ -62,8 +65,8 @@ const createMockHRE = (): any => ({
     diamonds: {
       paths: {
         ExampleDiamond: {
-          deploymentsPath: "/test/project/diamonds/ExampleDiamond",
-          contractsPath: "/test/project/contracts/examplediamond",
+          deploymentsPath: join(testRoot, "diamonds/ExampleDiamond"),
+          contractsPath: join(testRoot, "contracts/examplediamond"),
         },
       },
     },
@@ -72,9 +75,23 @@ const createMockHRE = (): any => ({
 
 describe("Task Integration Tests", () => {
   let mockHRE: any;
+  let testRoot: string;
 
   beforeEach(() => {
-    mockHRE = createMockHRE();
+    // Create a temporary directory for each test
+    testRoot = mkdtempSync(join(tmpdir(), "hardhat-diamonds-test-"));
+    mockHRE = createMockHRE(testRoot);
+  });
+
+  afterEach(() => {
+    // Clean up temporary directory
+    if (testRoot) {
+      try {
+        rmSync(testRoot, { recursive: true, force: true });
+      } catch (error) {
+        // Ignore cleanup errors
+      }
+    }
   });
 
   describe("Diamond ABI Generation Integration", () => {
@@ -84,7 +101,10 @@ describe("Task Integration Tests", () => {
         verbose: false,
       };
 
-      const generator = new HardhatDiamondAbiGenerator(mockHRE as HardhatRuntimeEnvironment, options);
+      const generator = new HardhatDiamondAbiGenerator(
+        mockHRE as HardhatRuntimeEnvironment,
+        options
+      );
       expect(generator).to.be.instanceOf(HardhatDiamondAbiGenerator);
     });
 
@@ -95,8 +115,11 @@ describe("Task Integration Tests", () => {
       };
 
       // This should fall back to configuration-based generation
-      const result = await generateDiamondAbi(mockHRE as HardhatRuntimeEnvironment, options);
-      
+      const result = await generateDiamondAbi(
+        mockHRE as HardhatRuntimeEnvironment,
+        options
+      );
+
       expect(result).to.have.property("abi");
       expect(result).to.have.property("selectorMap");
       expect(result).to.have.property("facetAddresses");
@@ -125,14 +148,18 @@ describe("Task Integration Tests", () => {
 
   describe("TypeChain Integration", () => {
     it("should create HardhatTypeChainIntegration instance", () => {
-      const integration = new HardhatTypeChainIntegration(mockHRE as HardhatRuntimeEnvironment);
+      const integration = new HardhatTypeChainIntegration(
+        mockHRE as HardhatRuntimeEnvironment
+      );
       expect(integration).to.be.instanceOf(HardhatTypeChainIntegration);
     });
 
     it("should validate TypeChain setup", async () => {
-      const integration = new HardhatTypeChainIntegration(mockHRE as HardhatRuntimeEnvironment);
+      const integration = new HardhatTypeChainIntegration(
+        mockHRE as HardhatRuntimeEnvironment
+      );
       const validation = await integration.validateTypeChainSetup(false);
-      
+
       expect(validation).to.have.property("isValid");
       expect(validation).to.have.property("issues");
       expect(validation).to.have.property("suggestions");
@@ -146,8 +173,11 @@ describe("Task Integration Tests", () => {
         verbose: false,
       };
 
-      const result = await generateTypeChainTypes(mockHRE as HardhatRuntimeEnvironment, options);
-      
+      const result = await generateTypeChainTypes(
+        mockHRE as HardhatRuntimeEnvironment,
+        options
+      );
+
       expect(result).to.have.property("success");
       expect(result.success).to.be.false;
       expect(result).to.have.property("error");
@@ -159,9 +189,9 @@ describe("Task Integration Tests", () => {
       const tasks = getDiamondTasks();
       expect(tasks).to.be.an("array");
       expect(tasks.length).to.be.greaterThan(0);
-      
+
       // Check that our tasks are registered
-      const taskNames = tasks.map(task => task.name);
+      const taskNames = tasks.map((task) => task.name);
       expect(taskNames).to.include("diamond:generate-abi");
       expect(taskNames).to.include("diamond:generate-abi-typechain");
     });
@@ -215,26 +245,37 @@ describe("Task Integration Tests", () => {
       };
 
       // Should still complete with fallback behavior
-      const result = await generateDiamondAbi(mockHRE as HardhatRuntimeEnvironment, options);
+      const result = await generateDiamondAbi(
+        mockHRE as HardhatRuntimeEnvironment,
+        options
+      );
       expect(result).to.have.property("stats");
     });
   });
 
   describe("Configuration Integration", () => {
     it("should use hardhat paths configuration", () => {
-      const generator = new HardhatDiamondAbiGenerator(mockHRE as HardhatRuntimeEnvironment, {
-        diamondName: "ExampleDiamond",
-      });
+      const generator = new HardhatDiamondAbiGenerator(
+        mockHRE as HardhatRuntimeEnvironment,
+        {
+          diamondName: "ExampleDiamond",
+        }
+      );
 
-      // Should use paths from HRE config
-      expect(mockHRE.config.paths.root).to.equal("/test/project");
-      expect(mockHRE.config.paths.sources).to.equal("/test/project/contracts");
+      // Should use paths from HRE config (now using temp directory)
+      expect(mockHRE.config.paths.root).to.equal(testRoot);
+      expect(mockHRE.config.paths.sources).to.equal(
+        join(testRoot, "contracts")
+      );
     });
 
     it("should use network configuration", () => {
-      const generator = new HardhatDiamondAbiGenerator(mockHRE as HardhatRuntimeEnvironment, {
-        diamondName: "ExampleDiamond",
-      });
+      const generator = new HardhatDiamondAbiGenerator(
+        mockHRE as HardhatRuntimeEnvironment,
+        {
+          diamondName: "ExampleDiamond",
+        }
+      );
 
       // Should use network from HRE
       expect(mockHRE.network.name).to.equal("hardhat");
@@ -249,16 +290,19 @@ describe("Task Integration Tests", () => {
   });
 
   describe("Performance and Reliability", () => {
-    it("should complete ABI generation within reasonable time", async function() {
+    it("should complete ABI generation within reasonable time", async function () {
       this.timeout(10000); // 10 second timeout
-      
+
       const options = {
         diamondName: "ExampleDiamond",
         verbose: false,
       };
 
       const startTime = Date.now();
-      const result = await generateDiamondAbi(mockHRE as HardhatRuntimeEnvironment, options);
+      const result = await generateDiamondAbi(
+        mockHRE as HardhatRuntimeEnvironment,
+        options
+      );
       const duration = Date.now() - startTime;
 
       expect(duration).to.be.lessThan(5000); // Should complete in under 5 seconds
@@ -272,14 +316,16 @@ describe("Task Integration Tests", () => {
       };
 
       // Run multiple generations concurrently
-      const promises = Array(3).fill(null).map(() => 
-        generateDiamondAbi(mockHRE as HardhatRuntimeEnvironment, options)
-      );
+      const promises = Array(3)
+        .fill(null)
+        .map(() =>
+          generateDiamondAbi(mockHRE as HardhatRuntimeEnvironment, options)
+        );
 
       const results = await Promise.all(promises);
-      
+
       // All should complete successfully
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result).to.have.property("stats");
       });
     });

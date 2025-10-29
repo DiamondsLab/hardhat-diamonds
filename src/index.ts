@@ -28,7 +28,7 @@ extendEnvironment((hre) => {
 });
 
 // Export main configuration class
-export { default as DiamondsConfig } from "./DiamondsConfig";
+export { DiamondsConfig } from "./DiamondsConfig";
 
 // Re-export all task-related exports for external use
 export * from "./tasks";

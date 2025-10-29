@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("hardhat/config");
 const chalk_1 = __importDefault(require("chalk"));
 const fs_1 = require("fs");
 const DiamondAbiGenerator_1 = require("../lib/DiamondAbiGenerator");
 const TypeChainIntegration_1 = require("../lib/TypeChainIntegration");
 const TaskValidation_1 = require("./shared/TaskValidation");
 const TaskHelpers_1 = require("./shared/TaskHelpers");
+// Import task function - using require to avoid TypeScript module resolution issues
+const { task } = require("hardhat/config");
 /**
  * Diamond ABI Generation with TypeChain Task
  *
@@ -17,7 +18,7 @@ const TaskHelpers_1 = require("./shared/TaskHelpers");
  * type definitions using TypeChain. It first generates the Diamond ABI and then
  * automatically creates TypeScript types for use in frontend applications and tests.
  */
-(0, config_1.task)("diamond:generate-abi-typechain", "Generate Diamond ABI and TypeScript types using TypeChain")
+task("diamond:generate-abi-typechain", "Generate Diamond ABI and TypeScript types using TypeChain")
     .addParam("diamondName", "Name of the diamond to generate ABI and types for", undefined, undefined, false)
     .addOptionalParam("outputDir", "Output directory for generated ABI files", "./diamond-abi")
     .addOptionalParam("typechainTarget", "TypeChain target (ethers-v6, ethers-v5, web3-v1, truffle-v5)", "ethers-v6")

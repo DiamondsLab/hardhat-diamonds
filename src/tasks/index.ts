@@ -1,6 +1,6 @@
 /**
  * Task registration entry point for hardhat-diamonds plugin
- * 
+ *
  * This module imports and registers all Hardhat tasks provided by the
  * hardhat-diamonds plugin. Tasks are automatically registered when this
  * module is imported by the main plugin entry point.
@@ -24,14 +24,14 @@ export { TaskValidation } from "./shared/TaskValidation";
 export { TaskHelpers, ProgressIndicator } from "./shared/TaskHelpers";
 
 // Re-export library functions for programmatic use
-export { 
-  HardhatDiamondAbiGenerator, 
-  generateDiamondAbi 
+export {
+  HardhatDiamondAbiGenerator,
+  generateDiamondAbi,
 } from "../lib/DiamondAbiGenerator";
 
-export { 
-  HardhatTypeChainIntegration, 
-  generateTypeChainTypes 
+export {
+  HardhatTypeChainIntegration,
+  generateTypeChainTypes,
 } from "../lib/TypeChainIntegration";
 
 /**
@@ -51,14 +51,19 @@ export const HARDHAT_DIAMONDS_TASKS = {
     description: "Generate Diamond ABI and TypeScript types using TypeChain",
     category: "Diamond Proxy",
     requiredParams: ["diamondName"],
-    optionalParams: ["outputDir", "typechainTarget", "typechainOutDir", "network"],
+    optionalParams: [
+      "outputDir",
+      "typechainTarget",
+      "typechainOutDir",
+      "network",
+    ],
     flags: ["verbose", "validateSelectors", "includeSourceInfo"],
   },
 } as const;
 
 /**
  * Get information about available diamond tasks
- * 
+ *
  * @returns Array of task metadata objects
  */
 export function getDiamondTasks() {
@@ -67,7 +72,7 @@ export function getDiamondTasks() {
 
 /**
  * Check if a task is a diamond task
- * 
+ *
  * @param taskName - Name of the task to check
  * @returns Whether the task is a diamond task
  */
@@ -77,37 +82,39 @@ export function isDiamondTask(taskName: string): boolean {
 
 /**
  * Get help information for diamond tasks
- * 
+ *
  * @returns Formatted help text
  */
 export function getDiamondTasksHelp(): string {
   const tasks = getDiamondTasks();
-  
+
   let help = "🔹 Diamond Proxy Tasks:\n\n";
-  
-  tasks.forEach(task => {
+
+  tasks.forEach((task) => {
     help += `  ${task.name}\n`;
     help += `    ${task.description}\n`;
-    
+
     if (task.requiredParams.length > 0) {
       help += `    Required: ${task.requiredParams.join(", ")}\n`;
     }
-    
+
     if (task.optionalParams.length > 0) {
       help += `    Optional: ${task.optionalParams.join(", ")}\n`;
     }
-    
+
     if (task.flags.length > 0) {
-      help += `    Flags: ${task.flags.map(flag => `--${flag}`).join(", ")}\n`;
+      help += `    Flags: ${task.flags.map((flag) => `--${flag}`).join(", ")}\n`;
     }
-    
+
     help += "\n";
   });
-  
+
   help += "Examples:\n";
   help += "  npx hardhat diamond:generate-abi --diamond-name ExampleDiamond\n";
-  help += "  npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose\n";
-  help += "  npx hardhat diamond:generate-abi --diamond-name TestDiamond --output-dir ./custom-abi\n";
-  
+  help +=
+    "  npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose\n";
+  help +=
+    "  npx hardhat diamond:generate-abi --diamond-name TestDiamond --output-dir ./custom-abi\n";
+
   return help;
 }

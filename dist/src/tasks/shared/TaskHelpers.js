@@ -363,8 +363,11 @@ class TaskHelpers {
         normalized.verbose = normalized.enableVerbose ?? false;
         normalized.validateSelectors = normalized.validateSelectors ?? true;
         normalized.includeSourceInfo = normalized.includeSourceInfo ?? true;
-        // For TypeChain args
-        if ('typechainTarget' in normalized) {
+        // For TypeChain args - check if this looks like a TypeChain task
+        // by checking if it has typechainTarget or typechainOutDir properties OR
+        // if the args object was passed as DiamondAbiTypechainTaskArgs
+        const hasTypechainProps = 'typechainTarget' in args || 'typechainOutDir' in args;
+        if (hasTypechainProps || args.__isTypechainTask) {
             const typechainArgs = normalized;
             typechainArgs.typechainTarget = typechainArgs.typechainTarget || 'ethers-v6';
             typechainArgs.typechainOutDir = typechainArgs.typechainOutDir || (0, path_1.join)(this.hre.config.paths.root, 'diamond-typechain-types');

@@ -3,7 +3,9 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2022,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.eslint.json",
+    "tsconfigRootDir": "."
   },
   "plugins": ["prettier"],
   "extends": ["eslint:recommended", "prettier"],

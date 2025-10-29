@@ -51,7 +51,7 @@ class TaskValidation {
             }
         }
         // Validate optional output directory
-        if (args.outputDir !== undefined) {
+        if (args.outputDir !== undefined && args.outputDir !== null) {
             const outputDirValidation = this.validateOutputDirectory(args.outputDir);
             if (!outputDirValidation.isValid) {
                 errors.push(...outputDirValidation.errors);
@@ -59,7 +59,7 @@ class TaskValidation {
             }
         }
         // Validate network if provided
-        if (args.targetNetwork !== undefined) {
+        if (args.targetNetwork !== undefined && args.targetNetwork !== null) {
             const networkValidation = this.validateNetwork(args.targetNetwork);
             if (!networkValidation.isValid) {
                 errors.push(...networkValidation.errors);

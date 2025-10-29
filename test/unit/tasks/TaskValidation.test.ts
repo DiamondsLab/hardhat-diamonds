@@ -1,7 +1,10 @@
 import { expect } from "chai";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { TaskValidation } from "../../../src/tasks/shared/TaskValidation";
-import { DiamondAbiTaskArgs, DiamondAbiTypechainTaskArgs } from "../../../src/tasks/shared/TaskOptions";
+import {
+  DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs,
+} from "../../../src/tasks/shared/TaskOptions";
 
 // Mock Hardhat Runtime Environment
 const createMockHRE = (): any => ({
@@ -112,7 +115,7 @@ describe("TaskValidation", () => {
     it("should reject invalid network", () => {
       const args: DiamondAbiTaskArgs = {
         diamondName: "ExampleDiamond",
-        network: "nonexistent",
+        targetNetwork: "nonexistent",
       };
 
       const result = validation.validateDiamondAbiArgs(args);
@@ -154,7 +157,8 @@ describe("TaskValidation", () => {
 
       const result = validation.validateDiamondAbiTypechainArgs(args);
       expect(result.isValid).to.be.false;
-      expect(result.errors.some(e => e.field === "typechainTarget")).to.be.true;
+      expect(result.errors.some((e) => e.field === "typechainTarget")).to.be
+        .true;
     });
 
     it("should accept valid TypeChain targets", () => {
@@ -180,7 +184,8 @@ describe("TaskValidation", () => {
     });
 
     it("should reject non-existing diamond configuration", () => {
-      const result = validation.validateDiamondConfiguration("NonExistentDiamond");
+      const result =
+        validation.validateDiamondConfiguration("NonExistentDiamond");
       expect(result.isValid).to.be.false;
       expect(result.errors).to.have.lengthOf(1);
       expect(result.errors[0].field).to.equal("diamondName");
@@ -265,29 +270,39 @@ describe("TaskValidation", () => {
       const args: DiamondAbiTaskArgs = {
         diamondName: "ExampleDiamond",
         outputDir: "",
-        network: "",
+        targetNetwork: "",
       };
 
       const result = validation.validateDiamondAbiArgs(args);
       // Empty string for outputDir should be invalid
       expect(result.isValid).to.be.false;
-      expect(result.errors.some(e => e.field === "outputDir")).to.be.true;
-      expect(result.errors.some(e => e.field === "network")).to.be.true;
+      expect(result.errors.some((e) => e.field === "outputDir")).to.be.true;
+      expect(result.errors.some((e) => e.field === "network")).to.be.true;
     });
 
     it("should handle special characters in diamond name", () => {
-      const invalidNames = ["Diamond-Name", "Diamond.Name", "Diamond Name", "Diamond@Name"];
+      const invalidNames = [
+        "Diamond-Name",
+        "Diamond.Name",
+        "Diamond Name",
+        "Diamond@Name",
+      ];
 
       for (const name of invalidNames) {
         const args: DiamondAbiTaskArgs = { diamondName: name };
         const result = validation.validateDiamondAbiArgs(args);
         expect(result.isValid).to.be.false;
-        expect(result.errors.some(e => e.field === "diamondName")).to.be.true;
+        expect(result.errors.some((e) => e.field === "diamondName")).to.be.true;
       }
     });
 
     it("should accept valid diamond names with underscores and numbers", () => {
-      const validNames = ["ExampleDiamond", "Test_Diamond", "Diamond123", "My_Diamond_V2"];
+      const validNames = [
+        "ExampleDiamond",
+        "Test_Diamond",
+        "Diamond123",
+        "My_Diamond_V2",
+      ];
 
       for (const name of validNames) {
         const args: DiamondAbiTaskArgs = { diamondName: name };

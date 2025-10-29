@@ -1,16 +1,16 @@
-import { spawn, SpawnOptions } from 'child_process';
-import { join } from 'path';
-import { existsSync, mkdirSync, readdirSync, statSync } from 'fs';
-import chalk from 'chalk';
+import { spawn, SpawnOptions } from "child_process";
+import { join } from "path";
+import { existsSync, mkdirSync, readdirSync, statSync } from "fs";
+import chalk from "chalk";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { 
-  TypeChainGenerationOptions, 
-  TypeChainGenerationResult 
+import {
+  TypeChainGenerationOptions,
+  TypeChainGenerationResult,
 } from "../tasks/shared/TaskOptions";
 
 /**
  * TypeChain integration for hardhat-diamonds plugin
- * 
+ *
  * This class provides TypeChain integration for generating TypeScript types
  * from Diamond ABI files. It integrates with the Hardhat runtime environment
  * and provides comprehensive error handling and validation.
@@ -20,7 +20,7 @@ export class HardhatTypeChainIntegration {
 
   /**
    * Create a new HardhatTypeChainIntegration instance
-   * 
+   *
    * @param hre - Hardhat runtime environment
    */
   constructor(hre: HardhatRuntimeEnvironment) {
@@ -29,20 +29,24 @@ export class HardhatTypeChainIntegration {
 
   /**
    * Generate TypeChain types from a Diamond ABI file
-   * 
+   *
    * @param options - TypeChain generation options
    * @returns Promise resolving to generation result
    */
-  async generateTypes(options: TypeChainGenerationOptions): Promise<TypeChainGenerationResult> {
+  async generateTypes(
+    options: TypeChainGenerationOptions
+  ): Promise<TypeChainGenerationResult> {
     const {
       abiPath,
-      target = 'ethers-v6',
-      outputDir = join(this.hre.config.paths.root, 'diamond-typechain-types'),
-      verbose = false
+      target = "ethers-v6",
+      outputDir = join(this.hre.config.paths.root, "diamond-typechain-types"),
+      verbose = false,
     } = options;
 
     if (verbose) {
-      console.log(chalk.blue(`🔧 Generating TypeChain types from ${abiPath}...`));
+      console.log(
+        chalk.blue(`🔧 Generating TypeChain types from ${abiPath}...`)
+      );
     }
 
     try {
@@ -57,9 +61,11 @@ export class HardhatTypeChainIntegration {
       }
 
       // Validate TypeChain target
-      const validTargets = ['ethers-v6', 'ethers-v5', 'web3-v1', 'truffle-v5'];
+      const validTargets = ["ethers-v6", "ethers-v5", "web3-v1", "truffle-v5"];
       if (!validTargets.includes(target)) {
-        throw new Error(`Invalid TypeChain target: ${target}. Valid targets: ${validTargets.join(', ')}`);
+        throw new Error(
+          `Invalid TypeChain target: ${target}. Valid targets: ${validTargets.join(", ")}`
+        );
       }
 
       if (verbose) {
@@ -77,7 +83,11 @@ export class HardhatTypeChainIntegration {
         console.log(chalk.green(`✅ TypeChain types generated successfully!`));
         console.log(chalk.blue(`   Generated ${generatedFiles.length} files`));
         if (generatedFiles.length > 0) {
-          console.log(chalk.blue(`   Files: ${generatedFiles.slice(0, 5).join(', ')}${generatedFiles.length > 5 ? '...' : ''}`));
+          console.log(
+            chalk.blue(
+              `   Files: ${generatedFiles.slice(0, 5).join(", ")}${generatedFiles.length > 5 ? "..." : ""}`
+            )
+          );
         }
       }
 
@@ -86,12 +96,14 @@ export class HardhatTypeChainIntegration {
         generatedFiles,
         success: true,
       };
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
       if (verbose) {
-        console.error(chalk.red(`❌ TypeChain generation failed: ${errorMessage}`));
+        console.error(
+          chalk.red(`❌ TypeChain generation failed: ${errorMessage}`)
+        );
       }
 
       return {
@@ -105,7 +117,7 @@ export class HardhatTypeChainIntegration {
 
   /**
    * Run TypeChain CLI command
-   * 
+   *
    * @param abiPath - Path to ABI file
    * @param target - TypeChain target
    * @param outputDir - Output directory
@@ -119,54 +131,59 @@ export class HardhatTypeChainIntegration {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const args = [
-        'typechain',
-        '--target', target,
-        '--out-dir', outputDir,
+        "typechain",
+        "--target",
+        target,
+        "--out-dir",
+        outputDir,
         abiPath,
       ];
 
       if (verbose) {
-        console.log(chalk.cyan(`   Running: npx ${args.join(' ')}`));
+        console.log(chalk.cyan(`   Running: npx ${args.join(" ")}`));
       }
 
-      const child = spawn('npx', args, {
-        stdio: verbose ? 'inherit' : 'pipe',
+      const child = spawn("npx", args, {
+        stdio: verbose ? "inherit" : "pipe",
         cwd: this.hre.config.paths.root,
       });
 
-      let stdout = '';
-      let stderr = '';
+      let stdout = "";
+      let stderr = "";
 
       if (!verbose && child.stdout) {
-        child.stdout.on('data', (data) => {
+        child.stdout.on("data", (data) => {
           stdout += data.toString();
         });
       }
 
       if (!verbose && child.stderr) {
-        child.stderr.on('data', (data) => {
+        child.stderr.on("data", (data) => {
           stderr += data.toString();
         });
       }
 
-      child.on('close', (code) => {
+      child.on("close", (code) => {
         if (code === 0) {
           resolve();
         } else {
-          const errorOutput = stderr || stdout || `TypeChain process exited with code ${code}`;
+          const errorOutput =
+            stderr || stdout || `TypeChain process exited with code ${code}`;
           reject(new Error(`TypeChain generation failed: ${errorOutput}`));
         }
       });
 
-      child.on('error', (error) => {
-        reject(new Error(`Failed to spawn TypeChain process: ${error.message}`));
+      child.on("error", (error) => {
+        reject(
+          new Error(`Failed to spawn TypeChain process: ${error.message}`)
+        );
       });
     });
   }
 
   /**
    * Get list of generated TypeScript files in the output directory
-   * 
+   *
    * @param outputDir - Output directory to scan
    * @returns Array of generated file paths
    */
@@ -177,20 +194,20 @@ export class HardhatTypeChainIntegration {
 
     const files: string[] = [];
 
-    const scanDirectory = (dir: string, relativePath = '') => {
+    const scanDirectory = (dir: string, relativePath = "") => {
       try {
         const entries = readdirSync(dir);
-        
+
         for (const entry of entries) {
           const fullPath = join(dir, entry);
           const relativeFilePath = join(relativePath, entry);
-          
+
           try {
             const stat = statSync(fullPath);
-            
+
             if (stat.isDirectory()) {
               scanDirectory(fullPath, relativeFilePath);
-            } else if (stat.isFile() && entry.endsWith('.ts')) {
+            } else if (stat.isFile() && entry.endsWith(".ts")) {
               files.push(relativeFilePath);
             }
           } catch {
@@ -208,7 +225,7 @@ export class HardhatTypeChainIntegration {
 
   /**
    * Validate TypeChain installation and configuration
-   * 
+   *
    * @param verbose - Whether to show verbose output
    * @returns Promise resolving to validation result
    */
@@ -221,48 +238,55 @@ export class HardhatTypeChainIntegration {
     const suggestions: string[] = [];
 
     if (verbose) {
-      console.log(chalk.blue('🔍 Validating TypeChain setup...'));
+      console.log(chalk.blue("🔍 Validating TypeChain setup..."));
     }
 
     try {
       // Check if TypeChain is available using --help instead of --version
-      await this.runCommand('npx', ['typechain', '--help'], { stdio: 'pipe' });
-      
+      await this.runCommand("npx", ["typechain", "--help"], { stdio: "pipe" });
+
       if (verbose) {
-        console.log(chalk.green('   ✅ TypeChain CLI is available'));
+        console.log(chalk.green("   ✅ TypeChain CLI is available"));
       }
     } catch {
-      issues.push('TypeChain CLI is not available');
-      suggestions.push('Install TypeChain: npm install --save-dev typechain @typechain/ethers-v6');
+      issues.push("TypeChain CLI is not available");
+      suggestions.push(
+        "Install TypeChain: npm install --save-dev typechain @typechain/ethers-v6"
+      );
     }
 
     try {
       // Check if ethers is available (required for ethers-v6 target)
-      await this.runCommand('node', ['-e', 'require("ethers")'], { stdio: 'pipe' });
-      
+      await this.runCommand("node", ["-e", 'require("ethers")'], {
+        stdio: "pipe",
+      });
+
       if (verbose) {
-        console.log(chalk.green('   ✅ Ethers.js is available'));
+        console.log(chalk.green("   ✅ Ethers.js is available"));
       }
     } catch {
-      issues.push('Ethers.js is not available');
-      suggestions.push('Install Ethers.js: npm install --save-dev ethers');
+      issues.push("Ethers.js is not available");
+      suggestions.push("Install Ethers.js: npm install --save-dev ethers");
     }
 
     // Check package.json for TypeChain dependencies
     try {
-      const packageJsonPath = join(this.hre.config.paths.root, 'package.json');
+      const packageJsonPath = join(this.hre.config.paths.root, "package.json");
       if (existsSync(packageJsonPath)) {
         const packageJson = require(packageJsonPath);
-        const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
-        
+        const deps = {
+          ...packageJson.dependencies,
+          ...packageJson.devDependencies,
+        };
+
         if (!deps.typechain) {
-          issues.push('TypeChain not found in package.json dependencies');
-          suggestions.push('Add TypeChain to your dependencies');
+          issues.push("TypeChain not found in package.json dependencies");
+          suggestions.push("Add TypeChain to your dependencies");
         }
-        
-        if (!deps['@typechain/ethers-v6'] && !deps['@typechain/ethers-v5']) {
-          issues.push('TypeChain ethers target not found in dependencies');
-          suggestions.push('Add @typechain/ethers-v6 to your dependencies');
+
+        if (!deps["@typechain/ethers-v6"] && !deps["@typechain/ethers-v5"]) {
+          issues.push("TypeChain ethers target not found in dependencies");
+          suggestions.push("Add @typechain/ethers-v6 to your dependencies");
         }
       }
     } catch {
@@ -273,11 +297,17 @@ export class HardhatTypeChainIntegration {
 
     if (verbose) {
       if (isValid) {
-        console.log(chalk.green('✅ TypeChain setup is valid'));
+        console.log(chalk.green("✅ TypeChain setup is valid"));
       } else {
-        console.log(chalk.yellow(`⚠️  Found ${issues.length} issue(s) with TypeChain setup`));
-        issues.forEach(issue => console.log(chalk.red(`   - ${issue}`)));
-        suggestions.forEach(suggestion => console.log(chalk.cyan(`   💡 ${suggestion}`)));
+        console.log(
+          chalk.yellow(
+            `⚠️  Found ${issues.length} issue(s) with TypeChain setup`
+          )
+        );
+        issues.forEach((issue) => console.log(chalk.red(`   - ${issue}`)));
+        suggestions.forEach((suggestion) =>
+          console.log(chalk.cyan(`   💡 ${suggestion}`))
+        );
       }
     }
 
@@ -286,7 +316,7 @@ export class HardhatTypeChainIntegration {
 
   /**
    * Run a command and return a promise
-   * 
+   *
    * @param command - Command to run
    * @param args - Command arguments
    * @param options - Spawn options
@@ -299,35 +329,37 @@ export class HardhatTypeChainIntegration {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const child = spawn(command, args, {
-        stdio: 'pipe',
+        stdio: "pipe",
         cwd: this.hre.config.paths.root,
         ...options,
       });
 
-      let stdout = '';
-      let stderr = '';
+      let stdout = "";
+      let stderr = "";
 
       if (child.stdout) {
-        child.stdout.on('data', (data) => {
+        child.stdout.on("data", (data) => {
           stdout += data.toString();
         });
       }
 
       if (child.stderr) {
-        child.stderr.on('data', (data) => {
+        child.stderr.on("data", (data) => {
           stderr += data.toString();
         });
       }
 
-      child.on('close', (code) => {
+      child.on("close", (code) => {
         if (code === 0) {
           resolve();
         } else {
-          reject(new Error(`Command failed with code ${code}: ${stderr || stdout}`));
+          reject(
+            new Error(`Command failed with code ${code}: ${stderr || stdout}`)
+          );
         }
       });
 
-      child.on('error', (error) => {
+      child.on("error", (error) => {
         reject(error);
       });
     });
@@ -336,7 +368,7 @@ export class HardhatTypeChainIntegration {
 
 /**
  * Convenience function to generate TypeChain types using Hardhat runtime environment
- * 
+ *
  * @param hre - Hardhat runtime environment
  * @param options - TypeChain generation options
  * @returns Promise resolving to generation result

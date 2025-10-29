@@ -13,9 +13,6 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiamondsConfig = void 0;
 const config_1 = require("hardhat/config");
@@ -41,6 +38,6 @@ require("./tasks");
 });
 // Export main configuration class
 var DiamondsConfig_2 = require("./DiamondsConfig");
-Object.defineProperty(exports, "DiamondsConfig", { enumerable: true, get: function () { return __importDefault(DiamondsConfig_2).default; } });
+Object.defineProperty(exports, "DiamondsConfig", { enumerable: true, get: function () { return DiamondsConfig_2.DiamondsConfig; } });
 // Re-export all task-related exports for external use
 __exportStar(require("./tasks"), exports);

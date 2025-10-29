@@ -1,7 +1,13 @@
 import { expect } from "chai";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { TaskHelpers, ProgressIndicator } from "../../../src/tasks/shared/TaskHelpers";
-import { DiamondAbiTaskArgs, DiamondAbiTypechainTaskArgs } from "../../../src/tasks/shared/TaskOptions";
+import {
+  TaskHelpers,
+  ProgressIndicator,
+} from "../../../src/tasks/shared/TaskHelpers";
+import {
+  DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs,
+} from "../../../src/tasks/shared/TaskOptions";
 
 // Mock Hardhat Runtime Environment
 const createMockHRE = (): any => ({
@@ -52,7 +58,7 @@ describe("TaskHelpers", () => {
     it("should convert basic task args to generation options", () => {
       const args: DiamondAbiTaskArgs = {
         diamondName: "ExampleDiamond",
-        verbose: true,
+        enableVerbose: true,
       };
 
       const options = helpers.convertToGenerationOptions(args);
@@ -78,7 +84,7 @@ describe("TaskHelpers", () => {
     it("should handle custom network", () => {
       const args: DiamondAbiTaskArgs = {
         diamondName: "ExampleDiamond",
-        network: "mainnet",
+        targetNetwork: "mainnet",
       };
 
       const options = helpers.convertToGenerationOptions(args);
@@ -90,7 +96,9 @@ describe("TaskHelpers", () => {
     it("should get existing diamond config", () => {
       const config = helpers.getDiamondConfig("ExampleDiamond");
       expect(config).to.not.be.null;
-      expect(config.deploymentsPath).to.equal("/test/project/diamonds/ExampleDiamond");
+      expect(config.deploymentsPath).to.equal(
+        "/test/project/diamonds/ExampleDiamond"
+      );
     });
 
     it("should return null for non-existing diamond", () => {
@@ -148,27 +156,31 @@ describe("TaskHelpers", () => {
       const args: DiamondAbiTaskArgs = {
         diamondName: "ExampleDiamond",
         outputDir: "/custom/output",
-        verbose: true,
+        enableVerbose: true,
         validateSelectors: false,
         includeSourceInfo: false,
-        network: "mainnet",
+        targetNetwork: "mainnet",
       };
 
       const normalized = helpers.normalizeTaskArgs(args);
 
       expect(normalized.outputDir).to.equal("/custom/output");
-      expect(normalized.verbose).to.be.true;
+      expect(normalized.enableVerbose).to.be.true;
       expect(normalized.validateSelectors).to.be.false;
       expect(normalized.includeSourceInfo).to.be.false;
-      expect(normalized.network).to.equal("mainnet");
+      expect((normalized as any).network).to.equal("mainnet");
     });
 
     it("should normalize TypeChain task args", () => {
       const args: DiamondAbiTypechainTaskArgs = {
         diamondName: "ExampleDiamond",
+        typechainTarget: undefined,
+        typechainOutDir: undefined,
       };
 
-      const normalized = helpers.normalizeTaskArgs(args);
+      const normalized = helpers.normalizeTaskArgs(
+        args
+      ) as DiamondAbiTypechainTaskArgs;
 
       expect(normalized.typechainTarget).to.equal("ethers-v6");
       expect(normalized.typechainOutDir).to.include("diamond-typechain-types");

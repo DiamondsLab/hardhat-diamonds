@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("hardhat/config");
 const chalk_1 = __importDefault(require("chalk"));
 const fs_1 = require("fs");
 const DiamondAbiGenerator_1 = require("../lib/DiamondAbiGenerator");
 const TaskValidation_1 = require("./shared/TaskValidation");
 const TaskHelpers_1 = require("./shared/TaskHelpers");
+// Import task function - using require to avoid TypeScript module resolution issues
+const { task } = require("hardhat/config");
 /**
  * Diamond ABI Generation Task
  *
@@ -17,7 +18,7 @@ const TaskHelpers_1 = require("./shared/TaskHelpers");
  * all functions, events, and errors from all facets with proper deduplication
  * and validation.
  */
-(0, config_1.task)("diamond:generate-abi", "Generate Diamond ABI from configuration or deployment data")
+task("diamond:generate-abi", "Generate Diamond ABI from configuration or deployment data")
     .addParam("diamondName", "Name of the diamond to generate ABI for", undefined, undefined, false)
     .addOptionalParam("outputDir", "Output directory for generated ABI files", "./diamond-abi")
     .addFlag("enableVerbose", "Enable verbose logging")
