@@ -1,8 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import {
-  DiamondPathsConfig,
-  DiamondsPathsConfig,
-} from "../../src/types/diamonds";
+import { DiamondsPathsConfig } from "../../src/type-extensions";
 import { DiamondsConfig } from "../../src/DiamondsConfig";
 
 /**
