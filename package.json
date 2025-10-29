@@ -1,5 +1,5 @@
 {
-  "name": "hardhat-diamonds",
+  "name": "@diamondslab/hardhat-diamonds",
   "version": "1.1.0",
   "description": "Tools for deploying and interfacing with ERC-2535 Diamond Proxies",
   "main": "dist/src/index.js",
@@ -18,9 +18,9 @@
     "Am0rfu5"
   ],
   "license": "MIT",
-  "repository": "github:GeniusVentures/hardhat-diamonds",
+  "repository": "github:diamondslab/hardhat-diamonds",
   "bugs": {
-    "url": "https://github.com/GeniusVentures/hardhat-diamonds/issues"
+    "url": "https://github.com/diamondslab/hardhat-diamonds/issues"
   },
   "scripts": {
     "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && yarn exec eslint --fix 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
