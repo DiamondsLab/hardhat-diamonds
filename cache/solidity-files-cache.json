@@ -1,82 +1,7 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/home/jamatulli/decentralization/diamonds/hardhat-diamonds/test/mocks/contracts/MockDiamond.sol": {
-      "lastModificationDate": 1751653801771,
-      "contentHash": "82d58f535c7659a683d86de06dbad165",
-      "sourceName": "test/mocks/contracts/MockDiamond.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IDiamondCut",
-        "IDiamondLoupe",
-        "IERC165",
-        "MockDiamond"
-      ]
-    },
-    "/home/jamatulli/decentralization/diamonds/hardhat-diamonds/test/mocks/contracts/MockTestFacet.sol": {
-      "lastModificationDate": 1751653801771,
-      "contentHash": "d479f3bfe34397b1d52708bc24ad9fba",
-      "sourceName": "test/mocks/contracts/MockTestFacet.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "MockTestFacet"
-      ]
-    },
-    "/home/jamatulli/decentralization/diamonds/diamonds-dev-env/packages/hardhat-diamonds/test/mocks/contracts/MockDiamond.sol": {
+    "/workspaces/diamonds_dev_env/packages/hardhat-diamonds/test/mocks/contracts/MockDiamond.sol": {
       "lastModificationDate": 1757970166073,
       "contentHash": "82d58f535c7659a683d86de06dbad165",
       "sourceName": "test/mocks/contracts/MockDiamond.sol",
@@ -115,7 +40,7 @@
         "MockDiamond"
       ]
     },
-    "/home/jamatulli/decentralization/diamonds/diamonds-dev-env/packages/hardhat-diamonds/test/mocks/contracts/MockTestFacet.sol": {
+    "/workspaces/diamonds_dev_env/packages/hardhat-diamonds/test/mocks/contracts/MockTestFacet.sol": {
       "lastModificationDate": 1757970166073,
       "contentHash": "d479f3bfe34397b1d52708bc24ad9fba",
       "sourceName": "test/mocks/contracts/MockTestFacet.sol",
