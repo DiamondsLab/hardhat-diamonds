@@ -12,7 +12,7 @@ const chalk_1 = __importDefault(require("chalk"));
  */
 class ProgressIndicator {
     interval = null;
-    steps = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+    steps = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
     currentStep = 0;
     message;
     constructor(message) {
@@ -39,7 +39,7 @@ class ProgressIndicator {
             clearInterval(this.interval);
             this.interval = null;
         }
-        process.stdout.write('\r' + ' '.repeat(this.message.length + 5) + '\r');
+        process.stdout.write("\r" + " ".repeat(this.message.length + 5) + "\r");
         if (finalMessage) {
             console.log(finalMessage);
         }
@@ -83,11 +83,11 @@ class TaskHelpers {
             diamondName: args.diamondName,
             networkName: args.targetNetwork || this.hre.network.name,
             chainId: this.hre.network.config.chainId || 31337,
-            outputDir: args.outputDir || (0, path_1.join)(this.hre.config.paths.root, 'diamond-abi'),
+            outputDir: args.outputDir || (0, path_1.join)(this.hre.config.paths.root, "diamond-abi"),
             includeSourceInfo: args.includeSourceInfo ?? true,
             validateSelectors: args.validateSelectors ?? true,
             verbose: args.enableVerbose ?? false,
-            diamondsPath: (0, path_1.join)(this.hre.config.paths.root, 'diamonds'),
+            diamondsPath: (0, path_1.join)(this.hre.config.paths.root, "diamonds"),
             contractPath: this.hre.config.paths.sources,
         };
     }
@@ -122,7 +122,7 @@ class TaskHelpers {
             if (verbose) {
                 console.log(chalk_1.default.cyan(`📝 Writing file: ${resolvedPath}`));
             }
-            (0, fs_1.writeFileSync)(resolvedPath, content, 'utf-8');
+            (0, fs_1.writeFileSync)(resolvedPath, content, "utf-8");
             return true;
         }
         catch (error) {
@@ -151,7 +151,7 @@ class TaskHelpers {
             if (verbose) {
                 console.log(chalk_1.default.cyan(`📖 Reading file: ${resolvedPath}`));
             }
-            return (0, fs_1.readFileSync)(resolvedPath, 'utf-8');
+            return (0, fs_1.readFileSync)(resolvedPath, "utf-8");
         }
         catch (error) {
             if (verbose) {
@@ -208,8 +208,8 @@ class TaskHelpers {
         return {
             name: network.name,
             chainId: config.chainId,
-            url: 'url' in config ? config.url : undefined,
-            isLocal: network.name === 'hardhat' || network.name === 'localhost',
+            url: "url" in config ? config.url : undefined,
+            isLocal: network.name === "hardhat" || network.name === "localhost",
         };
     }
     /**
@@ -220,11 +220,11 @@ class TaskHelpers {
      */
     static formatFileSize(bytes) {
         if (bytes === 0)
-            return '0 B';
+            return "0 B";
         const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const sizes = ["B", "KB", "MB", "GB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
     }
     /**
      * Format duration for display
@@ -239,7 +239,9 @@ class TaskHelpers {
         const seconds = Math.floor(milliseconds / 1000);
         const remainingMs = milliseconds % 1000;
         if (seconds < 60) {
-            return remainingMs > 0 ? `${seconds}.${Math.floor(remainingMs / 100)}s` : `${seconds}s`;
+            return remainingMs > 0
+                ? `${seconds}.${Math.floor(remainingMs / 100)}s`
+                : `${seconds}s`;
         }
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
@@ -263,7 +265,7 @@ class TaskHelpers {
             },
             elapsed() {
                 return endTime > 0 ? endTime - startTime : Date.now() - startTime;
-            }
+            },
         };
     }
     /**
@@ -277,7 +279,7 @@ class TaskHelpers {
         console.log(chalk_1.default.gray(`   Diamond: ${args.diamondName}`));
         console.log(chalk_1.default.gray(`   Network: ${this.hre.network.name}`));
         if (args.verbose) {
-            console.log(chalk_1.default.gray('   Arguments:'));
+            console.log(chalk_1.default.gray("   Arguments:"));
             Object.entries(args).forEach(([key, value]) => {
                 if (value !== undefined) {
                     console.log(chalk_1.default.gray(`     ${key}: ${value}`));
@@ -310,7 +312,7 @@ class TaskHelpers {
     logVerbose(message, data) {
         console.log(chalk_1.default.cyan(`   ${message}`));
         if (data !== undefined) {
-            if (typeof data === 'object') {
+            if (typeof data === "object") {
                 console.log(chalk_1.default.gray(`     ${JSON.stringify(data, null, 2)}`));
             }
             else {
@@ -343,9 +345,9 @@ class TaskHelpers {
             artifacts: this.hre.config.paths.artifacts,
             cache: this.hre.config.paths.cache,
             tests: this.hre.config.paths.tests,
-            diamonds: (0, path_1.join)(root, 'diamonds'),
-            diamondAbi: (0, path_1.join)(root, 'diamond-abi'),
-            typechainTypes: (0, path_1.join)(root, 'diamond-typechain-types'),
+            diamonds: (0, path_1.join)(root, "diamonds"),
+            diamondAbi: (0, path_1.join)(root, "diamond-abi"),
+            typechainTypes: (0, path_1.join)(root, "diamond-typechain-types"),
         };
     }
     /**
@@ -357,20 +359,25 @@ class TaskHelpers {
     normalizeTaskArgs(args) {
         const normalized = { ...args };
         // Apply defaults
-        normalized.outputDir = normalized.outputDir || (0, path_1.join)(this.hre.config.paths.root, 'diamond-abi');
-        normalized.network = normalized.targetNetwork || this.hre.network.name;
-        // Add verbose property for internal compatibility  
+        normalized.outputDir =
+            normalized.outputDir || (0, path_1.join)(this.hre.config.paths.root, "diamond-abi");
+        normalized.network =
+            normalized.targetNetwork || this.hre.network.name;
+        // Add verbose property for internal compatibility
         normalized.verbose = normalized.enableVerbose ?? false;
         normalized.validateSelectors = normalized.validateSelectors ?? true;
         normalized.includeSourceInfo = normalized.includeSourceInfo ?? true;
         // For TypeChain args - check if this looks like a TypeChain task
         // by checking if it has typechainTarget or typechainOutDir properties OR
         // if the args object was passed as DiamondAbiTypechainTaskArgs
-        const hasTypechainProps = 'typechainTarget' in args || 'typechainOutDir' in args;
+        const hasTypechainProps = "typechainTarget" in args || "typechainOutDir" in args;
         if (hasTypechainProps || args.__isTypechainTask) {
             const typechainArgs = normalized;
-            typechainArgs.typechainTarget = typechainArgs.typechainTarget || 'ethers-v6';
-            typechainArgs.typechainOutDir = typechainArgs.typechainOutDir || (0, path_1.join)(this.hre.config.paths.root, 'diamond-typechain-types');
+            typechainArgs.typechainTarget =
+                typechainArgs.typechainTarget || "ethers-v6";
+            typechainArgs.typechainOutDir =
+                typechainArgs.typechainOutDir ||
+                    (0, path_1.join)(this.hre.config.paths.root, "diamond-typechain-types");
         }
         return normalized;
     }

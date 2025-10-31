@@ -409,12 +409,13 @@ export class TaskValidation {
 
     // Check if diamonds module is available
     try {
-      require("diamonds");
+      require("@diamondslab/diamonds");
     } catch {
       errors.push({
         field: "dependencies",
         message: "diamonds module not found",
-        suggestion: "Install the diamonds module: npm install diamonds",
+        suggestion:
+          "Install the diamonds module: npm install @diamondslab/diamonds",
       });
     }
 

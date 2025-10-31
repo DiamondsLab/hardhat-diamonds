@@ -123,14 +123,14 @@ export class HardhatDiamondAbiGenerator {
   private getDiamondClass(): any {
     try {
       // Try to resolve from parent project first
-      const parentPath = require.resolve("diamonds", {
+      const parentPath = require.resolve("@diamondslab/diamonds", {
         paths: [process.cwd()],
       });
       const diamondsModule = require(parentPath);
       return diamondsModule.Diamond;
     } catch {
       // Fallback to local resolution
-      const diamondsModule = require("diamonds");
+      const diamondsModule = require("@diamondslab/diamonds");
       return diamondsModule.Diamond;
     }
   }
@@ -141,14 +141,14 @@ export class HardhatDiamondAbiGenerator {
   private getFileDeploymentRepositoryClass(): any {
     try {
       const repositoriesPath = require.resolve(
-        "diamonds/dist/repositories/FileDeploymentRepository",
+        "@diamondslab/diamonds/dist/repositories/FileDeploymentRepository",
         { paths: [process.cwd()] }
       );
       return require(repositoriesPath).FileDeploymentRepository;
     } catch {
       try {
         // Try direct import as fallback
-        return require("diamonds/dist/repositories/FileDeploymentRepository")
+        return require("@diamondslab/diamonds/dist/repositories/FileDeploymentRepository")
           .FileDeploymentRepository;
       } catch {
         // If all else fails, create a minimal mock that has the required methods

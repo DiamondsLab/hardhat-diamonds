@@ -68,12 +68,12 @@ class HardhatDiamondAbiGenerator {
         this.options = {
             networkName: hre.network.name,
             chainId: hre.network.config.chainId || 31337,
-            outputDir: (0, path_1.join)(hre.config.paths.root, 'diamond-abi'),
-            contractPath: (0, path_1.join)(hre.config.paths.root, 'contracts'),
+            outputDir: (0, path_1.join)(hre.config.paths.root, "diamond-abi"),
+            contractPath: (0, path_1.join)(hre.config.paths.root, "contracts"),
             includeSourceInfo: true,
             validateSelectors: true,
             verbose: false,
-            diamondsPath: (0, path_1.join)(hre.config.paths.root, 'diamonds'),
+            diamondsPath: (0, path_1.join)(hre.config.paths.root, "diamonds"),
             ...options,
         };
         this.initializeDiamond();
@@ -94,9 +94,11 @@ class HardhatDiamondAbiGenerator {
                 deploymentsPath: diamondPathConfig.deploymentsPath || this.options.diamondsPath,
                 contractsPath: diamondPathConfig.contractsPath || this.options.contractPath,
                 // Set the configuration file path correctly
-                configFilePath: diamondPathConfig.configFilePath || `${diamondPathConfig.deploymentsPath || this.options.diamondsPath}/${this.options.diamondName}/${this.options.diamondName.toLowerCase()}.config.json`,
+                configFilePath: diamondPathConfig.configFilePath ||
+                    `${diamondPathConfig.deploymentsPath || this.options.diamondsPath}/${this.options.diamondName}/${this.options.diamondName.toLowerCase()}.config.json`,
                 // Set deployed diamond data file path
-                deployedDiamondDataFilePath: diamondPathConfig.deployedDiamondDataFilePath || `${diamondPathConfig.deploymentsPath || this.options.diamondsPath}/${this.options.diamondName}/deployments/${this.options.networkName}.json`,
+                deployedDiamondDataFilePath: diamondPathConfig.deployedDiamondDataFilePath ||
+                    `${diamondPathConfig.deploymentsPath || this.options.diamondsPath}/${this.options.diamondName}/deployments/${this.options.networkName}.json`,
                 // Enable writing deployment data
                 writeDeployedDiamondData: diamondPathConfig.writeDeployedDiamondData ?? true,
                 // Configure diamond ABI path and filename
@@ -104,7 +106,7 @@ class HardhatDiamondAbiGenerator {
                 diamondAbiFileName: this.options.diamondName,
             };
             if (this.options.verbose) {
-                console.log(chalk_1.default.blue('🔧 Diamond configuration:'));
+                console.log(chalk_1.default.blue("🔧 Diamond configuration:"));
                 console.log(chalk_1.default.gray(`   Config file: ${diamondConfig.configFilePath}`));
                 console.log(chalk_1.default.gray(`   Contracts path: ${diamondConfig.contractsPath}`));
                 console.log(chalk_1.default.gray(`   Deployments path: ${diamondConfig.deploymentsPath}`));
@@ -129,13 +131,15 @@ class HardhatDiamondAbiGenerator {
     getDiamondClass() {
         try {
             // Try to resolve from parent project first
-            const parentPath = require.resolve('diamonds', { paths: [process.cwd()] });
+            const parentPath = require.resolve("@diamondslab/diamonds", {
+                paths: [process.cwd()],
+            });
             const diamondsModule = require(parentPath);
             return diamondsModule.Diamond;
         }
         catch {
             // Fallback to local resolution
-            const diamondsModule = require('diamonds');
+            const diamondsModule = require("@diamondslab/diamonds");
             return diamondsModule.Diamond;
         }
     }
@@ -144,13 +148,14 @@ class HardhatDiamondAbiGenerator {
      */
     getFileDeploymentRepositoryClass() {
         try {
-            const repositoriesPath = require.resolve('diamonds/dist/repositories/FileDeploymentRepository', { paths: [process.cwd()] });
+            const repositoriesPath = require.resolve("@diamondslab/diamonds/dist/repositories/FileDeploymentRepository", { paths: [process.cwd()] });
             return require(repositoriesPath).FileDeploymentRepository;
         }
         catch {
             try {
                 // Try direct import as fallback
-                return require('diamonds/dist/repositories/FileDeploymentRepository').FileDeploymentRepository;
+                return require("@diamondslab/diamonds/dist/repositories/FileDeploymentRepository")
+                    .FileDeploymentRepository;
             }
             catch {
                 // If all else fails, create a minimal mock that has the required methods
@@ -200,7 +205,8 @@ class HardhatDiamondAbiGenerator {
             }
             // Generate ABI manually using diamond data
             const deployedData = this.diamond.getDeployedDiamondData();
-            const hasDeployedFacets = deployedData.DeployedFacets && Object.keys(deployedData.DeployedFacets).length > 0;
+            const hasDeployedFacets = deployedData.DeployedFacets &&
+                Object.keys(deployedData.DeployedFacets).length > 0;
             const hasRegistryData = this.diamond.functionSelectorRegistry &&
                 this.diamond.functionSelectorRegistry.size > 0;
             if (!hasDeployedFacets && !hasRegistryData) {
@@ -239,7 +245,7 @@ class HardhatDiamondAbiGenerator {
      */
     async generateFromDeployedData(outputDir, abiFileName) {
         if (this.options.verbose) {
-            console.log(chalk_1.default.blue('🔧 Generating Diamond ABI from deployed data...'));
+            console.log(chalk_1.default.blue("🔧 Generating Diamond ABI from deployed data..."));
         }
         // Ensure output directory exists
         if (!(0, fs_1.existsSync)(outputDir)) {
@@ -287,7 +293,7 @@ class HardhatDiamondAbiGenerator {
             if (functionRegistry && functionRegistry.size > 0) {
                 for (const [selector, entry] of functionRegistry.entries()) {
                     if (!selectorMap[selector]) {
-                        selectorMap[selector] = entry.facetName || 'Unknown';
+                        selectorMap[selector] = entry.facetName || "Unknown";
                     }
                 }
             }
@@ -298,17 +304,17 @@ class HardhatDiamondAbiGenerator {
                     return ((typeOrder[a.type] || 99) -
                         (typeOrder[b.type] || 99));
                 }
-                return (a.name || '').localeCompare(b.name || '');
+                return (a.name || "").localeCompare(b.name || "");
             });
             // Generate output file
             const outputPath = (0, path_1.join)(outputDir, `${abiFileName}.json`);
             const artifact = {
-                _format: 'hh-sol-artifact-1',
+                _format: "hh-sol-artifact-1",
                 contractName: abiFileName,
                 sourceName: `diamond-abi/${abiFileName}.sol`,
                 abi: combinedAbi,
-                bytecode: '',
-                deployedBytecode: '',
+                bytecode: "",
+                deployedBytecode: "",
                 linkReferences: {},
                 deployedLinkReferences: {},
                 _diamondMetadata: {
@@ -330,7 +336,7 @@ class HardhatDiamondAbiGenerator {
             // Add metadata if requested
             if (this.options.includeSourceInfo) {
                 artifact.metadata = JSON.stringify({
-                    compiler: 'diamond-abi-generator',
+                    compiler: "diamond-abi-generator",
                     generatedAt: new Date().toISOString(),
                     networkName: this.options.networkName,
                     chainId: this.options.chainId,
@@ -384,23 +390,23 @@ class HardhatDiamondAbiGenerator {
         const outputPath = (0, path_1.join)(this.options.outputDir, outputFileName);
         // Create minimal artifact structure for testing
         const artifact = {
-            _format: 'hh-sol-artifact-1',
+            _format: "hh-sol-artifact-1",
             contractName: outputContractName,
             sourceName: `diamond-abi/${outputContractName}.sol`,
             abi: [],
-            bytecode: '0x',
-            deployedBytecode: '0x',
+            bytecode: "0x",
+            deployedBytecode: "0x",
             linkReferences: {},
             deployedLinkReferences: {},
         };
         // Add metadata if requested
         if (this.options.includeSourceInfo) {
             artifact.metadata = JSON.stringify({
-                compiler: 'diamond-abi-generator-fallback',
+                compiler: "diamond-abi-generator-fallback",
                 generatedAt: new Date().toISOString(),
                 networkName: this.options.networkName,
                 chainId: this.options.chainId,
-                error: this.initializationError?.message || 'Unknown error',
+                error: this.initializationError?.message || "Unknown error",
             });
         }
         // Write the artifact
@@ -427,7 +433,7 @@ class HardhatDiamondAbiGenerator {
      */
     async generateConfigBasedAbi() {
         if (this.options.verbose) {
-            console.log(chalk_1.default.blue('🔧 Generating Diamond ABI from configuration...'));
+            console.log(chalk_1.default.blue("🔧 Generating Diamond ABI from configuration..."));
         }
         // Ensure output directory exists
         if (!(0, fs_1.existsSync)(this.options.outputDir)) {
@@ -442,7 +448,7 @@ class HardhatDiamondAbiGenerator {
                 }
                 return this.generateFallbackAbi();
             }
-            const config = JSON.parse((0, fs_1.readFileSync)(configPath, 'utf-8'));
+            const config = JSON.parse((0, fs_1.readFileSync)(configPath, "utf-8"));
             const combinedAbi = [];
             const selectorMap = {};
             const eventSignatures = new Set();
@@ -478,19 +484,19 @@ class HardhatDiamondAbiGenerator {
                     return ((typeOrder[a.type] || 99) -
                         (typeOrder[b.type] || 99));
                 }
-                return (a.name || '').localeCompare(b.name || '');
+                return (a.name || "").localeCompare(b.name || "");
             });
             // Generate output file with unique name
             const outputContractName = `${this.options.diamondName}`;
             const outputFileName = `${outputContractName}.json`;
             const outputPath = (0, path_1.join)(this.options.outputDir, outputFileName);
             const artifact = {
-                _format: 'hh-sol-artifact-1',
+                _format: "hh-sol-artifact-1",
                 contractName: outputContractName,
                 sourceName: `diamond-abi/${outputContractName}.sol`,
                 abi: combinedAbi,
-                bytecode: '',
-                deployedBytecode: '',
+                bytecode: "",
+                deployedBytecode: "",
                 linkReferences: {},
                 deployedLinkReferences: {},
                 _diamondMetadata: {
@@ -511,7 +517,7 @@ class HardhatDiamondAbiGenerator {
             // Add metadata if requested
             if (this.options.includeSourceInfo) {
                 artifact.metadata = JSON.stringify({
-                    compiler: 'diamond-abi-generator',
+                    compiler: "diamond-abi-generator",
                     generatedAt: new Date().toISOString(),
                     networkName: this.options.networkName,
                     chainId: this.options.chainId,
@@ -579,7 +585,7 @@ class HardhatDiamondAbiGenerator {
             ];
             for (const artifactPath of artifactPaths) {
                 if ((0, fs_1.existsSync)(artifactPath)) {
-                    return JSON.parse((0, fs_1.readFileSync)(artifactPath, 'utf-8'));
+                    return JSON.parse((0, fs_1.readFileSync)(artifactPath, "utf-8"));
                 }
             }
             return null;
@@ -598,8 +604,8 @@ class HardhatDiamondAbiGenerator {
      */
     async processAbiItems(abiItems, facetName, combinedAbi, selectorMap, eventSignatures, errorSignatures, counters) {
         for (const abiItem of abiItems) {
-            if (abiItem.type === 'function') {
-                const { Interface } = await Promise.resolve().then(() => __importStar(require('ethers')));
+            if (abiItem.type === "function") {
+                const { Interface } = await Promise.resolve().then(() => __importStar(require("ethers")));
                 const iface = new Interface([abiItem]);
                 const func = iface.getFunction(abiItem.name);
                 if (func) {
@@ -621,9 +627,9 @@ class HardhatDiamondAbiGenerator {
                     counters.totalFunctions++;
                 }
             }
-            else if (abiItem.type === 'event') {
+            else if (abiItem.type === "event") {
                 // Create a signature for the event to deduplicate
-                const eventSignature = `${abiItem.name}(${(abiItem.inputs || []).map((input) => input.type).join(',')})`;
+                const eventSignature = `${abiItem.name}(${(abiItem.inputs || []).map((input) => input.type).join(",")})`;
                 if (eventSignatures.has(eventSignature)) {
                     if (this.options.verbose) {
                         console.log(chalk_1.default.yellow(`⚠️  Skipping duplicate event ${eventSignature} from ${facetName}`));
@@ -638,9 +644,9 @@ class HardhatDiamondAbiGenerator {
                 eventSignatures.add(eventSignature);
                 counters.totalEvents++;
             }
-            else if (abiItem.type === 'error') {
+            else if (abiItem.type === "error") {
                 // Create a signature for the error to deduplicate
-                const errorSignature = `${abiItem.name}(${(abiItem.inputs || []).map((input) => input.type).join(',')})`;
+                const errorSignature = `${abiItem.name}(${(abiItem.inputs || []).map((input) => input.type).join(",")})`;
                 if (errorSignatures.has(errorSignature)) {
                     if (this.options.verbose) {
                         console.log(chalk_1.default.yellow(`⚠️  Skipping duplicate error ${errorSignature} from ${facetName}`));

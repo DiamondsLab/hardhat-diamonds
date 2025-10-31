@@ -43,7 +43,12 @@ exports.HARDHAT_DIAMONDS_TASKS = {
         description: "Generate Diamond ABI and TypeScript types using TypeChain",
         category: "Diamond Proxy",
         requiredParams: ["diamondName"],
-        optionalParams: ["outputDir", "typechainTarget", "typechainOutDir", "network"],
+        optionalParams: [
+            "outputDir",
+            "typechainTarget",
+            "typechainOutDir",
+            "network",
+        ],
         flags: ["verbose", "validateSelectors", "includeSourceInfo"],
     },
 };
@@ -72,7 +77,7 @@ function isDiamondTask(taskName) {
 function getDiamondTasksHelp() {
     const tasks = getDiamondTasks();
     let help = "🔹 Diamond Proxy Tasks:\n\n";
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
         help += `  ${task.name}\n`;
         help += `    ${task.description}\n`;
         if (task.requiredParams.length > 0) {
@@ -82,13 +87,15 @@ function getDiamondTasksHelp() {
             help += `    Optional: ${task.optionalParams.join(", ")}\n`;
         }
         if (task.flags.length > 0) {
-            help += `    Flags: ${task.flags.map(flag => `--${flag}`).join(", ")}\n`;
+            help += `    Flags: ${task.flags.map((flag) => `--${flag}`).join(", ")}\n`;
         }
         help += "\n";
     });
     help += "Examples:\n";
     help += "  npx hardhat diamond:generate-abi --diamond-name ExampleDiamond\n";
-    help += "  npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose\n";
-    help += "  npx hardhat diamond:generate-abi --diamond-name TestDiamond --output-dir ./custom-abi\n";
+    help +=
+        "  npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose\n";
+    help +=
+        "  npx hardhat diamond:generate-abi --diamond-name TestDiamond --output-dir ./custom-abi\n";
     return help;
 }

@@ -10,8 +10,8 @@ import "./diamond-abi-typechain";
 export type { DiamondAbiTaskArgs, DiamondAbiTypechainTaskArgs, DiamondAbiGenerationOptions, DiamondAbiGenerationResult, TypeChainGenerationOptions, TypeChainGenerationResult, } from "./shared/TaskOptions";
 export { TaskValidation } from "./shared/TaskValidation";
 export { TaskHelpers, ProgressIndicator } from "./shared/TaskHelpers";
-export { HardhatDiamondAbiGenerator, generateDiamondAbi } from "../lib/DiamondAbiGenerator";
-export { HardhatTypeChainIntegration, generateTypeChainTypes } from "../lib/TypeChainIntegration";
+export { HardhatDiamondAbiGenerator, generateDiamondAbi, } from "../lib/DiamondAbiGenerator";
+export { HardhatTypeChainIntegration, generateTypeChainTypes, } from "../lib/TypeChainIntegration";
 /**
  * Task metadata for discovery and documentation purposes
  */

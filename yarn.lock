@@ -21,6 +21,70 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@diamondslab/diamonds@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@diamondslab/diamonds@npm:1.0.0"
+  dependencies:
+    "@ethersproject/abstract-signer": "npm:^5.8.0"
+    axios: "npm:^1.12.0"
+    debug: "npm:^4.4.1"
+    fs-extra: "npm:^11.3.0"
+    lodash: "npm:^4.17.21"
+  peerDependencies:
+    ethers: ^6.0.0
+    hardhat: ^2.0.0
+    ts-node: ^10.0.0
+    typescript: ^5.0.0
+  bin:
+    diamond-abi: dist/scripts/diamond-abi-cli.js
+  checksum: 10c0/2b9d4d919ed73d6e8c116d3d40e175d69c042e678e1ac4d56e390387a1bae8132179c2e4202d13c35dbc945147423b7f0ae93c22ae0d1a92b7192dd00981e873
+  languageName: node
+  linkType: hard
+
+"@diamondslab/hardhat-diamonds@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@diamondslab/hardhat-diamonds@workspace:."
+  dependencies:
+    "@diamondslab/diamonds": "npm:^1.0.0"
+    "@nomicfoundation/hardhat-chai-matchers": "npm:^2.0.0"
+    "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
+    "@nomicfoundation/hardhat-ignition": "npm:^0.15.0"
+    "@nomicfoundation/hardhat-ignition-ethers": "npm:^0.15.0"
+    "@nomicfoundation/hardhat-network-helpers": "npm:^1.0.0"
+    "@nomicfoundation/hardhat-toolbox": "npm:^5.0.0"
+    "@nomicfoundation/hardhat-verify": "npm:^2.0.0"
+    "@nomicfoundation/ignition-core": "npm:^0.15.0"
+    "@typechain/ethers-v6": "npm:^0.5.0"
+    "@typechain/hardhat": "npm:^9.0.0"
+    "@types/chai": "npm:^4.3.19"
+    "@types/fs-extra": "npm:^11.0.4"
+    "@types/mocha": "npm:^10.0.8"
+    "@types/node": "npm:^22.5.5"
+    "@types/sinon": "npm:^17.0.3"
+    "@typescript-eslint/eslint-plugin": "npm:^8.8.0"
+    "@typescript-eslint/parser": "npm:^8.8.0"
+    "@typescript-eslint/types": "npm:^8.8.0"
+    chai: "npm:^4.5.0"
+    eslint: "npm:^8.57.1"
+    eslint-config-prettier: "npm:^9.1.0"
+    eslint-plugin-prettier: "npm:^5.2.1"
+    ethers: "npm:^6.13.3"
+    hardhat: "npm:^2.25.0"
+    hardhat-gas-reporter: "npm:^1.0.9"
+    mocha: "npm:^10.7.3"
+    prettier: "npm:^3.3.3"
+    sinon: "npm:^19.0.2"
+    solidity-coverage: "npm:^0.8.0"
+    ts-node: "npm:^10.9.2"
+    typechain: "npm:^8.3.0"
+    typescript: "npm:^5.6.2"
+  peerDependencies:
+    "@diamondslab/diamonds": ^1.0.0
+    ethers: ^6.0.0
+    hardhat: ^2.0.0
+  languageName: unknown
+  linkType: soft
+
 "@eslint-community/eslint-utils@npm:^4.2.0, @eslint-community/eslint-utils@npm:^4.7.0":
   version: 4.7.0
   resolution: "@eslint-community/eslint-utils@npm:4.7.0"
@@ -1924,7 +1988,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.10.0, axios@npm:^1.5.1":
+"axios@npm:^1.12.0":
+  version: 1.13.1
+  resolution: "axios@npm:1.13.1"
+  dependencies:
+    follow-redirects: "npm:^1.15.6"
+    form-data: "npm:^4.0.4"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 10c0/de9c3c6de43d3ee1146d3afe78645f19450cac6a5d7235bef8b8e8eeb705c2e47e2d231dea99cecaec4dae1897c521118ca9413b9d474063c719c4d94c5b9adc
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.5.1":
   version: 1.10.0
   resolution: "axios@npm:1.10.0"
   dependencies:
@@ -2605,26 +2680,6 @@ __metadata:
   version: 2.0.0
   resolution: "depd@npm:2.0.0"
   checksum: 10c0/58bd06ec20e19529b06f7ad07ddab60e504d9e0faca4bd23079fac2d279c3594334d736508dc350e06e510aba5e22e4594483b3a6562ce7c17dd797f4cc4ad2c
-  languageName: node
-  linkType: hard
-
-"diamonds@https://github.com/GeniusVentures/diamonds.git#develop":
-  version: 1.0.0
-  resolution: "diamonds@https://github.com/GeniusVentures/diamonds.git#commit=c84b230b7504e4bd4c6ac35d86499a29c8297157"
-  dependencies:
-    "@ethersproject/abstract-signer": "npm:^5.8.0"
-    axios: "npm:^1.10.0"
-    debug: "npm:^4.4.1"
-    fs-extra: "npm:^11.3.0"
-    lodash: "npm:^4.17.21"
-  peerDependencies:
-    ethers: ^6.0.0
-    hardhat: ^2.0.0
-    ts-node: ^10.0.0
-    typescript: ^5.0.0
-  bin:
-    diamond-abi: dist/scripts/diamond-abi-cli.js
-  checksum: 10c0/1c2688c077c33f4223d32d1a9521f7dbe4304dae58de7207a9a07061b6b8fccbb1caf6b55e65f7132e388494c17b1e3a1c6659ea31ccc9a7326989c1137cae19
   languageName: node
   linkType: hard
 
@@ -3368,6 +3423,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"form-data@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "form-data@npm:4.0.4"
+  dependencies:
+    asynckit: "npm:^0.4.0"
+    combined-stream: "npm:^1.0.8"
+    es-set-tostringtag: "npm:^2.1.0"
+    hasown: "npm:^2.0.2"
+    mime-types: "npm:^2.1.12"
+  checksum: 10c0/373525a9a034b9d57073e55eab79e501a714ffac02e7a9b01be1c820780652b16e4101819785e1e18f8d98f0aee866cc654d660a435c378e16a72f2e7cac9695
+  languageName: node
+  linkType: hard
+
 "fp-ts@npm:1.19.3":
   version: 1.19.3
   resolution: "fp-ts@npm:1.19.3"
@@ -3719,50 +3787,6 @@ __metadata:
   checksum: 10c0/7aff423ea38a14bb379316f3857fe0df3c5d66119270944247f155ba1f08e07a92b340c58edaa00cfe985c21508870ee5183e0634dcb53dd405f35c93ef7f10d
   languageName: node
   linkType: hard
-
-"hardhat-diamonds@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "hardhat-diamonds@workspace:."
-  dependencies:
-    "@nomicfoundation/hardhat-chai-matchers": "npm:^2.0.0"
-    "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
-    "@nomicfoundation/hardhat-ignition": "npm:^0.15.0"
-    "@nomicfoundation/hardhat-ignition-ethers": "npm:^0.15.0"
-    "@nomicfoundation/hardhat-network-helpers": "npm:^1.0.0"
-    "@nomicfoundation/hardhat-toolbox": "npm:^5.0.0"
-    "@nomicfoundation/hardhat-verify": "npm:^2.0.0"
-    "@nomicfoundation/ignition-core": "npm:^0.15.0"
-    "@typechain/ethers-v6": "npm:^0.5.0"
-    "@typechain/hardhat": "npm:^9.0.0"
-    "@types/chai": "npm:^4.3.19"
-    "@types/fs-extra": "npm:^11.0.4"
-    "@types/mocha": "npm:^10.0.8"
-    "@types/node": "npm:^22.5.5"
-    "@types/sinon": "npm:^17.0.3"
-    "@typescript-eslint/eslint-plugin": "npm:^8.8.0"
-    "@typescript-eslint/parser": "npm:^8.8.0"
-    "@typescript-eslint/types": "npm:^8.8.0"
-    chai: "npm:^4.5.0"
-    diamonds: "https://github.com/GeniusVentures/diamonds.git#develop"
-    eslint: "npm:^8.57.1"
-    eslint-config-prettier: "npm:^9.1.0"
-    eslint-plugin-prettier: "npm:^5.2.1"
-    ethers: "npm:^6.13.3"
-    hardhat: "npm:^2.25.0"
-    hardhat-gas-reporter: "npm:^1.0.9"
-    mocha: "npm:^10.7.3"
-    prettier: "npm:^3.3.3"
-    sinon: "npm:^19.0.2"
-    solidity-coverage: "npm:^0.8.0"
-    ts-node: "npm:^10.9.2"
-    typechain: "npm:^8.3.0"
-    typescript: "npm:^5.6.2"
-  peerDependencies:
-    diamonds: ^1.0.0
-    ethers: ^6.0.0
-    hardhat: ^2.0.0
-  languageName: unknown
-  linkType: soft
 
 "hardhat-gas-reporter@npm:^1.0.9":
   version: 1.0.10

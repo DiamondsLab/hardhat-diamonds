@@ -41,12 +41,12 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
         }
         // Validate task arguments
         if (normalizedArgs.verbose) {
-            console.log(chalk_1.default.blue('🔍 Validating task arguments...'));
+            console.log(chalk_1.default.blue("🔍 Validating task arguments..."));
         }
         const argsValidation = validation.validateDiamondAbiArgs(normalizedArgs);
         if (!argsValidation.isValid) {
             TaskValidation_1.TaskValidation.formatValidationResult(argsValidation, normalizedArgs.verbose);
-            throw new Error('Task argument validation failed');
+            throw new Error("Task argument validation failed");
         }
         // Show warnings if any
         if (argsValidation.warnings.length > 0 && normalizedArgs.verbose) {
@@ -54,31 +54,31 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
         }
         // Validate diamond configuration
         if (normalizedArgs.verbose) {
-            console.log(chalk_1.default.blue('🔍 Validating diamond configuration...'));
+            console.log(chalk_1.default.blue("🔍 Validating diamond configuration..."));
         }
         const configValidation = validation.validateDiamondConfiguration(normalizedArgs.diamondName);
         if (!configValidation.isValid) {
             TaskValidation_1.TaskValidation.formatValidationResult(configValidation, normalizedArgs.verbose);
-            throw new Error('Diamond configuration validation failed');
+            throw new Error("Diamond configuration validation failed");
         }
         // Show configuration warnings
         if (configValidation.warnings.length > 0 && normalizedArgs.verbose) {
-            configValidation.warnings.forEach(warning => {
+            configValidation.warnings.forEach((warning) => {
                 console.log(chalk_1.default.yellow(`⚠️  ${warning}`));
             });
         }
         // Validate system requirements
         if (normalizedArgs.verbose) {
-            console.log(chalk_1.default.blue('🔍 Validating system requirements...'));
+            console.log(chalk_1.default.blue("🔍 Validating system requirements..."));
         }
         const systemValidation = validation.validateSystemRequirements();
         if (!systemValidation.isValid) {
             TaskValidation_1.TaskValidation.formatValidationResult(systemValidation, normalizedArgs.verbose);
-            throw new Error('System requirements validation failed');
+            throw new Error("System requirements validation failed");
         }
         // Show system warnings
         if (systemValidation.warnings.length > 0 && normalizedArgs.verbose) {
-            systemValidation.warnings.forEach(warning => {
+            systemValidation.warnings.forEach((warning) => {
                 console.log(chalk_1.default.yellow(`⚠️  ${warning}`));
             });
         }
@@ -90,10 +90,10 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
         // Display network information
         const networkInfo = helpers.getNetworkInfo();
         if (normalizedArgs.verbose) {
-            console.log(chalk_1.default.blue('🌐 Network information:'));
+            console.log(chalk_1.default.blue("🌐 Network information:"));
             console.log(chalk_1.default.cyan(`   Name: ${networkInfo.name}`));
-            console.log(chalk_1.default.cyan(`   Chain ID: ${networkInfo.chainId || 'unknown'}`));
-            console.log(chalk_1.default.cyan(`   Is Local: ${networkInfo.isLocal ? 'yes' : 'no'}`));
+            console.log(chalk_1.default.cyan(`   Chain ID: ${networkInfo.chainId || "unknown"}`));
+            console.log(chalk_1.default.cyan(`   Is Local: ${networkInfo.isLocal ? "yes" : "no"}`));
             if (networkInfo.url) {
                 console.log(chalk_1.default.cyan(`   URL: ${networkInfo.url}`));
             }
@@ -105,10 +105,10 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
         }
         // Generate the Diamond ABI
         if (normalizedArgs.verbose) {
-            console.log(chalk_1.default.blue('🔧 Generating Diamond ABI...'));
+            console.log(chalk_1.default.blue("🔧 Generating Diamond ABI..."));
         }
         else if (progressIndicator) {
-            progressIndicator.updateMessage('Analyzing diamond configuration...');
+            progressIndicator.updateMessage("Analyzing diamond configuration...");
         }
         const result = await (0, DiamondAbiGenerator_1.generateDiamondAbi)(hre, options);
         // Stop progress indicator
@@ -137,8 +137,9 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
             }
         }
         // Display selector map in verbose mode
-        if (normalizedArgs.verbose && Object.keys(result.selectorMap).length > 0) {
-            console.log(chalk_1.default.blue('🔍 Function selector mapping:'));
+        if (normalizedArgs.verbose &&
+            Object.keys(result.selectorMap).length > 0) {
+            console.log(chalk_1.default.blue("🔍 Function selector mapping:"));
             Object.entries(result.selectorMap).forEach(([selector, facet]) => {
                 console.log(chalk_1.default.cyan(`   ${selector} → ${facet}`));
             });
@@ -146,16 +147,16 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
         // Display generation statistics
         helpers.logTaskCompletion("diamond:generate-abi", duration, true);
         if (normalizedArgs.verbose) {
-            console.log(chalk_1.default.blue('📊 Generation statistics:'));
+            console.log(chalk_1.default.blue("📊 Generation statistics:"));
             console.log(chalk_1.default.cyan(`   Total processing time: ${TaskHelpers_1.TaskHelpers.formatDuration(duration)}`));
             console.log(chalk_1.default.cyan(`   Average time per facet: ${TaskHelpers_1.TaskHelpers.formatDuration(Math.round(duration / Math.max(result.stats.facetCount, 1)))}`));
         }
         // Success message with next steps
-        console.log(chalk_1.default.green('\n🎉 Diamond ABI generation complete!'));
-        console.log(chalk_1.default.cyan('💡 Next steps:'));
-        console.log(chalk_1.default.cyan('   - Use the generated ABI in your dApp frontend'));
-        console.log(chalk_1.default.cyan('   - Generate TypeScript types with: npx hardhat diamond:generate-abi-typechain'));
-        console.log(chalk_1.default.cyan('   - Import the ABI artifact in your tests and scripts'));
+        console.log(chalk_1.default.green("\n🎉 Diamond ABI generation complete!"));
+        console.log(chalk_1.default.cyan("💡 Next steps:"));
+        console.log(chalk_1.default.cyan("   - Use the generated ABI in your dApp frontend"));
+        console.log(chalk_1.default.cyan("   - Generate TypeScript types with: npx hardhat diamond:generate-abi-typechain"));
+        console.log(chalk_1.default.cyan("   - Import the ABI artifact in your tests and scripts"));
         return result;
     }
     catch (error) {
@@ -165,11 +166,11 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
         }
         const duration = timer.stop();
         helpers.logTaskCompletion("diamond:generate-abi", duration, false);
-        console.error(chalk_1.default.red('\n❌ Diamond ABI generation failed:'));
+        console.error(chalk_1.default.red("\n❌ Diamond ABI generation failed:"));
         if (error instanceof Error) {
             console.error(chalk_1.default.red(`   ${error.message}`));
             if (args.verbose && error.stack) {
-                console.error(chalk_1.default.gray('\nStack trace:'));
+                console.error(chalk_1.default.gray("\nStack trace:"));
                 console.error(chalk_1.default.gray(error.stack));
             }
         }
@@ -177,18 +178,18 @@ task("diamond:generate-abi", "Generate Diamond ABI from configuration or deploym
             console.error(chalk_1.default.red(`   ${String(error)}`));
         }
         // Provide helpful suggestions
-        console.log(chalk_1.default.cyan('\n💡 Troubleshooting tips:'));
-        console.log(chalk_1.default.cyan('   - Verify diamond configuration exists in hardhat.config.ts'));
-        console.log(chalk_1.default.cyan('   - Check that diamond name is spelled correctly'));
-        console.log(chalk_1.default.cyan('   - Ensure contract artifacts are compiled (run: npx hardhat compile)'));
-        console.log(chalk_1.default.cyan('   - Run with --verbose flag for detailed error information'));
+        console.log(chalk_1.default.cyan("\n💡 Troubleshooting tips:"));
+        console.log(chalk_1.default.cyan("   - Verify diamond configuration exists in hardhat.config.ts"));
+        console.log(chalk_1.default.cyan("   - Check that diamond name is spelled correctly"));
+        console.log(chalk_1.default.cyan("   - Ensure contract artifacts are compiled (run: npx hardhat compile)"));
+        console.log(chalk_1.default.cyan("   - Run with --verbose flag for detailed error information"));
         // Check for common issues
         const availableDiamonds = helpers.getAvailableDiamonds();
         if (availableDiamonds.length > 0) {
-            console.log(chalk_1.default.cyan(`   - Available diamonds: ${availableDiamonds.join(', ')}`));
+            console.log(chalk_1.default.cyan(`   - Available diamonds: ${availableDiamonds.join(", ")}`));
         }
         else {
-            console.log(chalk_1.default.cyan('   - No diamond configurations found, add them to hardhat.config.ts'));
+            console.log(chalk_1.default.cyan("   - No diamond configurations found, add them to hardhat.config.ts"));
         }
         throw error;
     }

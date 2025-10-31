@@ -62,3 +62,5 @@ typings/
 
 # flatten files
 flat/
+
+dist/

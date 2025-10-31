@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { execSync } from "child_process";
 import fs from "fs";
+import * as Mocha from "mocha";
 import path from "path";
 import { TestConstants } from "../../utils/TestConstants";
 
@@ -54,8 +55,8 @@ export default config;
 `;
       fs.writeFileSync(configPath, testConfig, "utf8");
     });
-
-    it("should compile TypeScript without errors", function () {
+    it("should compile TypeScript without errors", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       try {
@@ -72,14 +73,14 @@ export default config;
         );
       }
     });
-
-    it("should recognize diamonds configuration types", function () {
+    it("should recognize diamonds configuration types", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       // Create a config that uses the types extensively
       const advancedConfig = `
 import { HardhatUserConfig } from "hardhat/config";
-import { DiamondPathsConfig } from "diamonds";
+import { DiamondPathsConfig } from '@diamondslab/diamonds';
 import "../../src/index";
 
 const diamondConfig: DiamondPathsConfig = {};
@@ -133,8 +134,8 @@ export default config;
 `;
       fs.writeFileSync(configPath, testConfig, "utf8");
     });
-
-    it("should load diamonds configuration at runtime", function () {
+    it("should load diamonds configuration at runtime", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       // Create a script to test runtime configuration loading
@@ -186,8 +187,8 @@ testConfig();
         }
       }
     });
-
-    it("should handle empty diamonds configuration", function () {
+    it("should handle empty diamonds configuration", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       // Create config with empty diamonds
@@ -250,8 +251,8 @@ testEmptyConfig();
         }
       }
     });
-
-    it("should handle missing diamonds configuration", function () {
+    it("should handle missing diamonds configuration", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       // Create config without diamonds
@@ -307,8 +308,9 @@ testNoConfig();
     });
   });
 
-  describe("Plugin Compatibility", function () {
-    it("should work with common Hardhat plugins", function () {
+  describe("Plugin Compatibility and Configuration", function () {
+    it("should work with common Hardhat plugins", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       const compatConfig = `
@@ -346,8 +348,8 @@ export default config;
         );
       }
     });
-
-    it("should not conflict with existing configuration", function () {
+    it("should not conflict with existing configuration", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       const complexConfig = `
@@ -434,10 +436,8 @@ testComplexConfig();
         }
       }
     });
-  });
-
-  describe("Error Handling in Real Environment", function () {
-    it("should provide helpful error messages for invalid configurations", function () {
+    it("should provide helpful error messages for invalid configurations", function (this: Mocha.Context) {
+      this.timeout(TestConstants.TIMEOUTS.MEDIUM);
       this.timeout(TestConstants.TIMEOUTS.MEDIUM);
 
       const testScript = `
