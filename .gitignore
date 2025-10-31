@@ -63,4 +63,8 @@ typings/
 # flatten files
 flat/
 
+# dist folder for built files
 dist/
+
+# Yarn v2+
+.yarn/
