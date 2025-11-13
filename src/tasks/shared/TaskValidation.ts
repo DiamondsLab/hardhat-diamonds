@@ -408,8 +408,12 @@ export class TaskValidation {
     }
 
     // Check if diamonds module is available
+    // Try to resolve from the consuming project's context first
     try {
-      require("@diamondslab/diamonds");
+      const projectRoot = this.hre.config.paths.root;
+      require.resolve("@diamondslab/diamonds", {
+        paths: [projectRoot, process.cwd()],
+      });
     } catch {
       errors.push({
         field: "dependencies",
@@ -421,7 +425,10 @@ export class TaskValidation {
 
     // Check if ethers is available
     try {
-      require("ethers");
+      const projectRoot = this.hre.config.paths.root;
+      require.resolve("ethers", {
+        paths: [projectRoot, process.cwd()],
+      });
     } catch {
       errors.push({
         field: "dependencies",
@@ -433,7 +440,10 @@ export class TaskValidation {
     // TypeChain-specific validation
     if (includeTypeChain) {
       try {
-        require("typechain");
+        const projectRoot = this.hre.config.paths.root;
+        require.resolve("typechain", {
+          paths: [projectRoot, process.cwd()],
+        });
       } catch {
         errors.push({
           field: "dependencies",
