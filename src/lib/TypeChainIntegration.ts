@@ -1,4 +1,4 @@
-import { spawn, SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 import { join } from "path";
 import { existsSync, mkdirSync, readdirSync, statSync } from "fs";
 import chalk from "chalk";
@@ -130,8 +130,26 @@ export class HardhatTypeChainIntegration {
     verbose: boolean
   ): Promise<void> {
     return new Promise((resolve, reject) => {
+      // Resolve TypeChain CLI from the consuming project's node_modules
+      let typechainCliPath: string;
+      try {
+        const typechainPath = require.resolve("typechain", {
+          paths: [this.hre.config.paths.root, process.cwd()],
+        });
+        // Navigate from typechain module to CLI
+        typechainCliPath = join(
+          typechainPath.substring(0, typechainPath.indexOf("typechain") + "typechain".length),
+          "dist",
+          "cli",
+          "cli.js"
+        );
+      } catch {
+        reject(new Error("TypeChain module not found. Install it with: npm install --save-dev typechain"));
+        return;
+      }
+
       const args = [
-        "typechain",
+        typechainCliPath,
         "--target",
         target,
         "--out-dir",
@@ -140,10 +158,10 @@ export class HardhatTypeChainIntegration {
       ];
 
       if (verbose) {
-        console.log(chalk.cyan(`   Running: npx ${args.join(" ")}`));
+        console.log(chalk.cyan(`   Running: node ${args.join(" ")}`));
       }
 
-      const child = spawn("npx", args, {
+      const child = spawn("node", args, {
         stdio: verbose ? "inherit" : "pipe",
         cwd: this.hre.config.paths.root,
       });
@@ -242,10 +260,26 @@ export class HardhatTypeChainIntegration {
     }
 
     try {
-      // Check if TypeChain is available using --help instead of --version
-      await this.runCommand("npx", ["typechain", "--help"], { stdio: "pipe" });
+      // Check if TypeChain is available by resolving from project context
+      const projectRoot = this.hre.config.paths.root;
+      const typechainPath = require.resolve("typechain", {
+        paths: [projectRoot, process.cwd()],
+      });
 
-      if (verbose) {
+      // Verify CLI exists
+      const typechainCliPath = join(
+        typechainPath.substring(0, typechainPath.indexOf("typechain") + "typechain".length),
+        "dist",
+        "cli",
+        "cli.js"
+      );
+
+      if (!existsSync(typechainCliPath)) {
+        issues.push("TypeChain CLI is not available");
+        suggestions.push(
+          "Install TypeChain: npm install --save-dev typechain @typechain/ethers-v6"
+        );
+      } else if (verbose) {
         console.log(chalk.green("   ✅ TypeChain CLI is available"));
       }
     } catch {
@@ -257,8 +291,9 @@ export class HardhatTypeChainIntegration {
 
     try {
       // Check if ethers is available (required for ethers-v6 target)
-      await this.runCommand("node", ["-e", 'require("ethers")'], {
-        stdio: "pipe",
+      const projectRoot = this.hre.config.paths.root;
+      require.resolve("ethers", {
+        paths: [projectRoot, process.cwd()],
       });
 
       if (verbose) {
@@ -312,57 +347,6 @@ export class HardhatTypeChainIntegration {
     }
 
     return { isValid, issues, suggestions };
-  }
-
-  /**
-   * Run a command and return a promise
-   *
-   * @param command - Command to run
-   * @param args - Command arguments
-   * @param options - Spawn options
-   * @returns Promise that resolves when command completes successfully
-   */
-  private runCommand(
-    command: string,
-    args: string[],
-    options: SpawnOptions = {}
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const child = spawn(command, args, {
-        stdio: "pipe",
-        cwd: this.hre.config.paths.root,
-        ...options,
-      });
-
-      let stdout = "";
-      let stderr = "";
-
-      if (child.stdout) {
-        child.stdout.on("data", (data) => {
-          stdout += data.toString();
-        });
-      }
-
-      if (child.stderr) {
-        child.stderr.on("data", (data) => {
-          stderr += data.toString();
-        });
-      }
-
-      child.on("close", (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(
-            new Error(`Command failed with code ${code}: ${stderr || stdout}`)
-          );
-        }
-      });
-
-      child.on("error", (error) => {
-        reject(error);
-      });
-    });
   }
 }
 
