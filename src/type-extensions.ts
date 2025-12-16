@@ -1,4 +1,3 @@
-import { DiamondsConfig } from "./DiamondsConfig";
 import "hardhat/types/config";
 
 export interface DiamondPathsConfig {
@@ -18,14 +17,7 @@ declare module "hardhat/types/config" {
   }
 
   export interface HardhatConfig {
-    diamonds: DiamondsPathsConfig;
-  }
-}
-
-// Extend HardhatRuntimeEnvironment to include diamondsConfig
-declare module "hardhat/types/runtime" {
-  interface HardhatRuntimeEnvironment {
-    diamonds: DiamondsConfig;
+    diamonds?: DiamondsPathsConfig;
   }
 }
 
@@ -34,10 +26,9 @@ export const _hardhatDiamondsTypesLoaded = true;
 
 // Re-export task option types for external use
 export type {
-  DiamondAbiTaskArgs,
-  DiamondAbiTypechainTaskArgs,
   DiamondAbiGenerationOptions,
-  DiamondAbiGenerationResult,
-  TypeChainGenerationOptions,
-  TypeChainGenerationResult,
+  DiamondAbiGenerationResult, DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs, TypeChainGenerationOptions,
+  TypeChainGenerationResult
 } from "./tasks/shared/TaskOptions";
+

@@ -1,11 +1,11 @@
-import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import chalk from "chalk";
-import { existsSync, statSync, readdirSync } from "fs";
+import { existsSync, readdirSync, statSync } from "fs";
+import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import { generateDiamondAbi } from "../lib/DiamondAbiGenerator";
 import { HardhatTypeChainIntegration } from "../lib/TypeChainIntegration";
-import { TaskValidation } from "./shared/TaskValidation";
-import { TaskHelpers, ProgressIndicator } from "./shared/TaskHelpers";
+import { ProgressIndicator, TaskHelpers } from "./shared/TaskHelpers";
 import { DiamondAbiTypechainTaskArgs } from "./shared/TaskOptions";
+import { TaskValidation } from "./shared/TaskValidation";
 
 // Import task function - using require to avoid TypeScript module resolution issues
 const { task } = require("hardhat/config");
