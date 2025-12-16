@@ -12,7 +12,7 @@ import {
 } from '@diamondslab/diamonds';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { JsonRpcProvider } from 'ethers';
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { join } from 'path';
 
 // Hardhat task system used for Diamond ABI generation
