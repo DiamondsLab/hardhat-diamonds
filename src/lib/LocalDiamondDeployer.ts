@@ -24,7 +24,6 @@ export interface LocalDiamondDeployerConfig extends DiamondConfig {
 }
 
 export class LocalDiamondDeployer {
-  private hre: HardhatRuntimeEnvironment;
 	private static instances: Map<string, LocalDiamondDeployer> = new Map();
 	private deployInProgress: boolean = false;
 	private deployComplete: boolean = false;
@@ -35,15 +34,12 @@ export class LocalDiamondDeployer {
 	private signer: SignerWithAddress;
 	private diamondName: string;
 	private networkName: string = 'hardhat';
-	private chainId: bigint | number = 31337n;
-	private repository: DeploymentRepository;
 
 	private constructor(
     hre: HardhatRuntimeEnvironment,
 		config: LocalDiamondDeployerConfig,
 		repository: DeploymentRepository,
 	) {
-		this.hre = hre;
 		this.config = config as DiamondConfig;
 		this.diamondName = config.diamondName;
 		this.provider = config.provider ?? hre.ethers.provider;
@@ -63,8 +59,6 @@ export class LocalDiamondDeployer {
 			} else {
 				config.chainId = 31337;
 			}
-		} else {
-			this.chainId = config.chainId;
 		}
 
 		if (!config.signer) {
@@ -75,7 +69,6 @@ export class LocalDiamondDeployer {
 		if (!repository) {
 			throw new Error('Repository is required for LocalDiamondDeployer');
 		}
-		this.repository = repository;
 
 		// TODO make provider signer and repository optional (this may be handled in diamond constructor already)
 		this.diamond = new Diamond(this.config, repository);
@@ -83,16 +76,6 @@ export class LocalDiamondDeployer {
 		this.diamond.setSigner(this.signer);
 	}
 
-	private static async create(
-    hre: HardhatRuntimeEnvironment,
-		config: LocalDiamondDeployerConfig,
-		repository: DeploymentRepository,
-	): Promise<LocalDiamondDeployer> {
-		const instance = new LocalDiamondDeployer(hre, config, repository);
-
-		return instance;
-	}
-  
 	public static async getInstance(
     hre: HardhatRuntimeEnvironment,
 		config: LocalDiamondDeployerConfig,
