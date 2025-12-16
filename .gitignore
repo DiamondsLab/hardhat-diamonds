@@ -69,5 +69,8 @@ notes
 # dist folder for built files
 dist/
 
+# TypeScript build info
+*.tsbuildinfo
+
 # Yarn v2+
 .yarn/

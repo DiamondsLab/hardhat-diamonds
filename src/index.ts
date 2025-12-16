@@ -1,8 +1,8 @@
 import { extendConfig, extendEnvironment } from "hardhat/config";
-import { HardhatConfig, HardhatUserConfig } from "hardhat/types";
 import { lazyObject } from "hardhat/plugins";
-import { DiamondsPathsConfig } from "./type-extensions";
+import { HardhatConfig, HardhatUserConfig } from "hardhat/types";
 import { DiamondsConfig } from "./DiamondsConfig";
+import { DiamondsPathsConfig } from "./type-extensions";
 
 // Import tasks to register them with Hardhat
 import "./tasks";
