@@ -34,6 +34,11 @@ export {
   generateTypeChainTypes,
 } from "../lib/TypeChainIntegration";
 
+export {
+  LocalDiamondDeployer,
+  LocalDiamondDeployerConfig,
+} from "../lib/LocalDiamondDeployer";
+
 /**
  * Task metadata for discovery and documentation purposes
  */
