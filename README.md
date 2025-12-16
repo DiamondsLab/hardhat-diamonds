@@ -166,6 +166,160 @@ task("diamond-info", "Get diamond configuration")
   });
 ```
 
+### LocalDiamondDeployer
+
+The `LocalDiamondDeployer` class provides a singleton deployer for Diamond contracts on local Hardhat networks and forks. This utility is exported separately from `@diamondslab/hardhat-diamonds/dist/utils` to avoid circular dependency issues during Hardhat configuration loading.
+
+#### Installation
+
+The `LocalDiamondDeployer` is included with the `hardhat-diamonds` package:
+
+```typescript
+import { LocalDiamondDeployer, LocalDiamondDeployerConfig } from '@diamondslab/hardhat-diamonds/dist/utils';
+import hre from 'hardhat';
+```
+
+> **Important**: Import from `/dist/utils` rather than the main package to avoid the HH9 "Error while loading Hardhat's configuration" error.
+
+#### Configuration
+
+The deployer requires a configuration object with the following properties:
+
+```typescript
+interface LocalDiamondDeployerConfig {
+  diamondName: string;              // Name of the diamond contract
+  networkName: string;              // Network name (e.g., 'hardhat', 'localhost')
+  provider: JsonRpcProvider;        // Ethers provider instance
+  chainId: bigint;                  // Chain ID for the network
+  writeDeployedDiamondData?: boolean; // Whether to persist deployment data (default: false)
+  configFilePath: string;           // Path to diamond config file
+}
+```
+
+#### Basic Usage
+
+```typescript
+import { Diamond } from '@diamondslab/diamonds';
+import { LocalDiamondDeployer, LocalDiamondDeployerConfig } from '@diamondslab/hardhat-diamonds/dist/utils';
+import hre from 'hardhat';
+
+// Create configuration
+const config: LocalDiamondDeployerConfig = {
+  diamondName: 'ExampleDiamond',
+  networkName: 'hardhat',
+  provider: hre.ethers.provider,
+  chainId: (await hre.ethers.provider.getNetwork()).chainId,
+  writeDeployedDiamondData: false,
+  configFilePath: 'diamonds/ExampleDiamond/examplediamond.config.json',
+};
+
+// Get singleton instance (pass hre as first parameter)
+const deployer = await LocalDiamondDeployer.getInstance(hre, config);
+
+// Enable verbose logging (optional)
+await deployer.setVerbose(true);
+
+// Deploy or retrieve existing diamond
+const diamond: Diamond = await deployer.getDiamondDeployed();
+
+// Get deployment data
+const deployedData = diamond.getDeployedDiamondData();
+console.log('Diamond deployed at:', deployedData.DiamondAddress);
+```
+
+#### API Methods
+
+##### `getInstance(hre: HardhatRuntimeEnvironment, config: LocalDiamondDeployerConfig): Promise<LocalDiamondDeployer>`
+
+Retrieve or create a singleton instance of the deployer.
+
+**Parameters:**
+- `hre`: Hardhat Runtime Environment instance
+- `config`: Configuration object for the deployer
+
+**Returns:** Promise resolving to the LocalDiamondDeployer instance
+
+**Example:**
+```typescript
+const deployer = await LocalDiamondDeployer.getInstance(hre, config);
+```
+
+##### `setVerbose(verbose: boolean): Promise<void>`
+
+Enable or disable verbose logging during deployment.
+
+**Parameters:**
+- `verbose`: Boolean flag to enable/disable verbose output
+
+**Example:**
+```typescript
+await deployer.setVerbose(true);
+```
+
+##### `getDiamondDeployed(): Promise<Diamond>`
+
+Deploy (or retrieve if already deployed) the Diamond contract.
+
+**Returns:** Promise resolving to a Diamond instance
+
+**Example:**
+```typescript
+const diamond = await deployer.getDiamondDeployed();
+```
+
+#### Usage in Tests
+
+```typescript
+import { Diamond } from '@diamondslab/diamonds';
+import { LocalDiamondDeployer, LocalDiamondDeployerConfig } from '@diamondslab/hardhat-diamonds/dist/utils';
+import { expect } from 'chai';
+import hre from 'hardhat';
+
+describe('Diamond Tests', function() {
+  let diamond: Diamond;
+  let deployer: LocalDiamondDeployer;
+
+  beforeEach(async function() {
+    const config: LocalDiamondDeployerConfig = {
+      diamondName: 'ExampleDiamond',
+      networkName: 'hardhat',
+      provider: hre.ethers.provider,
+      chainId: (await hre.ethers.provider.getNetwork()).chainId,
+      writeDeployedDiamondData: false,
+      configFilePath: 'diamonds/ExampleDiamond/examplediamond.config.json',
+    };
+
+    deployer = await LocalDiamondDeployer.getInstance(hre, config);
+    diamond = await deployer.getDiamondDeployed();
+  });
+
+  it('should deploy diamond successfully', async function() {
+    const deployedData = diamond.getDeployedDiamondData();
+    expect(deployedData.DiamondAddress).to.be.properAddress;
+  });
+});
+```
+
+#### Singleton Pattern
+
+The `LocalDiamondDeployer` uses a singleton pattern to ensure only one instance exists per configuration. Subsequent calls with the same configuration will return the existing instance:
+
+```typescript
+const deployer1 = await LocalDiamondDeployer.getInstance(hre, config);
+const deployer2 = await LocalDiamondDeployer.getInstance(hre, config);
+// deployer1 === deployer2 (same instance)
+```
+
+#### Architecture Notes
+
+**Why `/dist/utils` import?**
+
+The `LocalDiamondDeployer` is exported from a separate utils module to prevent Hardhat's HH9 error. When `hardhat.config.ts` imports the main `@diamondslab/hardhat-diamonds` package, it should not trigger loading of classes that depend on the Hardhat Runtime Environment. By separating the deployer into `/dist/utils`, it can be imported only when needed in scripts and tests.
+
+**Why pass `hre` as parameter?**
+
+Following the `DiamondAbiGenerator` pattern, `LocalDiamondDeployer` receives the Hardhat Runtime Environment as a constructor parameter instead of importing it at the module level. This prevents circular dependencies and allows the class to work correctly when the Hardhat configuration is being loaded.
+
 ### Frontend Integration
 
 After generating types with TypeChain, you can use them in your frontend applications:
