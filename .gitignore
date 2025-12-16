@@ -63,6 +63,9 @@ typings/
 # flatten files
 flat/
 
+# random notes
+notes
+
 # dist folder for built files
 dist/
 
