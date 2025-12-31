@@ -11,7 +11,6 @@ import {
   impersonateAndFundSigner,
 } from '@diamondslab/diamonds';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
-import { JsonRpcProvider } from 'ethers';
 import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { join } from 'path';
 
@@ -44,9 +43,8 @@ export class LocalDiamondDeployer {
 		this.diamondName = config.diamondName;
 		this.provider = config.provider ?? hre.ethers.provider;
 		if (!config.networkName) {
-			// TODO account for "unknown" as hardhat
 			if ('_network' in this.provider) {
-				config.networkName = (this.provider as JsonRpcProvider)._network.name;
+				config.networkName = (this.provider as SupportedProvider)._network.name;
 			} else {
 				config.networkName = 'hardhat';
 			}
@@ -55,7 +53,7 @@ export class LocalDiamondDeployer {
 		}
 		if (!config.chainId) {
 			if ('_network' in this.provider) {
-				config.chainId = (this.provider as JsonRpcProvider)._network.chainId;
+				config.chainId = (this.provider as SupportedProvider)._network.chainId;
 			} else {
 				config.chainId = 31337;
 			}
@@ -70,10 +68,9 @@ export class LocalDiamondDeployer {
 			throw new Error('Repository is required for LocalDiamondDeployer');
 		}
 
-		// TODO make provider signer and repository optional (this may be handled in diamond constructor already)
 		this.diamond = new Diamond(this.config, repository);
 		this.diamond.setProvider(this.provider);
-		this.diamond.setSigner(this.signer);
+		this.diamond.setSigner(this.signer as any);
 	}
 
 	public static async getInstance(

@@ -7,16 +7,18 @@
  */
 
 export {
-    LocalDiamondDeployer,
-    LocalDiamondDeployerConfig
+  LocalDiamondDeployer,
+  LocalDiamondDeployerConfig
 } from "./LocalDiamondDeployer";
 
 export {
-    HardhatDiamondAbiGenerator,
-    generateDiamondAbi
+  generateDiamondAbi, HardhatDiamondAbiGenerator
 } from "./DiamondAbiGenerator";
 
 export {
-    HardhatTypeChainIntegration,
-    generateTypeChainTypes
+  generateTypeChainTypes, HardhatTypeChainIntegration
 } from "./TypeChainIntegration";
+
+export {
+  loadDiamondContract
+} from "./LoadDiamondArtifact";
