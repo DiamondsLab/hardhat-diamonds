@@ -6,4 +6,5 @@
  * dependency issues (HH9 error).
  */
 
+export { loadDiamondContract } from "./lib/LoadDiamondArtifact";
 export { LocalDiamondDeployer, LocalDiamondDeployerConfig } from "./lib/LocalDiamondDeployer";
