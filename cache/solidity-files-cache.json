@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/workspaces/diamonds_dev_env/packages/hardhat-diamonds/test/mocks/contracts/MockDiamond.sol": {
+    "/home/jamatulli/decentralization/diamonds/diamonds-dev-env/packages/hardhat-diamonds/test/mocks/contracts/MockDiamond.sol": {
       "lastModificationDate": 1757970166073,
       "contentHash": "82d58f535c7659a683d86de06dbad165",
       "sourceName": "test/mocks/contracts/MockDiamond.sol",
@@ -40,7 +40,7 @@
         "MockDiamond"
       ]
     },
-    "/workspaces/diamonds_dev_env/packages/hardhat-diamonds/test/mocks/contracts/MockTestFacet.sol": {
+    "/home/jamatulli/decentralization/diamonds/diamonds-dev-env/packages/hardhat-diamonds/test/mocks/contracts/MockTestFacet.sol": {
       "lastModificationDate": 1757970166073,
       "contentHash": "d479f3bfe34397b1d52708bc24ad9fba",
       "sourceName": "test/mocks/contracts/MockTestFacet.sol",

@@ -34,9 +34,9 @@ task(
     "Output file path (defaults to stdout)",
     undefined
   )
-  .addFlag("verbose", "Enable verbose logging")
+  .addFlag("flattenVerbose", "Enable verbose logging")
   .addOptionalParam(
-    "network",
+    "targetNetwork",
     "Target network for configuration (uses current network if not specified)"
   )
   .setAction(
@@ -54,12 +54,12 @@ task(
       const normalizedArgs = helpers.normalizeTaskArgs(args);
 
       try {
-        if (normalizedArgs.verbose) {
+        if (normalizedArgs.flattenVerbose) {
           helpers.logVerbose("Normalized arguments", normalizedArgs);
         }
 
         // Validate task arguments
-        if (normalizedArgs.verbose) {
+        if (normalizedArgs.flattenVerbose) {
           console.log(chalk.blue("🔍 Validating task arguments..."));
         }
 
@@ -68,21 +68,24 @@ task(
         if (!argsValidation.isValid) {
           TaskValidation.formatValidationResult(
             argsValidation,
-            normalizedArgs.verbose
+            normalizedArgs.flattenVerbose
           );
           throw new Error("Task argument validation failed");
         }
 
         // Show warnings if any
-        if (argsValidation.warnings.length > 0 && normalizedArgs.verbose) {
+        if (
+          argsValidation.warnings.length > 0 &&
+          normalizedArgs.flattenVerbose
+        ) {
           TaskValidation.formatValidationResult(
             argsValidation,
-            normalizedArgs.verbose
+            normalizedArgs.flattenVerbose
           );
         }
 
         // Validate diamond configuration
-        if (normalizedArgs.verbose) {
+        if (normalizedArgs.flattenVerbose) {
           console.log(chalk.blue("🔍 Validating diamond configuration..."));
         }
 
@@ -92,7 +95,7 @@ task(
         if (!configValidation.isValid) {
           TaskValidation.formatValidationResult(
             configValidation,
-            normalizedArgs.verbose
+            normalizedArgs.flattenVerbose
           );
           throw new Error("Diamond configuration validation failed");
         }
@@ -121,7 +124,7 @@ task(
         if (error instanceof Error) {
           console.error(chalk.red(`   ${error.message}`));
 
-          if (normalizedArgs.verbose && error.stack) {
+          if (normalizedArgs.flattenVerbose && error.stack) {
             console.error(chalk.gray("\nStack trace:"));
             console.error(chalk.gray(error.stack));
           }

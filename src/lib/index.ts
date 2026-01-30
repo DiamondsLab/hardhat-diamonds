@@ -1,6 +1,6 @@
 /**
  * Library exports for programmatic use
- * 
+ *
  * This module exports library functions and classes WITHOUT loading Hardhat tasks.
  * Use this when you want to use hardhat-diamonds functionality programmatically
  * without registering Hardhat tasks (which would cause circular dependencies).
@@ -8,17 +8,17 @@
 
 export {
   LocalDiamondDeployer,
-  LocalDiamondDeployerConfig
+  LocalDiamondDeployerConfig,
 } from "./LocalDiamondDeployer";
 
 export {
-  generateDiamondAbi, HardhatDiamondAbiGenerator
+  generateDiamondAbi,
+  HardhatDiamondAbiGenerator,
 } from "./DiamondAbiGenerator";
 
 export {
-  generateTypeChainTypes, HardhatTypeChainIntegration
+  generateTypeChainTypes,
+  HardhatTypeChainIntegration,
 } from "./TypeChainIntegration";
 
-export {
-  loadDiamondContract
-} from "./LoadDiamondArtifact";
+export { loadDiamondContract } from "./LoadDiamondArtifact";

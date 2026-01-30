@@ -116,9 +116,9 @@ export interface DiamondFlattenTaskArgs {
   /** Output file path (optional, defaults to stdout) */
   output?: string;
   /** Enable verbose logging (optional flag) */
-  verbose?: boolean;
+  flattenVerbose?: boolean;
   /** Target network for configuration (optional) */
-  network?: string;
+  targetNetwork?: string;
 }
 
 /**

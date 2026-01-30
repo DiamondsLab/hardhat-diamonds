@@ -79,8 +79,8 @@ export const HARDHAT_DIAMONDS_TASKS = {
     description: "Flatten Diamond contract with all facets into single file",
     category: "Diamond Proxy",
     requiredParams: ["diamondName"],
-    optionalParams: ["output", "network"],
-    flags: ["verbose"],
+    optionalParams: ["output", "targetNetwork"],
+    flags: ["flattenVerbose"],
   },
 } as const;
 

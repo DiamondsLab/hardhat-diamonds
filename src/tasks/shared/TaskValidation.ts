@@ -282,8 +282,11 @@ export class TaskValidation {
     }
 
     // Validate network if provided
-    if (args.network !== undefined && args.network !== null) {
-      const networkValidation = this.validateNetwork(args.network);
+    if (args.targetNetwork !== undefined && args.targetNetwork !== null) {
+      const networkValidation = this.validateNetwork(
+        args.targetNetwork,
+        "targetNetwork"
+      );
       if (!networkValidation.isValid) {
         errors.push(...networkValidation.errors);
         warnings.push(...networkValidation.warnings);
@@ -458,9 +461,13 @@ export class TaskValidation {
    * Validate network configuration
    *
    * @param networkName - Network name to validate
+   * @param fieldName - Name of the field (defaults to "network")
    * @returns Validation result
    */
-  private validateNetwork(networkName: string): ValidationResult {
+  private validateNetwork(
+    networkName: string,
+    fieldName: string = "network"
+  ): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: string[] = [];
 
@@ -470,7 +477,7 @@ export class TaskValidation {
       networkName.trim() === ""
     ) {
       errors.push({
-        field: "network",
+        field: fieldName,
         message: "Network name must be a non-empty string",
         suggestion:
           "Provide a valid network name from your Hardhat configuration",
@@ -482,7 +489,7 @@ export class TaskValidation {
     const networks = this.hre.config.networks;
     if (!networks[networkName]) {
       errors.push({
-        field: "network",
+        field: fieldName,
         message: `Network "${networkName}" not found in Hardhat configuration`,
         suggestion: `Available networks: ${Object.keys(networks).join(", ")}`,
       });
