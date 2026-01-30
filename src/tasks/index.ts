@@ -9,13 +9,23 @@
 // Import task definitions - this will register them with Hardhat
 import "./diamond-abi";
 import "./diamond-abi-typechain";
+import "./diamond-flatten";
 
 // Re-export task-related types and utilities for external use
 export type {
-    DiamondAbiGenerationOptions,
-    DiamondAbiGenerationResult, DiamondAbiTaskArgs,
-    DiamondAbiTypechainTaskArgs, TypeChainGenerationOptions,
-    TypeChainGenerationResult
+  DiamondAbiGenerationOptions,
+  DiamondAbiGenerationResult,
+  DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs,
+  TypeChainGenerationOptions,
+  TypeChainGenerationResult,
+  DiamondFlattenTaskArgs,
+  DiamondFlattenOptions,
+  DiamondFlattenResult,
+  SelectorInfo,
+  FlattenStats,
+  DiscoveredFacet,
+  DiamondContractInfo,
 } from "./shared/TaskOptions";
 
 export { ProgressIndicator, TaskHelpers } from "./shared/TaskHelpers";
@@ -23,13 +33,13 @@ export { TaskValidation } from "./shared/TaskValidation";
 
 // Re-export library functions for programmatic use
 export {
-    HardhatDiamondAbiGenerator,
-    generateDiamondAbi
+  HardhatDiamondAbiGenerator,
+  generateDiamondAbi,
 } from "../lib/DiamondAbiGenerator";
 
 export {
-    HardhatTypeChainIntegration,
-    generateTypeChainTypes
+  HardhatTypeChainIntegration,
+  generateTypeChainTypes,
 } from "../lib/TypeChainIntegration";
 
 // NOTE: LocalDiamondDeployer is exported from lib/index.ts instead
@@ -63,6 +73,14 @@ export const HARDHAT_DIAMONDS_TASKS = {
       "network",
     ],
     flags: ["verbose", "validateSelectors", "includeSourceInfo"],
+  },
+  "diamond:flatten": {
+    name: "diamond:flatten",
+    description: "Flatten Diamond contract with all facets into single file",
+    category: "Diamond Proxy",
+    requiredParams: ["diamondName"],
+    optionalParams: ["output", "network"],
+    flags: ["verbose"],
   },
 } as const;
 
@@ -120,6 +138,8 @@ export function getDiamondTasksHelp(): string {
     "  npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose\n";
   help +=
     "  npx hardhat diamond:generate-abi --diamond-name TestDiamond --output-dir ./custom-abi\n";
+  help +=
+    "  npx hardhat diamond:flatten --diamond-name ExampleDiamond --output ./flat/ExampleDiamond.sol\n";
 
   return help;
 }
