@@ -106,3 +106,101 @@ export interface TypeChainGenerationResult {
   /** Error message if failed */
   error?: string;
 }
+
+/**
+ * CLI task arguments for diamond:flatten
+ */
+export interface DiamondFlattenTaskArgs {
+  /** Name of the diamond to flatten (required) */
+  diamondName: string;
+  /** Output file path (optional, defaults to stdout) */
+  output?: string;
+  /** Enable verbose logging (optional flag) */
+  verbose?: boolean;
+  /** Target network for configuration (optional) */
+  network?: string;
+}
+
+/**
+ * Internal options for DiamondFlattener class
+ */
+export interface DiamondFlattenOptions {
+  /** Name of the diamond to flatten */
+  diamondName: string;
+  /** Output file path for flattened source */
+  outputPath: string;
+  /** Network name for configuration */
+  networkName: string;
+  /** Hardhat runtime environment */
+  hre: any; // Will be typed as HardhatRuntimeEnvironment in implementation
+  /** Enable verbose logging */
+  verbose: boolean;
+}
+
+/**
+ * Result returned from flatten operation
+ */
+export interface DiamondFlattenResult {
+  /** Flattened Solidity source code */
+  flattenedSource: string;
+  /** Output file path where source was written */
+  outputPath: string;
+  /** Function selector to facet mapping */
+  selectorMapping: SelectorInfo[];
+  /** Statistics about the flatten operation */
+  stats: FlattenStats;
+}
+
+/**
+ * Function selector metadata
+ */
+export interface SelectorInfo {
+  /** 4-byte function selector (0x prefixed hex) */
+  selector: string;
+  /** Name of the facet containing this function */
+  facetName: string;
+  /** Function name */
+  functionName: string;
+  /** Full function signature with parameters */
+  signature: string;
+}
+
+/**
+ * Statistics from flatten operation
+ */
+export interface FlattenStats {
+  /** Total number of contracts included */
+  totalContracts: number;
+  /** Total number of facets processed */
+  totalFacets: number;
+  /** Total lines of code in flattened output */
+  totalLines: number;
+  /** Number of duplicate contracts removed */
+  deduplicatedContracts: number;
+}
+
+/**
+ * Discovered facet information
+ */
+export interface DiscoveredFacet {
+  /** Facet contract name */
+  name: string;
+  /** Path to the facet contract source file */
+  contractPath: string;
+  /** Function selectors exposed by this facet */
+  selectors: string[];
+  /** Whether this is an initialization contract */
+  isInit: boolean;
+}
+
+/**
+ * Diamond contract information
+ */
+export interface DiamondContractInfo {
+  /** Diamond contract name */
+  name: string;
+  /** Path to the diamond contract source file */
+  sourcePath: string;
+  /** Whether the diamond contract was found */
+  found: boolean;
+}
