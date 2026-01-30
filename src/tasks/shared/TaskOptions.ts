@@ -191,6 +191,10 @@ export interface DiscoveredFacet {
   selectors: string[];
   /** Whether this is an initialization contract */
   isInit: boolean;
+  /** Priority for deployment order (lower = earlier) */
+  priority?: number;
+  /** Version string from configuration */
+  version?: string;
 }
 
 /**

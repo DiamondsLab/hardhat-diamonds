@@ -146,6 +146,89 @@ export class DiamondFlattener {
   }
 
   /**
+   * Resolves the contract source path for a given contract name
+   * 
+   * Searches for the contract in multiple locations with the following priority:
+   * 1. Hardhat artifacts directory (compiled contracts)
+   * 2. Source contracts directory
+   * 3. Configuration-specified paths
+   * 
+   * @private
+   * @param contractName - Name of the contract to locate
+   * @returns Promise resolving to the contract path, or null if not found
+   */
+  private async resolveContractPath(contractName: string): Promise<string | null> {
+    const { contractsPath } = this.options;
+    const artifactsPath = this.hre.config.paths.artifacts;
+    const sourcesPath = this.hre.config.paths.sources;
+
+    const searchPaths = [
+      // Search in artifacts (compiled contracts)
+      `${artifactsPath}/contracts/${contractsPath}/${contractName}.sol/${contractName}.json`,
+      `${artifactsPath}/contracts/${contractName}.sol/${contractName}.json`,
+      // Search in source contracts
+      `${sourcesPath}/${contractsPath}/${contractName}.sol`,
+      `${sourcesPath}/${contractName}.sol`,
+      // Search in diamonds contracts path
+      `${sourcesPath}/examplediamond/${contractName}.sol`,
+      `${sourcesPath}/facets/${contractName}.sol`,
+    ];
+
+    this.log(chalk.gray(`  Searching for ${contractName} in ${searchPaths.length} locations...`));
+
+    for (const path of searchPaths) {
+      this.log(chalk.gray(`    Checking: ${path}`));
+      try {
+        const fs = await import('fs/promises');
+        await fs.access(path);
+        this.log(chalk.green(`    ✓ Found at: ${path}`));
+        return path;
+      } catch {
+        // File not found, continue to next path
+      }
+    }
+
+    this.log(chalk.yellow(`    ⚠ Not found in any location`));
+    return null;
+  }
+
+  /**
+   * Checks if a facet is an initialization contract
+   * 
+   * Initialization contracts are special facets used for Diamond initialization
+   * or upgrades. They are identified by:
+   * 1. Being listed as protocolInitFacet in the deployment config
+   * 2. Having deployInit or upgradeInit functions defined
+   * 3. Naming conventions (ends with "Init", "InitFacet", etc.)
+   * 
+   * @private
+   * @param facetName - Name of the facet to check
+   * @param deployConfig - Deployment configuration containing init facet info
+   * @returns True if this is an initialization contract
+   */
+  private isInitContract(facetName: string, deployConfig: any): boolean {
+    // Check if it's the protocol init facet
+    if (deployConfig.protocolInitFacet === facetName) {
+      return true;
+    }
+
+    // Check if any version has deployInit or upgradeInit
+    const facetConfig = deployConfig.facets?.[facetName];
+    if (facetConfig?.versions) {
+      for (const versionConfig of Object.values(facetConfig.versions)) {
+        const version = versionConfig as any;
+        if (version.deployInit || version.upgradeInit) {
+          return true;
+        }
+      }
+    }
+
+    // Check naming conventions
+    const initPatterns = [/Init$/, /InitFacet$/, /Initializ/, /Diamond.*Init/i];
+    return initPatterns.some(pattern => pattern.test(facetName));
+  }
+
+  /**
    * Discovers all facets from Diamond configuration
    * 
    * This method reads the Diamond deployment configuration, resolves contract paths,
@@ -158,11 +241,106 @@ export class DiamondFlattener {
   public async discoverFacets(): Promise<DiscoveredFacet[]> {
     this.log(chalk.blue(`Discovering facets for ${this.options.diamondName}...`));
     
-    // TODO: Implement facet discovery in Task 2.0
-    const facets: DiscoveredFacet[] = [];
-    
-    this.log(chalk.green(`✓ Discovered ${facets.length} facets`));
-    return facets;
+    try {
+      // Get deployment configuration
+      const deployConfig = this.diamond ? 
+        this.diamond.getDeployConfig() : 
+        await this.loadDeployConfigFallback();
+
+      if (!deployConfig || !deployConfig.facets || Object.keys(deployConfig.facets).length === 0) {
+        this.addWarning(`No facets configured for ${this.options.diamondName}`);
+        return [];
+      }
+
+      const facets: DiscoveredFacet[] = [];
+      const facetEntries = Object.entries(deployConfig.facets);
+
+      this.log(chalk.gray(`  Found ${facetEntries.length} facets in configuration`));
+
+      // Process each facet
+      for (const [facetName, facetConfig] of facetEntries) {
+        try {
+          this.log(chalk.gray(`  Processing facet: ${facetName}`));
+
+          // Resolve contract source path
+          const contractPath = await this.resolveContractPath(facetName);
+          if (!contractPath) {
+            this.addWarning(`Source file not found for facet: ${facetName}`);
+          }
+
+          // Check if this is an initialization contract
+          const isInit = this.isInitContract(facetName, deployConfig);
+
+          // Extract version information (use latest/highest version)
+          let version = "0.0";
+          const versions = (facetConfig as any).versions || {};
+          const versionKeys = Object.keys(versions);
+          if (versionKeys.length > 0) {
+            version = versionKeys[versionKeys.length - 1];
+          }
+
+          // Get priority for sorting
+          const priority = (facetConfig as any).priority || 999;
+
+          // Create discovered facet object
+          const discoveredFacet: DiscoveredFacet = {
+            name: facetName,
+            contractPath: contractPath || "",
+            selectors: [], // Will be filled in by buildSelectorMap
+            isInit,
+            priority, // Add priority for sorting
+            version, // Add version info
+          };
+
+          facets.push(discoveredFacet);
+          this.log(chalk.green(`    ✓ Discovered ${facetName} (priority: ${priority}, init: ${isInit})`));
+
+        } catch (error) {
+          // Non-critical error for individual facet - add warning and continue
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          this.addWarning(`Failed to process facet ${facetName}: ${errorMessage}`);
+        }
+      }
+
+      // Sort facets by priority (ascending)
+      facets.sort((a, b) => (a as any).priority - (b as any).priority);
+
+      this.log(chalk.green(`✓ Discovered ${facets.length} facets`));
+      return facets;
+
+    } catch (error) {
+      // Critical error - throw FlattenError
+      throw new FlattenError(
+        `Failed to discover facets for ${this.options.diamondName}: ${error instanceof Error ? error.message : String(error)}`,
+        ErrorCodes.INVALID_CONFIGURATION,
+        { diamondName: this.options.diamondName, originalError: error }
+      );
+    }
+  }
+
+  /**
+   * Loads deployment configuration as fallback when Diamond instance not available
+   * 
+   * @private
+   * @returns Promise resolving to deployment configuration
+   */
+  private async loadDeployConfigFallback(): Promise<any> {
+    const { diamondsPath, diamondName, networkName, chainId } = this.options;
+    const configPath = `${diamondsPath}/${diamondName}/${diamondName.toLowerCase()}.config.json`;
+
+    this.log(chalk.yellow(`  Using fallback: loading config from ${configPath}`));
+
+    try {
+      const fs = await import('fs/promises');
+      const configContent = await fs.readFile(configPath, 'utf-8');
+      return JSON.parse(configContent);
+    } catch (error) {
+      throw new FlattenError(
+        `Failed to load deployment configuration from ${configPath}`,
+        ErrorCodes.FILE_SYSTEM_ERROR,
+        { configPath, originalError: error }
+      );
+    }
   }
 
   /**

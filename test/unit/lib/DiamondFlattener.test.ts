@@ -2,6 +2,12 @@ import { expect } from "chai";
 import { DiamondFlattener } from "../../../src/lib/DiamondFlattener";
 import { FlattenError, ErrorCodes } from "../../../src/lib/FlattenError";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
+import {
+  mockDiamondConfigWithFacets,
+  mockDiamondConfigEmpty,
+  mockDiamondConfigWithInit,
+  mockDiamondConfigMixedPriority,
+} from "../../fixtures/mock-diamond-config";
 
 describe("DiamondFlattener", () => {
   // Mock HRE for testing
@@ -26,6 +32,7 @@ describe("DiamondFlattener", () => {
           },
         },
         paths: {
+          root: "/test/project",
           sources: "contracts",
           artifacts: "artifacts",
         },
@@ -310,11 +317,6 @@ describe("DiamondFlattener", () => {
       expect(flattener.discoverDiamondContract).to.be.a("function");
     });
 
-    it("discoverFacets should return empty array (placeholder)", async () => {
-      const facets = await flattener.discoverFacets();
-      expect(facets).to.be.an("array").that.is.empty;
-    });
-
     it("buildSelectorMap should return empty Map (placeholder)", async () => {
       const selectorMap = await flattener.buildSelectorMap([]);
       expect(selectorMap).to.be.instanceOf(Map);
@@ -333,6 +335,191 @@ describe("DiamondFlattener", () => {
       const warnings = flattener.getWarnings();
       expect(warnings).to.have.lengthOf(1);
       expect(warnings[0]).to.include("Diamond contract source file not found");
+    });
+  });
+
+  describe("Facet Discovery", () => {
+    let flattener: DiamondFlattener;
+
+    beforeEach(() => {
+      flattener = new DiamondFlattener(mockHre as HardhatRuntimeEnvironment, {
+        diamondName: "ExampleDiamond",
+        outputPath: "./flattened/ExampleDiamond.sol",
+      });
+    });
+
+    describe("resolveContractPath", () => {
+      it("should return null for non-existent contract", async () => {
+        // Access private method via type casting for testing
+        const resolveContractPath = (flattener as any).resolveContractPath.bind(flattener);
+        const path = await resolveContractPath("NonExistentContract");
+        expect(path).to.be.null;
+      });
+    });
+
+    describe("isInitContract", () => {
+      it("should identify protocolInitFacet as init contract", () => {
+        const isInitContract = (flattener as any).isInitContract.bind(flattener);
+        const result = isInitContract("DiamondInit", mockDiamondConfigWithInit);
+        expect(result).to.be.true;
+      });
+
+      it("should identify facet with deployInit as init contract", () => {
+        const isInitContract = (flattener as any).isInitContract.bind(flattener);
+        const result = isInitContract("DiamondInit", mockDiamondConfigWithInit);
+        expect(result).to.be.true;
+      });
+
+      it("should identify facet by naming convention (ends with Init)", () => {
+        const isInitContract = (flattener as any).isInitContract.bind(flattener);
+        const result = isInitContract("CustomInit", { facets: {} });
+        expect(result).to.be.true;
+      });
+
+      it("should identify facet by naming convention (ends with InitFacet)", () => {
+        const isInitContract = (flattener as any).isInitContract.bind(flattener);
+        const result = isInitContract("CustomInitFacet", { facets: {} });
+        expect(result).to.be.true;
+      });
+
+      it("should NOT identify regular facet as init contract", () => {
+        const isInitContract = (flattener as any).isInitContract.bind(flattener);
+        const result = isInitContract("DiamondCutFacet", { facets: {} });
+        expect(result).to.be.false;
+      });
+    });
+
+    describe("discoverFacets", () => {
+      it("should return empty array when no facets configured", async () => {
+        // Mock diamond with no facets
+        (flattener as any).diamond = {
+          getDeployConfig: () => mockDiamondConfigEmpty,
+        };
+
+        // Clear any existing warnings from constructor
+        flattener.clearWarnings();
+
+        const facets = await flattener.discoverFacets();
+        expect(facets).to.be.an("array").that.is.empty;
+        
+        // Should add warning about no facets
+        const warnings = flattener.getWarnings();
+        expect(warnings).to.have.length.greaterThan(0);
+        const noFacetsWarning = warnings.find(w => w.includes("No facets configured"));
+        expect(noFacetsWarning).to.exist;
+      });
+
+      it("should discover facets from Diamond configuration", async () => {
+        // Mock diamond with facets
+        (flattener as any).diamond = {
+          getDeployConfig: () => mockDiamondConfigWithFacets,
+        };
+
+        const facets = await flattener.discoverFacets();
+        expect(facets).to.have.lengthOf(4);
+        
+        // Check facet names
+        const facetNames = facets.map(f => f.name);
+        expect(facetNames).to.include("DiamondCutFacet");
+        expect(facetNames).to.include("DiamondLoupeFacet");
+        expect(facetNames).to.include("ExampleOwnershipFacet");
+        expect(facetNames).to.include("ExampleInitFacet");
+      });
+
+      it("should sort facets by priority ascending", async () => {
+        // Mock diamond with mixed priority facets
+        (flattener as any).diamond = {
+          getDeployConfig: () => mockDiamondConfigMixedPriority,
+        };
+
+        const facets = await flattener.discoverFacets();
+        expect(facets).to.have.lengthOf(4);
+        
+        // Verify sorting: LowPriority(5), MediumPriority(50), HighPriority(100), Init(200)
+        expect(facets[0].name).to.equal("LowPriorityFacet");
+        expect(facets[1].name).to.equal("MediumPriorityFacet");
+        expect(facets[2].name).to.equal("HighPriorityFacet");
+        expect(facets[3].name).to.equal("InitFacet");
+      });
+
+      it("should identify init contracts correctly", async () => {
+        // Mock diamond with init facet
+        (flattener as any).diamond = {
+          getDeployConfig: () => mockDiamondConfigWithFacets,
+        };
+
+        const facets = await flattener.discoverFacets();
+        
+        // Find ExampleInitFacet
+        const initFacet = facets.find(f => f.name === "ExampleInitFacet");
+        expect(initFacet).to.exist;
+        expect(initFacet!.isInit).to.be.true;
+        
+        // Regular facets should not be init
+        const regularFacet = facets.find(f => f.name === "DiamondCutFacet");
+        expect(regularFacet).to.exist;
+        expect(regularFacet!.isInit).to.be.false;
+      });
+
+      it("should extract version information", async () => {
+        // Mock diamond with facets
+        (flattener as any).diamond = {
+          getDeployConfig: () => mockDiamondConfigWithFacets,
+        };
+
+        const facets = await flattener.discoverFacets();
+        
+        // All facets should have version info
+        facets.forEach(facet => {
+          expect(facet).to.have.property("version");
+          expect(facet.version).to.be.a("string");
+        });
+      });
+
+      it("should add warnings for missing source files", async () => {
+        // Mock diamond with facets (source files won't exist in test env)
+        (flattener as any).diamond = {
+          getDeployConfig: () => mockDiamondConfigWithFacets,
+        };
+
+        await flattener.discoverFacets();
+        
+        // Should have warnings about missing source files
+        const warnings = flattener.getWarnings();
+        expect(warnings.length).to.be.greaterThan(0);
+        // At least some warnings should be about source files
+        const sourceWarnings = warnings.filter(w => w.includes("Source file not found"));
+        expect(sourceWarnings.length).to.be.greaterThan(0);
+      });
+
+      it("should throw FlattenError for critical configuration errors", async () => {
+        // Mock diamond returning null config
+        (flattener as any).diamond = {
+          getDeployConfig: () => {
+            throw new Error("Critical config error");
+          },
+        };
+
+        // Should throw FlattenError, not generic Error
+        try {
+          await flattener.discoverFacets();
+          expect.fail("Should have thrown FlattenError");
+        } catch (error) {
+          expect(error).to.be.instanceOf(FlattenError);
+          expect((error as FlattenError).code).to.equal(ErrorCodes.INVALID_CONFIGURATION);
+        }
+      });
+
+      it("should use fallback config loading when Diamond instance not available", async () => {
+        // Set diamond to null to trigger fallback
+        (flattener as any).diamond = null;
+
+        // Mock the fallback method
+        (flattener as any).loadDeployConfigFallback = async () => mockDiamondConfigWithFacets;
+
+        const facets = await flattener.discoverFacets();
+        expect(facets.length).to.be.greaterThan(0);
+      });
     });
   });
 });
