@@ -320,7 +320,7 @@ describe("DiamondFlattenTaskArgs Validation", () => {
         result.errors.forEach((error) => {
           expect(error.suggestion).to.exist;
           expect(error.suggestion).to.be.a("string");
-          expect(error.suggestion.length).to.be.greaterThan(0);
+          expect(error.suggestion?.length).to.be.greaterThan(0);
         });
       });
 
