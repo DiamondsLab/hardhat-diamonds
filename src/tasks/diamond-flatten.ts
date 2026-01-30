@@ -63,24 +63,23 @@ task(
           console.log(chalk.blue("🔍 Validating task arguments..."));
         }
 
-        // Placeholder validation - will be implemented in Task 4
-        // const argsValidation =
-        //   validation.validateDiamondFlattenArgs(normalizedArgs);
-        // if (!argsValidation.isValid) {
-        //   TaskValidation.formatValidationResult(
-        //     argsValidation,
-        //     normalizedArgs.verbose
-        //   );
-        //   throw new Error("Task argument validation failed");
-        // }
+        const argsValidation =
+          validation.validateDiamondFlattenArgs(normalizedArgs);
+        if (!argsValidation.isValid) {
+          TaskValidation.formatValidationResult(
+            argsValidation,
+            normalizedArgs.verbose
+          );
+          throw new Error("Task argument validation failed");
+        }
 
         // Show warnings if any
-        // if (argsValidation.warnings.length > 0 && normalizedArgs.verbose) {
-        //   TaskValidation.formatValidationResult(
-        //     argsValidation,
-        //     normalizedArgs.verbose
-        //   );
-        // }
+        if (argsValidation.warnings.length > 0 && normalizedArgs.verbose) {
+          TaskValidation.formatValidationResult(
+            argsValidation,
+            normalizedArgs.verbose
+          );
+        }
 
         // Validate diamond configuration
         if (normalizedArgs.verbose) {
