@@ -22,3 +22,8 @@ export {
 } from "./TypeChainIntegration";
 
 export { loadDiamondContract } from "./LoadDiamondArtifact";
+
+export { DiamondFlattener } from "./DiamondFlattener";
+
+export { FlattenError, ErrorCodes } from "./FlattenError";
+export type { ErrorCode } from "./FlattenError";
