@@ -382,7 +382,13 @@ export class DiamondFlattener {
 
     try {
       const fs = await import("fs/promises");
-      const configContent = await fs.readFile(configPath, "utf-8");
+      const path = await import("path");
+      // Make path absolute relative to HRE root
+      const absoluteConfigPath = path.resolve(
+        this.hre.config.paths.root,
+        configPath
+      );
+      const configContent = await fs.readFile(absoluteConfigPath, "utf-8");
       return JSON.parse(configContent);
     } catch (error) {
       throw new FlattenError(
@@ -602,9 +608,7 @@ export class DiamondFlattener {
       this.addWarning(
         `Diamond contract source file not found for ${diamondName}. Searched paths: ${searchPaths.join(", ")}`
       );
-      this.log(
-        chalk.yellow(`⚠ Diamond contract not found for ${diamondName}`)
-      );
+      this.log(chalk.yellow(`⚠ Diamond contract not found for ${diamondName}`));
     } else {
       this.log(
         chalk.green(`✓ Found Diamond contract at ${contractInfo.sourcePath}`)
