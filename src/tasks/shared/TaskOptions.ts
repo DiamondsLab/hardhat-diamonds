@@ -130,11 +130,17 @@ export interface DiamondFlattenOptions {
   /** Output file path for flattened source */
   outputPath: string;
   /** Network name for configuration */
-  networkName: string;
+  networkName?: string;
+  /** Chain ID for network */
+  chainId?: number;
+  /** Path to diamonds directory */
+  diamondsPath?: string;
+  /** Path to contracts directory */
+  contractsPath?: string;
   /** Hardhat runtime environment */
-  hre: any; // Will be typed as HardhatRuntimeEnvironment in implementation
+  hre?: any; // Will be typed as HardhatRuntimeEnvironment in implementation
   /** Enable verbose logging */
-  verbose: boolean;
+  verbose?: boolean;
 }
 
 /**

@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { DiamondFlattener } from "../../../src/lib/DiamondFlattener";
 import { FlattenError, ErrorCodes } from "../../../src/lib/FlattenError";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
+import type { DiscoveredFacet } from "../../../src/tasks/shared/TaskOptions";
 import {
   mockDiamondConfigWithFacets,
   mockDiamondConfigEmpty,
@@ -801,8 +802,6 @@ describe("DiamondFlattener", () => {
         // But map should still be processed
         expect(selectorMap).to.be.instanceOf(Map);
 
-        // Restore
-        (flattener as any).getFacetSelectors = originalGetFacetSelectors;
       });
 
       it("should skip init contracts", async () => {

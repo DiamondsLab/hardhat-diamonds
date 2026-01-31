@@ -438,10 +438,14 @@ export class DiamondFlattener {
    * Computes 4-byte selectors for all functions in the ABI using keccak256.
    * Only processes function entries (type === "function").
    *
+   * Note: This is a utility method primarily used for testing. The buildSelectorMap
+   * method inlines this logic to also capture function metadata.
+   *
    * @param abi - Contract ABI array
    * @returns Array of 4-byte selectors (0x prefixed)
    * @private
    */
+  // @ts-ignore - Method used in tests
   private extractSelectorsFromAbi(abi: any[]): string[] {
     if (!abi || abi.length === 0) {
       return [];
@@ -456,59 +460,10 @@ export class DiamondFlattener {
       const selector = hash.substring(0, 10); // 0x + 8 hex chars = 4 bytes
       selectors.push(selector);
 
-      this.log(
-        chalk.gray(`    - ${signature} -> ${selector}`)
-      );
+      this.log(chalk.gray(`    - ${signature} -> ${selector}`));
     }
 
     return selectors;
-  }
-
-  /**
-   * Gets function selectors for a specific facet
-   *
-   * Attempts to retrieve selectors from Diamond registry first, then falls back
-   * to computing from ABI. Adds verbose logging for transparency.
-   *
-   * @param facetName - Name of the facet
-   * @returns Promise resolving to array of selectors
-   * @private
-   */
-  private async getFacetSelectors(facetName: string): Promise<string[]> {
-    this.log(chalk.gray(`  Getting selectors for ${facetName}...`));
-
-    // Try Diamond registry first
-    if (this.diamond) {
-      try {
-        const facetConfig = this.diamond.getFacet(facetName);
-        if (facetConfig && facetConfig.selectors && facetConfig.selectors.length > 0) {
-          this.log(
-            chalk.gray(
-              `    Using ${facetConfig.selectors.length} selectors from Diamond registry`
-            )
-          );
-          return facetConfig.selectors;
-        }
-      } catch (error) {
-        // Silently fall through to ABI extraction
-        this.log(chalk.gray(`    Registry lookup failed, using ABI fallback`));
-      }
-    }
-
-    // Fallback: Extract from ABI
-    try {
-      const artifactPath = `${this.options.contractsPath}/examplediamond/${facetName}.sol/${facetName}.json`;
-      const artifact = await import(artifactPath);
-      const abi = artifact.abi || artifact.default?.abi || [];
-
-      this.log(chalk.gray(`    Extracting selectors from ABI...`));
-      return this.extractSelectorsFromAbi(abi);
-    } catch (error) {
-      this.addWarning(
-        `Could not load ABI for facet ${facetName}: ${error instanceof Error ? error.message : String(error)}`
-      );
-      return [];
-    }
   }
 
   /**
@@ -533,9 +488,7 @@ export class DiamondFlattener {
     for (const facet of facets) {
       // Skip init contracts - they don't have selectors in the Diamond
       if (facet.isInit) {
-        this.log(
-          chalk.gray(`  Skipping init contract: ${facet.name}`)
-        );
+        this.log(chalk.gray(`  Skipping init contract: ${facet.name}`));
         continue;
       }
 
@@ -544,9 +497,6 @@ export class DiamondFlattener {
         const artifactPath = `${this.options.contractsPath}/examplediamond/${facet.name}.sol/${facet.name}.json`;
         const artifact = await import(artifactPath);
         const abi = artifact.abi || artifact.default?.abi || [];
-
-        // Get selectors for this facet
-        const selectors = await this.getFacetSelectors(facet.name);
 
         // Build SelectorInfo for each selector
         const functions = abi.filter((item: any) => item.type === "function");
@@ -574,9 +524,7 @@ export class DiamondFlattener {
           selectorMap.set(selector, selectorInfo);
 
           this.log(
-            chalk.gray(
-              `    Mapped ${selector} -> ${facet.name}.${func.name}()`
-            )
+            chalk.gray(`    Mapped ${selector} -> ${facet.name}.${func.name}()`)
           );
         }
       } catch (error) {
