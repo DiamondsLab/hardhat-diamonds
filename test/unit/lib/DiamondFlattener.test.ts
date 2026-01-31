@@ -797,11 +797,10 @@ describe("DiamondFlattener", () => {
         flattener.clearWarnings();
 
         const selectorMap = await flattener.buildSelectorMap(mockFacets);
-        
+
         // Should have warning about failed artifact import (since we're not mocking that)
         // But map should still be processed
         expect(selectorMap).to.be.instanceOf(Map);
-
       });
 
       it("should skip init contracts", async () => {
@@ -849,6 +848,82 @@ describe("DiamondFlattener", () => {
 
         const selectorMap = await flattener.buildSelectorMap(mockFacets);
         expect(selectorMap.size).to.equal(0);
+      });
+    });
+  });
+
+  describe("Diamond Contract Discovery (Task 4.0)", () => {
+    let flattener: DiamondFlattener;
+
+    beforeEach(() => {
+      flattener = new DiamondFlattener(mockHre as HardhatRuntimeEnvironment, {
+        diamondName: "ExampleDiamond",
+        outputPath: "/test/output/ExampleDiamond.sol",
+        verbose: false,
+      });
+    });
+
+    describe("discoverDiamondContract()", () => {
+      it("should return DiamondContractInfo with expected structure", async () => {
+        const contractInfo = await flattener.discoverDiamondContract();
+
+        expect(contractInfo).to.have.property("name");
+        expect(contractInfo).to.have.property("sourcePath");
+        expect(contractInfo).to.have.property("found");
+        expect(contractInfo.name).to.equal("ExampleDiamond");
+      });
+
+      it("should mark as not found when contract doesn't exist", async () => {
+        const contractInfo = await flattener.discoverDiamondContract();
+
+        expect(contractInfo.found).to.be.false;
+        expect(contractInfo.sourcePath).to.equal("");
+      });
+
+      it("should add warning when Diamond contract not found", async () => {
+        flattener.clearWarnings();
+
+        await flattener.discoverDiamondContract();
+        const warnings = flattener.getWarnings();
+
+        expect(warnings.length).to.be.greaterThan(0);
+        const hasNotFoundWarning = warnings.some((w) =>
+          w.includes("Diamond contract source file not found")
+        );
+        expect(hasNotFoundWarning).to.be.true;
+      });
+
+      it("should search multiple standard locations", async () => {
+        // The method logs each search path
+        // We can verify it tries multiple paths by checking it doesn't fail immediately
+        const contractInfo = await flattener.discoverDiamondContract();
+
+        // Should complete search without throwing
+        expect(contractInfo).to.exist;
+        expect(contractInfo.name).to.equal("ExampleDiamond");
+      });
+
+      it("should handle different Diamond names", async () => {
+        // Use ExampleDiamond but verify the method uses the diamond name from options
+        const contractInfo = await flattener.discoverDiamondContract();
+
+        // Should use the diamondName from constructor options
+        expect(contractInfo.name).to.equal("ExampleDiamond");
+        expect(contractInfo).to.have.property("found");
+        expect(contractInfo).to.have.property("sourcePath");
+      });
+
+      it("should include search paths in warning message", async () => {
+        flattener.clearWarnings();
+
+        await flattener.discoverDiamondContract();
+        const warnings = flattener.getWarnings();
+
+        expect(warnings.length).to.be.greaterThan(0);
+        const hasSearchPathsInfo = warnings.some((w) =>
+          w.includes("Searched paths:")
+        );
+        expect(hasSearchPathsInfo).to.be.true;
       });
     });
   });

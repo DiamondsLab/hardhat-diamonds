@@ -559,16 +559,51 @@ export class DiamondFlattener {
       )
     );
 
-    // TODO: Implement Diamond contract discovery in Task 4.0
+    const { diamondName, contractsPath } = this.options;
+    const fs = await import("fs/promises");
+
+    // Search paths in priority order
+    const searchPaths = [
+      // 1. Standard Diamond.sol location
+      `${contractsPath}/examplediamond/${diamondName}.sol`,
+      `${contractsPath}/${diamondName}.sol`,
+      // 2. Common Diamond contract names
+      `${contractsPath}/examplediamond/Diamond.sol`,
+      `${contractsPath}/Diamond.sol`,
+      // 3. Lowercased variants
+      `${contractsPath}/examplediamond/${diamondName.toLowerCase()}.sol`,
+      `${contractsPath}/${diamondName.toLowerCase()}.sol`,
+    ];
+
+    let foundPath: string | null = null;
+
+    // Try each search path
+    for (const searchPath of searchPaths) {
+      this.log(chalk.gray(`  Checking: ${searchPath}`));
+
+      try {
+        await fs.access(searchPath);
+        foundPath = searchPath;
+        this.log(chalk.green(`  ✓ Found Diamond contract at ${searchPath}`));
+        break;
+      } catch (error) {
+        // File doesn't exist, continue to next path
+        this.log(chalk.gray(`    Not found`));
+      }
+    }
+
     const contractInfo: DiamondContractInfo = {
-      name: this.options.diamondName,
-      sourcePath: "",
-      found: false,
+      name: diamondName,
+      sourcePath: foundPath || "",
+      found: foundPath !== null,
     };
 
     if (!contractInfo.found) {
       this.addWarning(
-        `Diamond contract source file not found for ${this.options.diamondName}`
+        `Diamond contract source file not found for ${diamondName}. Searched paths: ${searchPaths.join(", ")}`
+      );
+      this.log(
+        chalk.yellow(`⚠ Diamond contract not found for ${diamondName}`)
       );
     } else {
       this.log(
