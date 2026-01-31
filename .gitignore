@@ -16,6 +16,11 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+coverage.json
+
+# Typechain types
+
+typechain-types
 
 # nyc test coverage
 .nyc_output
@@ -76,5 +81,5 @@ dist/
 .yarn/
 
 # Hardhat files
-artifacts
-cache
+artifacts/
+cache/
