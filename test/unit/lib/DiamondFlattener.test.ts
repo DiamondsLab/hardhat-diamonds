@@ -219,15 +219,18 @@ describe("DiamondFlattener", () => {
 
   describe("initializeDiamond", () => {
     it("should throw FlattenError if Diamond configuration not found", () => {
-      // Remove Diamond configuration
-      mockHre.config = {
-        diamonds: {
-          paths: {},
-        },
-      } as any;
+      // Create new mock HRE with empty Diamond configuration
+      const emptyHre = {
+        ...mockHre,
+        config: {
+          diamonds: {
+            paths: {},
+          },
+        } as any,
+      };
 
       expect(() => {
-        new DiamondFlattener(mockHre as HardhatRuntimeEnvironment, {
+        new DiamondFlattener(emptyHre as HardhatRuntimeEnvironment, {
           diamondName: "NonExistentDiamond",
           outputPath: "./flattened/NonExistent.sol",
         });
@@ -237,19 +240,23 @@ describe("DiamondFlattener", () => {
     });
 
     it("should include helpful error message when Diamond not found", () => {
-      mockHre.config = {
-        diamonds: {
-          paths: {
-            ExampleDiamond: {
-              deploymentsPath: "diamonds",
-              contractsPath: "contracts",
+      // Create new mock HRE with only ExampleDiamond
+      const limitedHre = {
+        ...mockHre,
+        config: {
+          diamonds: {
+            paths: {
+              ExampleDiamond: {
+                deploymentsPath: "diamonds",
+                contractsPath: "contracts",
+              },
             },
           },
-        },
-      } as any;
+        } as any,
+      };
 
       expect(() => {
-        new DiamondFlattener(mockHre as HardhatRuntimeEnvironment, {
+        new DiamondFlattener(limitedHre as HardhatRuntimeEnvironment, {
           diamondName: "NonExistentDiamond",
           outputPath: "./flattened/NonExistent.sol",
         });
@@ -261,23 +268,27 @@ describe("DiamondFlattener", () => {
     });
 
     it("should include available diamonds in error details", () => {
-      mockHre.config = {
-        diamonds: {
-          paths: {
-            ExampleDiamond: {
-              deploymentsPath: "diamonds",
-              contractsPath: "contracts",
-            },
-            AnotherDiamond: {
-              deploymentsPath: "diamonds",
-              contractsPath: "contracts",
+      // Create new mock HRE with only ExampleDiamond
+      const limitedHre = {
+        ...mockHre,
+        config: {
+          diamonds: {
+            paths: {
+              ExampleDiamond: {
+                deploymentsPath: "diamonds",
+                contractsPath: "contracts",
+              },
+              AnotherDiamond: {
+                deploymentsPath: "diamonds",
+                contractsPath: "contracts",
+              },
             },
           },
         },
       } as any;
 
       try {
-        new DiamondFlattener(mockHre as HardhatRuntimeEnvironment, {
+        new DiamondFlattener(limitedHre as HardhatRuntimeEnvironment, {
           diamondName: "NonExistentDiamond",
           outputPath: "./flattened/NonExistent.sol",
         });
