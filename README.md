@@ -141,13 +141,49 @@ npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose
 - `--include-source-info` (flag): Include compilation metadata in ABI
 - `--network` (optional): Target network
 
+#### `diamond:flatten`
+
+Flatten a Diamond contract into a single Solidity file for verification or auditing.
+
+```bash
+# Output to stdout (default)
+npx hardhat diamond:flatten --diamond-name ExampleDiamond
+
+# Save to file
+npx hardhat diamond:flatten --diamond-name MyDiamond --output ./flattened/MyDiamond.sol
+
+# Verbose mode with summary
+npx hardhat diamond:flatten --diamond-name MyDiamond --flatten-verbose
+
+# Specify target network
+npx hardhat diamond:flatten --diamond-name MyDiamond --target-network sepolia --output ./verified/sepolia-diamond.sol
+```
+
+**Parameters:**
+
+- `--diamond-name` (required): Name of the diamond to flatten
+- `--output` (optional): Path to save flattened source file (outputs to stdout if not specified)
+- `--flatten-verbose` (flag): Enable verbose logging and show summary
+- `--target-network` (optional): Target network (uses current network if not specified)
+
+**Summary Statistics:**
+When using `--output` or `--flatten-verbose`, the tool displays:
+- Total facets processed
+- Total function selectors extracted
+- Total contracts included
+- Total lines of code
+- Contracts deduplicated
+- Execution time
+
+**See also:** [Diamond Flatten API Documentation](./docs/flatten-api.md) for programmatic usage and advanced features.
+
 ### Programmatic Usage
 
 You can also use the Diamond functionality programmatically in your scripts and tasks:
 
 ```typescript
 import { task } from "hardhat/config";
-import { generateDiamondAbi } from "hardhat-diamonds";
+import { generateDiamondAbi, flattenDiamond } from "hardhat-diamonds";
 
 task("diamond-info", "Get diamond configuration")
   .addParam("name", "Diamond name")
@@ -163,8 +199,21 @@ task("diamond-info", "Get diamond configuration")
     });
     
     console.log("Generated ABI with", abiResult.stats.totalFunctions, "functions");
+    
+    // Flatten diamond programmatically
+    const flattenResult = await flattenDiamond(hre, {
+      diamondName: taskArgs.name,
+      verbose: true
+    });
+    
+    console.log(`Flattened ${flattenResult.stats.totalFacets} facets`);
+    console.log(`Total selectors: ${flattenResult.stats.totalSelectors}`);
   });
 ```
+
+**See also:**
+- [Diamond Flatten API Documentation](./docs/flatten-api.md) - Comprehensive API guide for `flattenDiamond()`
+- [Example Scripts](./scripts/) - More programmatic usage examples
 
 ### LocalDiamondDeployer
 
