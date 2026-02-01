@@ -360,7 +360,7 @@ export class DependencyGraph {
     if (result.length < this.nodes.size) {
       // Some nodes remain - they're part of cycles
       // Add them to the result anyway
-      for (const [path, node] of this.nodes) {
+      for (const [_path, node] of this.nodes) {
         if (!result.includes(node)) {
           result.push(node);
           if (this.verbose) {

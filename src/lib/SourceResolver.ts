@@ -213,6 +213,7 @@ export class SourceResolver {
    * // Returns: /project/contracts/Token.sol
    * ```
    */
+  // @ts-expect-error - Method kept for potential future use
   private async resolveImportPath(
     importPath: string,
     sourceFilePath: string

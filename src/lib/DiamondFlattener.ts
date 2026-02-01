@@ -706,9 +706,7 @@ export class DiamondFlattener {
   public deduplicateSources(
     sortedNodes: DependencyNode[]
   ): DeduplicatedSource[] {
-    this.log(
-      chalk.blue(`Deduplicating ${sortedNodes.length} source files...`)
-    );
+    this.log(chalk.blue(`Deduplicating ${sortedNodes.length} source files...`));
 
     const deduplicatedSources: DeduplicatedSource[] = [];
     const seenDefinitions = new Set<string>();

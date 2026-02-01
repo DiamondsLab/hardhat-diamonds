@@ -27,3 +27,15 @@ export { DiamondFlattener } from "./DiamondFlattener";
 
 export { FlattenError, ErrorCodes } from "./FlattenError";
 export type { ErrorCode } from "./FlattenError";
+
+export { SourceResolver } from "./SourceResolver";
+export type { LoadedSource, ImportInfo } from "./SourceResolver";
+
+export { DependencyGraph } from "./DependencyGraph";
+export type {
+  DependencyNode,
+  GraphStats,
+  CircularDependency,
+} from "./DependencyGraph";
+
+export type { DeduplicatedSource } from "../tasks/shared/TaskOptions";

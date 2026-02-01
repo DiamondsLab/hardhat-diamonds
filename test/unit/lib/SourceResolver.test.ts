@@ -1,5 +1,9 @@
 import { expect } from "chai";
-import { SourceResolver, LoadedSource, ImportInfo } from "../../../src/lib/SourceResolver";
+import {
+  SourceResolver,
+  LoadedSource,
+  ImportInfo,
+} from "../../../src/lib/SourceResolver";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import path from "path";
 
@@ -11,7 +15,10 @@ describe("SourceResolver", () => {
   // Paths to test fixtures
   const fixturesPath = path.join(__dirname, "../../fixtures/flattening");
   const simpleContractPath = path.join(fixturesPath, "SimpleContract.sol");
-  const contractWithImportsPath = path.join(fixturesPath, "ContractWithImports.sol");
+  const contractWithImportsPath = path.join(
+    fixturesPath,
+    "ContractWithImports.sol"
+  );
   const libraryPath = path.join(fixturesPath, "Library.sol");
   const namedImportsPath = path.join(fixturesPath, "NamedImports.sol");
 
@@ -75,7 +82,9 @@ describe("SourceResolver", () => {
 
   describe("constructor", () => {
     it("should create instance with HRE", () => {
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       expect(testResolver).to.be.instanceOf(SourceResolver);
     });
 
@@ -88,7 +97,9 @@ describe("SourceResolver", () => {
     });
 
     it("should initialize empty cache", () => {
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const stats = testResolver.getStats();
       expect(stats.cachedSources).to.equal(0);
     });
@@ -125,8 +136,9 @@ describe("SourceResolver", () => {
     it("should throw error for missing file", async () => {
       const nonExistentPath = path.join(fixturesPath, "DoesNotExist.sol");
 
-      await expect(resolver.loadSource(nonExistentPath))
-        .to.be.rejectedWith(/Failed to read source file/);
+      await expect(resolver.loadSource(nonExistentPath)).to.be.rejectedWith(
+        /Failed to read source file/
+      );
     });
 
     it("should extract correct contract name from path", async () => {
@@ -181,8 +193,8 @@ describe("SourceResolver", () => {
     it("should detect relative imports with ./", async () => {
       const source = await resolver.loadSource(contractWithImportsPath);
 
-      const relativeImports = source.imports.filter(
-        (imp) => imp.path.startsWith("./")
+      const relativeImports = source.imports.filter((imp) =>
+        imp.path.startsWith("./")
       );
       expect(relativeImports).to.have.length.greaterThan(0);
     });
@@ -190,8 +202,8 @@ describe("SourceResolver", () => {
     it("should detect named imports", async () => {
       const source = await resolver.loadSource(namedImportsPath);
 
-      const namedImports = source.imports.filter((imp) =>
-        imp.statement.includes("{") && imp.statement.includes("}")
+      const namedImports = source.imports.filter(
+        (imp) => imp.statement.includes("{") && imp.statement.includes("}")
       );
       expect(namedImports).to.have.length.greaterThan(0);
     });
@@ -213,7 +225,7 @@ describe("SourceResolver", () => {
       const localImports = source.imports.filter((imp) =>
         imp.path.startsWith("./")
       );
-      
+
       localImports.forEach((imp) => {
         expect(imp.isNodeModule).to.be.false;
       });
@@ -236,8 +248,8 @@ describe("SourceResolver", () => {
       const source = await resolver.loadSource(namedImportsPath);
 
       // Named imports: import { X } from "path";
-      const hasNamedImports = source.imports.some((imp) =>
-        imp.statement.includes("{") && imp.statement.includes("}")
+      const hasNamedImports = source.imports.some(
+        (imp) => imp.statement.includes("{") && imp.statement.includes("}")
       );
       expect(hasNamedImports).to.be.true;
     });
@@ -246,9 +258,11 @@ describe("SourceResolver", () => {
   describe("parseImports() - Import Syntax Variants", () => {
     it("should parse simple import statement", () => {
       const testContent = 'import "./Contract.sol";';
-      
+
       // Create a test resolver with test content
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
@@ -258,8 +272,10 @@ describe("SourceResolver", () => {
 
     it("should parse parent directory import", () => {
       const testContent = 'import "../Parent.sol";';
-      
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
@@ -268,8 +284,10 @@ describe("SourceResolver", () => {
 
     it("should parse named import", () => {
       const testContent = 'import { Contract } from "./Named.sol";';
-      
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
@@ -280,8 +298,10 @@ describe("SourceResolver", () => {
 
     it("should parse multiple named imports", () => {
       const testContent = 'import { A, B, C } from "./Multiple.sol";';
-      
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
@@ -291,8 +311,10 @@ describe("SourceResolver", () => {
 
     it("should parse namespace import", () => {
       const testContent = 'import * as Lib from "./Library.sol";';
-      
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
@@ -301,13 +323,18 @@ describe("SourceResolver", () => {
     });
 
     it("should parse node_modules import", () => {
-      const testContent = 'import "@openzeppelin/contracts/token/ERC20/ERC20.sol";';
-      
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+      const testContent =
+        'import "@openzeppelin/contracts/token/ERC20/ERC20.sol";';
+
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
-      expect(imports[0].path).to.equal("@openzeppelin/contracts/token/ERC20/ERC20.sol");
+      expect(imports[0].path).to.equal(
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      );
       expect(imports[0].isNodeModule).to.be.true;
     });
 
@@ -317,8 +344,10 @@ describe("SourceResolver", () => {
         import { B } from "./ContractB.sol";
         import * as C from "./ContractC.sol";
       `;
-      
-      const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
+
+      const testResolver = new SourceResolver(
+        mockHre as HardhatRuntimeEnvironment
+      );
       const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(3);
@@ -382,7 +411,9 @@ describe("SourceResolver", () => {
         expect.fail("Should have thrown error");
       } catch (error) {
         expect(error).to.be.instanceOf(Error);
-        expect((error as Error).message).to.include("Failed to read source file");
+        expect((error as Error).message).to.include(
+          "Failed to read source file"
+        );
         expect((error as Error).message).to.include(missingPath);
       }
     });
@@ -394,7 +425,9 @@ describe("SourceResolver", () => {
         await resolver.loadSource(missingPath);
         expect.fail("Should have thrown error");
       } catch (error) {
-        expect((error as Error).message).to.include("/invalid/path/Contract.sol");
+        expect((error as Error).message).to.include(
+          "/invalid/path/Contract.sol"
+        );
       }
     });
   });

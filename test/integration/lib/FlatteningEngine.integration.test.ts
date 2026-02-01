@@ -96,8 +96,8 @@ describe("Flattening Engine Integration Tests", () => {
 
       if (sorted.length > 1) {
         // Dependencies should come before the contract that imports them
-        const mainContractIndex = sorted.findIndex(
-          (n) => n.name.includes("ContractWithImports")
+        const mainContractIndex = sorted.findIndex((n) =>
+          n.name.includes("ContractWithImports")
         );
         if (mainContractIndex >= 0) {
           expect(mainContractIndex).to.be.greaterThanOrEqual(0);
@@ -153,7 +153,9 @@ describe("Flattening Engine Integration Tests", () => {
 
       // Verify cycle is detected
       const cycle = circularDeps[0];
-      const cycleNames = cycle.cycle.map((path: string) => path.split('/').pop()?.replace('.sol', ''));
+      const cycleNames = cycle.cycle.map((path: string) =>
+        path.split("/").pop()?.replace(".sol", "")
+      );
       expect(cycleNames).to.include("CircularA");
       expect(cycleNames).to.include("CircularB");
       expect(cycleNames).to.include("CircularC");
@@ -256,9 +258,7 @@ describe("Flattening Engine Integration Tests", () => {
       expect(sorted.length).to.be.greaterThan(0);
 
       // Should resolve imports
-      const mainContract = sorted.find((n) =>
-        n.name.includes("NamedImports")
-      );
+      const mainContract = sorted.find((n) => n.name.includes("NamedImports"));
       expect(mainContract).to.exist;
     });
 
@@ -370,8 +370,10 @@ describe("Flattening Engine Integration Tests", () => {
       } catch (error) {
         expect(error).to.exist;
         const message = (error as Error).message;
-        expect(message).to.satisfy((msg: string) => 
-          msg.includes("Failed to load source") || msg.includes("Failed to read source")
+        expect(message).to.satisfy(
+          (msg: string) =>
+            msg.includes("Failed to load source") ||
+            msg.includes("Failed to read source")
         );
       }
     });
@@ -385,8 +387,10 @@ describe("Flattening Engine Integration Tests", () => {
       } catch (error) {
         const message = (error as Error).message;
         expect(message).to.include(missingPath);
-        expect(message).to.satisfy((msg: string) => 
-          msg.includes("Failed to load source") || msg.includes("Failed to read source")
+        expect(message).to.satisfy(
+          (msg: string) =>
+            msg.includes("Failed to load source") ||
+            msg.includes("Failed to read source")
         );
       }
     });
@@ -466,10 +470,7 @@ describe("Flattening Engine Integration Tests", () => {
 
   describe("Multiple Definition Types", () => {
     it("should handle files with multiple definitions", async () => {
-      const multiDefPath = path.join(
-        fixturesPath,
-        "MultipleDefinitions.sol"
-      );
+      const multiDefPath = path.join(fixturesPath, "MultipleDefinitions.sol");
 
       await graph.addRoot(multiDefPath);
       const sorted = graph.topologicalSort();
@@ -485,9 +486,7 @@ describe("Flattening Engine Integration Tests", () => {
       // Should include interface, library, abstract, and concrete
       expect(mainSource!.definitions).to.include("IMultipleDefinitions");
       expect(mainSource!.definitions).to.include("MultipleDefinitionsLib");
-      expect(mainSource!.definitions).to.include(
-        "AbstractMultipleDefinitions"
-      );
+      expect(mainSource!.definitions).to.include("AbstractMultipleDefinitions");
       expect(mainSource!.definitions).to.include("MultipleDefinitions");
     });
   });

@@ -1067,8 +1067,9 @@ describe("DiamondFlattener", () => {
         const definitions = (flattener as any).extractDefinitions(content);
 
         // Should only include MyContract once even if defined twice
-        expect(definitions.filter((d: string) => d === "MyContract")).to.have
-          .lengthOf(1);
+        expect(
+          definitions.filter((d: string) => d === "MyContract")
+        ).to.have.lengthOf(1);
       });
 
       it("should handle empty content", () => {
