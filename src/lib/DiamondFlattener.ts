@@ -3,11 +3,13 @@ import { Diamond } from "@diamondslab/diamonds";
 import chalk from "chalk";
 import { keccak256, toUtf8Bytes } from "ethers";
 import { FlattenError, ErrorCodes } from "./FlattenError";
+import type { DependencyNode } from "./DependencyGraph";
 import type {
   DiamondFlattenOptions,
   DiscoveredFacet,
   DiamondContractInfo,
   SelectorInfo,
+  DeduplicatedSource,
 } from "../tasks/shared/TaskOptions";
 
 /**
@@ -616,5 +618,186 @@ export class DiamondFlattener {
     }
 
     return contractInfo;
+  }
+
+  /**
+   * Extracts contract, interface, library, and abstract contract definitions from source code
+   *
+   * Uses regex patterns to identify all Solidity definition types. This is used to detect
+   * duplicate definitions during the deduplication process.
+   *
+   * @param content - Solidity source code content
+   * @returns Array of definition names found in the source
+   * @private
+   */
+  private extractDefinitions(content: string): string[] {
+    const definitions: string[] = [];
+
+    // Regex patterns for different definition types
+    // Matches: contract, abstract contract, interface, library
+    const patterns = [
+      /\bcontract\s+([A-Za-z_][A-Za-z0-9_]*)/g,
+      /\babstract\s+contract\s+([A-Za-z_][A-Za-z0-9_]*)/g,
+      /\binterface\s+([A-Za-z_][A-Za-z0-9_]*)/g,
+      /\blibrary\s+([A-Za-z_][A-Za-z0-9_]*)/g,
+    ];
+
+    for (const pattern of patterns) {
+      let match;
+      while ((match = pattern.exec(content)) !== null) {
+        const definitionName = match[1];
+        if (!definitions.includes(definitionName)) {
+          definitions.push(definitionName);
+          this.log(chalk.gray(`    Found definition: ${definitionName}`));
+        }
+      }
+    }
+
+    return definitions;
+  }
+
+  /**
+   * Removes import statements from Solidity source code while preserving all comments
+   *
+   * This method strips all import statements to prepare the code for flattening.
+   * It preserves:
+   * - Inline comments (//)
+   * - Block comments
+   * - NatSpec comments
+   * - Line numbers (replaces imports with empty lines to maintain line mappings)
+   *
+   * @param content - Solidity source code content
+   * @returns Source code with import statements removed
+   * @private
+   */
+  private removeImports(content: string): string {
+    // Regex to match all import statement variants:
+    // import "./Contract.sol";
+    // import { A, B } from "./Contract.sol";
+    // import * as X from "./Contract.sol";
+    // import "@openzeppelin/contracts/Contract.sol";
+    const importPattern =
+      /import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+)\s+from\s+)?["'][^"']+["']\s*;/g;
+
+    // Replace imports with empty lines to preserve line numbers
+    const withoutImports = content.replace(importPattern, "");
+
+    this.log(
+      chalk.gray(`    Removed import statements, preserved line numbers`)
+    );
+
+    return withoutImports;
+  }
+
+  /**
+   * Deduplicates source files by removing duplicate contract definitions
+   *
+   * This method implements the deduplication strategy defined in the PRD:
+   * - Keep the first occurrence of each contract/interface/library definition
+   * - Mark subsequent duplicates as not kept
+   * - Generate warnings for all duplicates found
+   * - Detect version mismatches (same name, different content)
+   * - Remove import statements from all sources
+   * - Preserve all comments (inline, block, NatSpec)
+   *
+   * @param sortedNodes - Dependency nodes in topologically sorted order
+   * @returns Array of deduplicated sources with metadata
+   */
+  public deduplicateSources(
+    sortedNodes: DependencyNode[]
+  ): DeduplicatedSource[] {
+    this.log(
+      chalk.blue(`Deduplicating ${sortedNodes.length} source files...`)
+    );
+
+    const deduplicatedSources: DeduplicatedSource[] = [];
+    const seenDefinitions = new Set<string>();
+    const definitionToSource = new Map<string, DeduplicatedSource>();
+
+    for (const node of sortedNodes) {
+      this.log(chalk.gray(`  Processing: ${node.name}`));
+
+      // Extract all definitions from this source
+      const definitions = this.extractDefinitions(node.source.content);
+
+      // Remove import statements while preserving comments
+      const contentWithoutImports = this.removeImports(node.source.content);
+
+      // Check if any definition in this source is a duplicate
+      const duplicateDefinitions: string[] = [];
+      const newDefinitions: string[] = [];
+
+      for (const definition of definitions) {
+        if (seenDefinitions.has(definition)) {
+          duplicateDefinitions.push(definition);
+
+          // Check for version mismatch (same name, different content)
+          const originalSource = definitionToSource.get(definition);
+          if (
+            originalSource &&
+            originalSource.content !== contentWithoutImports
+          ) {
+            this.addWarning(
+              `Version mismatch detected for '${definition}': ` +
+                `First seen in ${originalSource.path}, ` +
+                `different version in ${node.source.path}. ` +
+                `Keeping first occurrence.`
+            );
+          }
+        } else {
+          seenDefinitions.add(definition);
+          newDefinitions.push(definition);
+        }
+      }
+
+      // Determine if this source should be kept
+      const kept = newDefinitions.length > 0;
+
+      // Create deduplicated source entry
+      const deduplicatedSource: DeduplicatedSource = {
+        name: node.name,
+        path: node.source.path,
+        content: contentWithoutImports,
+        kept,
+        definitions,
+      };
+
+      deduplicatedSources.push(deduplicatedSource);
+
+      // Store mapping for version mismatch detection
+      for (const definition of newDefinitions) {
+        definitionToSource.set(definition, deduplicatedSource);
+      }
+
+      // Log result
+      if (kept) {
+        this.log(
+          chalk.green(
+            `    ✓ Kept (new definitions: ${newDefinitions.join(", ")})`
+          )
+        );
+      } else {
+        this.addWarning(
+          `Duplicate source removed: ${node.name} at ${node.source.path}. ` +
+            `All definitions already present: ${duplicateDefinitions.join(", ")}`
+        );
+        this.log(
+          chalk.yellow(
+            `    ⚠ Removed (duplicates: ${duplicateDefinitions.join(", ")})`
+          )
+        );
+      }
+    }
+
+    const keptCount = deduplicatedSources.filter((s) => s.kept).length;
+    const removedCount = deduplicatedSources.length - keptCount;
+
+    this.log(
+      chalk.green(
+        `✓ Deduplication complete: ${keptCount} kept, ${removedCount} removed`
+      )
+    );
+
+    return deduplicatedSources;
   }
 }

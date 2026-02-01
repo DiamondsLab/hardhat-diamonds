@@ -3,6 +3,8 @@ import { DiamondFlattener } from "../../../src/lib/DiamondFlattener";
 import { FlattenError, ErrorCodes } from "../../../src/lib/FlattenError";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DiscoveredFacet } from "../../../src/tasks/shared/TaskOptions";
+import type { DependencyNode } from "../../../src/lib/DependencyGraph";
+import type { LoadedSource } from "../../../src/lib/SourceResolver";
 import {
   mockDiamondConfigWithFacets,
   mockDiamondConfigEmpty,
@@ -935,6 +937,636 @@ describe("DiamondFlattener", () => {
           w.includes("Searched paths:")
         );
         expect(hasSearchPathsInfo).to.be.true;
+      });
+    });
+  });
+
+  describe("Source Deduplication (Task 3.0)", () => {
+    let flattener: DiamondFlattener;
+
+    beforeEach(() => {
+      flattener = new DiamondFlattener(mockHre as HardhatRuntimeEnvironment, {
+        diamondName: "ExampleDiamond",
+        outputPath: "/test/output/ExampleDiamond.sol",
+        verbose: false,
+      });
+    });
+
+    describe("extractDefinitions()", () => {
+      it("should extract contract definitions", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          contract MyContract {
+            function test() public {}
+          }
+        `;
+
+        // Access private method via type assertion for testing
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        expect(definitions).to.be.an("array");
+        expect(definitions).to.include("MyContract");
+        expect(definitions.length).to.equal(1);
+      });
+
+      it("should extract interface definitions", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          interface IMyInterface {
+            function test() external;
+          }
+        `;
+
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        expect(definitions).to.include("IMyInterface");
+        expect(definitions.length).to.equal(1);
+      });
+
+      it("should extract library definitions", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          library MyLibrary {
+            function helper() internal pure returns (uint256) {
+              return 42;
+            }
+          }
+        `;
+
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        expect(definitions).to.include("MyLibrary");
+        expect(definitions.length).to.equal(1);
+      });
+
+      it("should extract abstract contract definitions", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          abstract contract AbstractContract {
+            function abstractMethod() public virtual returns (uint256);
+          }
+        `;
+
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        expect(definitions).to.include("AbstractContract");
+        expect(definitions.length).to.equal(1);
+      });
+
+      it("should extract multiple definitions from same file", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          interface ITest {
+            function test() external;
+          }
+          
+          library TestLib {
+            function helper() internal pure returns (uint256) {
+              return 42;
+            }
+          }
+          
+          abstract contract AbstractTest {
+            function abstractMethod() public virtual;
+          }
+          
+          contract ConcreteTest is AbstractTest {
+            function abstractMethod() public override {}
+          }
+        `;
+
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        expect(definitions).to.be.an("array");
+        expect(definitions).to.have.lengthOf(4);
+        expect(definitions).to.include("ITest");
+        expect(definitions).to.include("TestLib");
+        expect(definitions).to.include("AbstractTest");
+        expect(definitions).to.include("ConcreteTest");
+      });
+
+      it("should not duplicate definitions when found multiple times", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          contract MyContract {
+            function test() public {}
+          }
+          
+          // This shouldn't happen in valid Solidity, but test edge case
+          contract MyContract {
+            function test2() public {}
+          }
+        `;
+
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        // Should only include MyContract once even if defined twice
+        expect(definitions.filter((d: string) => d === "MyContract")).to.have
+          .lengthOf(1);
+      });
+
+      it("should handle empty content", () => {
+        const content = "";
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        expect(definitions).to.be.an("array");
+        expect(definitions).to.have.lengthOf(0);
+      });
+
+      it("should handle content with no definitions", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          // Just comments
+          /* Block comment */
+        `;
+
+        const definitions = (flattener as any).extractDefinitions(content);
+
+        expect(definitions).to.be.an("array");
+        expect(definitions).to.have.lengthOf(0);
+      });
+    });
+
+    describe("removeImports()", () => {
+      it("should remove simple import statements", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import "./SimpleContract.sol";
+          
+          contract MyContract {}
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.not.include('import "./SimpleContract.sol";');
+        expect(result).to.include("contract MyContract");
+      });
+
+      it("should remove named imports", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import { Contract1, Contract2 } from "./Contracts.sol";
+          
+          contract MyContract {}
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.not.include("import {");
+        expect(result).to.not.include("Contract1");
+        expect(result).to.include("contract MyContract");
+      });
+
+      it("should remove aliased imports", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import * as Helpers from "./Helpers.sol";
+          
+          contract MyContract {}
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.not.include("import *");
+        expect(result).to.not.include("Helpers");
+        expect(result).to.include("contract MyContract");
+      });
+
+      it("should remove node_modules imports", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import "@openzeppelin/contracts/access/Ownable.sol";
+          
+          contract MyContract {}
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.not.include("@openzeppelin");
+        expect(result).to.include("contract MyContract");
+      });
+
+      it("should preserve inline comments", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import "./SimpleContract.sol";
+          
+          // This is an inline comment
+          contract MyContract {
+            uint256 public value; // Another inline comment
+          }
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.include("// This is an inline comment");
+        expect(result).to.include("// Another inline comment");
+      });
+
+      it("should preserve block comments", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import "./SimpleContract.sol";
+          
+          /*
+           * This is a block comment
+           * spanning multiple lines
+           */
+          contract MyContract {}
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.include("/*");
+        expect(result).to.include("* This is a block comment");
+        expect(result).to.include("*/");
+      });
+
+      it("should preserve NatSpec comments", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import "./SimpleContract.sol";
+          
+          /// @title My Contract
+          /// @notice Does something cool
+          contract MyContract {
+            /**
+             * @notice Important function
+             * @dev Implementation details
+             */
+            function test() public {}
+          }
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.include("/// @title My Contract");
+        expect(result).to.include("/// @notice Does something cool");
+        expect(result).to.include("/**");
+        expect(result).to.include("* @notice Important function");
+        expect(result).to.include("* @dev Implementation details");
+        expect(result).to.include("*/");
+      });
+
+      it("should handle content with no imports", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          contract MyContract {}
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.equal(content);
+      });
+
+      it("should handle multiple imports", () => {
+        const content = `
+          pragma solidity ^0.8.0;
+          
+          import "./Contract1.sol";
+          import { A, B } from "./Contract2.sol";
+          import * as C from "./Contract3.sol";
+          import "@openzeppelin/contracts/access/Ownable.sol";
+          
+          contract MyContract {}
+        `;
+
+        const result = (flattener as any).removeImports(content);
+
+        expect(result).to.not.include("import");
+        expect(result).to.include("contract MyContract");
+      });
+    });
+
+    describe("deduplicateSources()", () => {
+      it("should keep unique contracts", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "Contract1",
+            source: {
+              name: "Contract1.sol",
+              path: "/test/Contract1.sol",
+              content: "contract Contract1 {}",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+          {
+            name: "Contract2",
+            source: {
+              name: "Contract2.sol",
+              path: "/test/Contract2.sol",
+              content: "contract Contract2 {}",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.have.lengthOf(2);
+        expect(result[0].kept).to.be.true;
+        expect(result[1].kept).to.be.true;
+        expect(result[0].name).to.equal("Contract1");
+        expect(result[1].name).to.equal("Contract2");
+      });
+
+      it("should remove duplicate contracts (keep first occurrence)", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "DuplicateContract",
+            source: {
+              name: "DuplicateContract.sol",
+              path: "/test/DuplicateContract.sol",
+              content: "contract DuplicateContract { uint256 public value; }",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+          {
+            name: "DuplicateContract",
+            source: {
+              name: "DuplicateContract.sol",
+              path: "/test/path2/DuplicateContract.sol",
+              content: "contract DuplicateContract { uint256 public value; }",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        flattener.clearWarnings();
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.have.lengthOf(2);
+        expect(result[0].kept).to.be.true; // First occurrence kept
+        expect(result[1].kept).to.be.false; // Second occurrence removed
+
+        const warnings = flattener.getWarnings();
+        expect(warnings.length).to.be.greaterThan(0);
+        const hasDuplicateWarning = warnings.some((w) =>
+          w.includes("Duplicate source removed")
+        );
+        expect(hasDuplicateWarning).to.be.true;
+      });
+
+      it("should detect version mismatches (same name, different content)", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "DuplicateContract",
+            source: {
+              name: "DuplicateContract.sol",
+              path: "/test/DuplicateContract.sol",
+              content: "contract DuplicateContract { uint256 public value; }",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+          {
+            name: "DuplicateDifferentVersion",
+            source: {
+              name: "DuplicateDifferentVersion.sol",
+              path: "/test/DuplicateDifferentVersion.sol",
+              content:
+                "contract DuplicateContract { uint256 public value; string public name; }",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        flattener.clearWarnings();
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.have.lengthOf(2);
+        expect(result[0].kept).to.be.true;
+        expect(result[1].kept).to.be.false;
+
+        const warnings = flattener.getWarnings();
+        const hasVersionWarning = warnings.some((w) =>
+          w.includes("Version mismatch detected")
+        );
+        expect(hasVersionWarning).to.be.true;
+      });
+
+      it("should remove import statements from all sources", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "ContractWithImports",
+            source: {
+              name: "ContractWithImports.sol",
+              path: "/test/ContractWithImports.sol",
+              content: `
+                import "./Library.sol";
+                
+                contract ContractWithImports {
+                  function test() public {}
+                }
+              `,
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.have.lengthOf(1);
+        expect(result[0].content).to.not.include("import");
+        expect(result[0].content).to.include("contract ContractWithImports");
+      });
+
+      it("should preserve comments in deduplicated sources", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "ContractWithComments",
+            source: {
+              name: "ContractWithComments.sol",
+              path: "/test/ContractWithComments.sol",
+              content: `
+                import "./Library.sol";
+                
+                // Inline comment
+                /* Block comment */
+                /// @notice NatSpec comment
+                contract ContractWithComments {
+                  uint256 public value; // Another comment
+                }
+              `,
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.have.lengthOf(1);
+        expect(result[0].content).to.include("// Inline comment");
+        expect(result[0].content).to.include("/* Block comment */");
+        expect(result[0].content).to.include("/// @notice NatSpec comment");
+        expect(result[0].content).to.include("// Another comment");
+      });
+
+      it("should handle sources with multiple definitions", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "MultipleDefinitions",
+            source: {
+              name: "MultipleDefinitions.sol",
+              path: "/test/MultipleDefinitions.sol",
+              content: `
+                interface ITest {}
+                library TestLib {}
+                abstract contract AbstractTest {}
+                contract ConcreteTest {}
+              `,
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.have.lengthOf(1);
+        expect(result[0].kept).to.be.true;
+        expect(result[0].definitions).to.have.lengthOf(4);
+        expect(result[0].definitions).to.include("ITest");
+        expect(result[0].definitions).to.include("TestLib");
+        expect(result[0].definitions).to.include("AbstractTest");
+        expect(result[0].definitions).to.include("ConcreteTest");
+      });
+
+      it("should handle empty nodes array", () => {
+        const mockNodes: DependencyNode[] = [];
+
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.be.an("array");
+        expect(result).to.have.lengthOf(0);
+      });
+
+      it("should return DeduplicatedSource with all required properties", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "TestContract",
+            source: {
+              name: "TestContract.sol",
+              path: "/test/TestContract.sol",
+              content: "contract TestContract {}",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        const result = flattener.deduplicateSources(mockNodes);
+
+        expect(result).to.have.lengthOf(1);
+        expect(result[0]).to.have.property("name");
+        expect(result[0]).to.have.property("path");
+        expect(result[0]).to.have.property("content");
+        expect(result[0]).to.have.property("kept");
+        expect(result[0]).to.have.property("definitions");
+      });
+
+      it("should provide statistics about deduplication", () => {
+        const mockNodes: DependencyNode[] = [
+          {
+            name: "Contract1",
+            source: {
+              name: "Contract1.sol",
+              path: "/test/Contract1.sol",
+              content: "contract Contract1 {}",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+          {
+            name: "Contract1", // Duplicate
+            source: {
+              name: "Contract1.sol",
+              path: "/test/path2/Contract1.sol",
+              content: "contract Contract1 {}",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+          {
+            name: "Contract2",
+            source: {
+              name: "Contract2.sol",
+              path: "/test/Contract2.sol",
+              content: "contract Contract2 {}",
+              imports: [],
+            } as LoadedSource,
+            dependencies: new Set(),
+            dependents: new Set(),
+            visited: true,
+            imports: [],
+          },
+        ];
+
+        const result = flattener.deduplicateSources(mockNodes);
+
+        const keptCount = result.filter((s) => s.kept).length;
+        const removedCount = result.filter((s) => !s.kept).length;
+
+        expect(keptCount).to.equal(2); // Contract1 (first), Contract2
+        expect(removedCount).to.equal(1); // Contract1 (second)
       });
     });
   });

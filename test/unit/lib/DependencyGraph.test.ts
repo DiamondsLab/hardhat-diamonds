@@ -1,5 +1,10 @@
 import { expect } from "chai";
-import { DependencyGraph, DependencyNode, GraphStats, CircularDependency } from "../../../src/lib/DependencyGraph";
+import {
+  DependencyGraph,
+  DependencyNode,
+  GraphStats,
+  CircularDependency,
+} from "../../../src/lib/DependencyGraph";
 import { SourceResolver } from "../../../src/lib/SourceResolver";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import path from "path";
@@ -13,7 +18,10 @@ describe("DependencyGraph", () => {
   // Paths to test fixtures
   const fixturesPath = path.join(__dirname, "../../fixtures/flattening");
   const simpleContractPath = path.join(fixturesPath, "SimpleContract.sol");
-  const contractWithImportsPath = path.join(fixturesPath, "ContractWithImports.sol");
+  const contractWithImportsPath = path.join(
+    fixturesPath,
+    "ContractWithImports.sol"
+  );
   const libraryPath = path.join(fixturesPath, "Library.sol");
   const circularAPath = path.join(fixturesPath, "CircularA.sol");
   const circularBPath = path.join(fixturesPath, "CircularB.sol");
@@ -211,12 +219,13 @@ describe("DependencyGraph", () => {
 
       const circular = graph.detectCircularDependencies();
       const description = circular[0].description;
-      
+
       expect(description).to.include("→");
-      expect(description).to.satisfy((desc: string) =>
-        desc.includes("CircularA") ||
-        desc.includes("CircularB") ||
-        desc.includes("CircularC")
+      expect(description).to.satisfy(
+        (desc: string) =>
+          desc.includes("CircularA") ||
+          desc.includes("CircularB") ||
+          desc.includes("CircularC")
       );
     });
 
@@ -249,7 +258,7 @@ describe("DependencyGraph", () => {
 
       const sorted = graph.topologicalSort();
       const nodes = graph.getNodes();
-      
+
       // For each node, all its dependencies should appear earlier in the sorted list
       for (let i = 0; i < sorted.length; i++) {
         const node = sorted[i];
@@ -258,7 +267,8 @@ describe("DependencyGraph", () => {
           if (depNode) {
             const depIndex = sorted.indexOf(depNode);
             if (depIndex !== -1) {
-              expect(depIndex).to.be.lessThan(i,
+              expect(depIndex).to.be.lessThan(
+                i,
                 `Dependency ${depNode.name} should come before ${node.name}`
               );
             }
@@ -304,10 +314,12 @@ describe("DependencyGraph", () => {
       await graph.addRoot(contractWithImportsPath);
 
       const sorted = graph.getSortedForFlattening();
-      
+
       // Find indices of libraries and contracts
-      const libraryIndex = sorted.findIndex(n => n.name === "Library");
-      const contractIndex = sorted.findIndex(n => n.name === "ContractWithImports");
+      const libraryIndex = sorted.findIndex((n) => n.name === "Library");
+      const contractIndex = sorted.findIndex(
+        (n) => n.name === "ContractWithImports"
+      );
 
       if (libraryIndex !== -1 && contractIndex !== -1) {
         expect(libraryIndex).to.be.lessThan(contractIndex);
@@ -443,7 +455,7 @@ describe("DependencyGraph", () => {
 
       // Should not throw with verbose logging
       await verboseGraph.addRoot(simpleContractPath);
-      
+
       const nodes = verboseGraph.getNodes();
       expect(nodes.size).to.equal(1);
     });
@@ -452,7 +464,7 @@ describe("DependencyGraph", () => {
       const quietGraph = new DependencyGraph(resolver, false);
 
       await quietGraph.addRoot(simpleContractPath);
-      
+
       const nodes = quietGraph.getNodes();
       expect(nodes.size).to.equal(1);
     });
@@ -480,7 +492,7 @@ describe("DependencyGraph", () => {
     it("should handle shared dependencies", async () => {
       // Both contracts depend on Library
       await graph.addRoot(contractWithImportsPath);
-      
+
       const libraryNode = graph.getNode(libraryPath);
       if (libraryNode) {
         expect(libraryNode.dependents.size).to.be.greaterThan(0);
@@ -493,7 +505,7 @@ describe("DependencyGraph", () => {
       // This should not throw, but log an error for the missing import
       // The main file should still be added
       await graph.addRoot(simpleContractPath);
-      
+
       expect(graph.getNodes().size).to.be.greaterThanOrEqual(1);
     });
   });

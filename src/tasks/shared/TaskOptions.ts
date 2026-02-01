@@ -214,3 +214,19 @@ export interface DiamondContractInfo {
   /** Whether the diamond contract was found */
   found: boolean;
 }
+
+/**
+ * Deduplicated source file information
+ */
+export interface DeduplicatedSource {
+  /** Contract/interface/library name */
+  name: string;
+  /** Absolute path to the source file */
+  path: string;
+  /** Source code content with imports removed */
+  content: string;
+  /** Whether this source was kept (true) or removed as duplicate (false) */
+  kept: boolean;
+  /** List of contract/interface/library definitions found in this source */
+  definitions: string[];
+}

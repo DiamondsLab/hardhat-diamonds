@@ -211,10 +211,7 @@ export class DependencyGraph {
 
         // Recursively resolve dependencies if not visited
         if (!depNode.visited) {
-          await this.resolveDependencies(
-            resolvedPath,
-            new Set(visitedInPath)
-          );
+          await this.resolveDependencies(resolvedPath, new Set(visitedInPath));
         }
       } catch (error) {
         // Log error but continue with other imports
@@ -367,9 +364,7 @@ export class DependencyGraph {
         if (!result.includes(node)) {
           result.push(node);
           if (this.verbose) {
-            console.log(
-              `[DependencyGraph] Added cyclic node: ${node.name}`
-            );
+            console.log(`[DependencyGraph] Added cyclic node: ${node.name}`);
           }
         }
       }
