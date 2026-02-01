@@ -246,11 +246,10 @@ describe("SourceResolver", () => {
   describe("parseImports() - Import Syntax Variants", () => {
     it("should parse simple import statement", () => {
       const testContent = 'import "./Contract.sol";';
-      const testPath = path.join(fixturesPath, "test.sol");
       
       // Create a test resolver with test content
       const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
-      const imports = (testResolver as any).parseImports(testContent, testPath);
+      const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
       expect(imports[0].path).to.equal("./Contract.sol");
@@ -259,10 +258,9 @@ describe("SourceResolver", () => {
 
     it("should parse parent directory import", () => {
       const testContent = 'import "../Parent.sol";';
-      const testPath = path.join(fixturesPath, "test.sol");
       
       const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
-      const imports = (testResolver as any).parseImports(testContent, testPath);
+      const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
       expect(imports[0].path).to.equal("../Parent.sol");
@@ -270,10 +268,9 @@ describe("SourceResolver", () => {
 
     it("should parse named import", () => {
       const testContent = 'import { Contract } from "./Named.sol";';
-      const testPath = path.join(fixturesPath, "test.sol");
       
       const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
-      const imports = (testResolver as any).parseImports(testContent, testPath);
+      const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
       expect(imports[0].path).to.equal("./Named.sol");
@@ -283,10 +280,9 @@ describe("SourceResolver", () => {
 
     it("should parse multiple named imports", () => {
       const testContent = 'import { A, B, C } from "./Multiple.sol";';
-      const testPath = path.join(fixturesPath, "test.sol");
       
       const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
-      const imports = (testResolver as any).parseImports(testContent, testPath);
+      const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
       expect(imports[0].path).to.equal("./Multiple.sol");
@@ -295,10 +291,9 @@ describe("SourceResolver", () => {
 
     it("should parse namespace import", () => {
       const testContent = 'import * as Lib from "./Library.sol";';
-      const testPath = path.join(fixturesPath, "test.sol");
       
       const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
-      const imports = (testResolver as any).parseImports(testContent, testPath);
+      const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
       expect(imports[0].path).to.equal("./Library.sol");
@@ -307,10 +302,9 @@ describe("SourceResolver", () => {
 
     it("should parse node_modules import", () => {
       const testContent = 'import "@openzeppelin/contracts/token/ERC20/ERC20.sol";';
-      const testPath = path.join(fixturesPath, "test.sol");
       
       const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
-      const imports = (testResolver as any).parseImports(testContent, testPath);
+      const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(1);
       expect(imports[0].path).to.equal("@openzeppelin/contracts/token/ERC20/ERC20.sol");
@@ -323,10 +317,9 @@ describe("SourceResolver", () => {
         import { B } from "./ContractB.sol";
         import * as C from "./ContractC.sol";
       `;
-      const testPath = path.join(fixturesPath, "test.sol");
       
       const testResolver = new SourceResolver(mockHre as HardhatRuntimeEnvironment);
-      const imports = (testResolver as any).parseImports(testContent, testPath);
+      const imports = (testResolver as any).parseImports(testContent);
 
       expect(imports).to.have.length(3);
     });
