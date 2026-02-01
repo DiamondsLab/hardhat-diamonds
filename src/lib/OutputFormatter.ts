@@ -195,7 +195,11 @@ export class OutputFormatter {
   public generateFacetHeader(facet: DiscoveredFacet): string {
     const parts: string[] = [];
     parts.push("=".repeat(this.HEADER_WIDTH));
-    const titleLine = this.padCell(`FACET: ${facet.name}`, this.HEADER_WIDTH, "center");
+    const titleLine = this.padCell(
+      `FACET: ${facet.name}`,
+      this.HEADER_WIDTH,
+      "center"
+    );
     parts.push(titleLine);
     parts.push("=".repeat(this.HEADER_WIDTH));
     const priority = facet.priority ?? "N/A";
@@ -204,7 +208,7 @@ export class OutputFormatter {
     parts.push(
       this.formatStatLine("Priority", priority.toString()),
       this.formatStatLine("Version", version.toString()),
-      this.formatStatLine("Selectors", selectorCount.toString()),
+      this.formatStatLine("Selectors", selectorCount.toString())
     );
     parts.push("=".repeat(this.HEADER_WIDTH));
     return this.wrapInBlockComment(parts.join("\n"));
@@ -221,14 +225,18 @@ export class OutputFormatter {
   public generateInitHeader(initContract: DiscoveredFacet): string {
     const parts: string[] = [];
     parts.push("=".repeat(this.HEADER_WIDTH));
-    const titleLine = this.padCell(`INIT CONTRACT: ${initContract.name}`, this.HEADER_WIDTH, "center");
+    const titleLine = this.padCell(
+      `INIT CONTRACT: ${initContract.name}`,
+      this.HEADER_WIDTH,
+      "center"
+    );
     parts.push(titleLine);
     parts.push("=".repeat(this.HEADER_WIDTH));
     const priority = initContract.priority ?? "N/A";
     const version = initContract.version ?? "N/A";
     parts.push(
       this.formatStatLine("Priority", priority.toString()),
-      this.formatStatLine("Version", version.toString()),
+      this.formatStatLine("Version", version.toString())
     );
     parts.push("=".repeat(this.HEADER_WIDTH));
     return this.wrapInBlockComment(parts.join("\n"));
@@ -244,7 +252,11 @@ export class OutputFormatter {
   public generateDependenciesHeader(): string {
     const parts: string[] = [];
     parts.push("=".repeat(this.HEADER_WIDTH));
-    const titleLine = this.padCell("SHARED DEPENDENCIES", this.HEADER_WIDTH, "center");
+    const titleLine = this.padCell(
+      "SHARED DEPENDENCIES",
+      this.HEADER_WIDTH,
+      "center"
+    );
     parts.push(titleLine);
     parts.push("=".repeat(this.HEADER_WIDTH));
     return this.wrapInBlockComment(parts.join("\n"));
@@ -261,7 +273,11 @@ export class OutputFormatter {
   public generateDiamondHeader(diamondName: string): string {
     const parts: string[] = [];
     parts.push("=".repeat(this.HEADER_WIDTH));
-    const titleLine = this.padCell(`DIAMOND: ${diamondName}`, this.HEADER_WIDTH, "center");
+    const titleLine = this.padCell(
+      `DIAMOND: ${diamondName}`,
+      this.HEADER_WIDTH,
+      "center"
+    );
     parts.push(titleLine);
     parts.push("=".repeat(this.HEADER_WIDTH));
     return this.wrapInBlockComment(parts.join("\n"));
@@ -278,8 +294,130 @@ export class OutputFormatter {
    * @returns Formatted summary header wrapped in block comment
    */
   public generateSummaryHeader(options: SummaryHeaderOptions): string {
-    // TODO: Implement summary header generation
-    return "";
+    const parts: string[] = [];
+
+    // Top border
+    parts.push(this.TOP_LEFT + this.HORIZONTAL.repeat(78) + this.TOP_RIGHT);
+
+    // Title lines (centered)
+    parts.push(
+      this.VERTICAL +
+        this.padCell("FLATTENED DIAMOND CONTRACT", 78, "center") +
+        this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(options.diamondName, 78, "center") +
+        this.VERTICAL
+    );
+
+    // Separator
+    parts.push(this.LEFT_T + this.HORIZONTAL.repeat(78) + this.RIGHT_T);
+
+    // Generation metadata
+    const timestamp = new Date().toISOString();
+    parts.push(
+      this.VERTICAL +
+        this.padCell(`Generated: ${timestamp}`, 78, "left") +
+        this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          `Generator: hardhat-diamonds v${options.generatorVersion}`,
+          78,
+          "left"
+        ) +
+        this.VERTICAL
+    );
+
+    // Optional network line
+    if (options.networkName) {
+      parts.push(
+        this.VERTICAL +
+          this.padCell(`Network: ${options.networkName}`, 78, "left") +
+          this.VERTICAL
+      );
+    }
+
+    // Statistics separator
+    parts.push(this.LEFT_T + this.HORIZONTAL.repeat(78) + this.RIGHT_T);
+
+    // Statistics section
+    parts.push(
+      this.VERTICAL + this.padCell("Statistics:", 78, "left") + this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          `  • Total Contracts: ${options.totalContracts}`,
+          78,
+          "left"
+        ) +
+        this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(`  • Facets: ${options.totalFacets}`, 78, "left") +
+        this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          `  • Function Selectors: ${options.totalSelectors}`,
+          78,
+          "left"
+        ) +
+        this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          `  • Dependencies: ${options.totalDependencies}`,
+          78,
+          "left"
+        ) +
+        this.VERTICAL
+    );
+
+    // Warning separator
+    parts.push(this.LEFT_T + this.HORIZONTAL.repeat(78) + this.RIGHT_T);
+
+    // Warning section
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          "⚠️  AUTO-GENERATED FILE - DO NOT EDIT MANUALLY",
+          78,
+          "left"
+        ) +
+        this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          "This file was automatically generated by hardhat-diamonds.",
+          78,
+          "left"
+        ) +
+        this.VERTICAL
+    );
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          "Any manual changes will be lost on the next regeneration.",
+          78,
+          "left"
+        ) +
+        this.VERTICAL
+    );
+
+    // Bottom border
+    parts.push(
+      this.BOTTOM_LEFT + this.HORIZONTAL.repeat(78) + this.BOTTOM_RIGHT
+    );
+
+    return this.wrapInBlockComment(parts.join("\n"));
   }
 
   /**
@@ -399,6 +537,10 @@ export class OutputFormatter {
   private formatStatLine(label: string, value: string | number): string {
     const labelPart = `${label}:`;
     const padding = " ".repeat(2);
-    return this.padCell(`${labelPart}${padding}${value}`, this.HEADER_WIDTH, "left");
+    return this.padCell(
+      `${labelPart}${padding}${value}`,
+      this.HEADER_WIDTH,
+      "left"
+    );
   }
 }
