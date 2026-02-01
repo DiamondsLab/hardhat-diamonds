@@ -433,8 +433,25 @@ export class OutputFormatter {
    * @returns Cleaned source code ready for assembly
    */
   public cleanSource(content: string): string {
-    // TODO: Implement source cleaning
-    return content;
+    let cleaned = content;
+    
+    // Remove SPDX license identifier (single-line and multi-line comments)
+    cleaned = cleaned.replace(/\/\/\s*SPDX-License-Identifier:.*$/gm, '');
+    cleaned = cleaned.replace(/\/\*\s*SPDX-License-Identifier:.*?\*\//gs, '');
+    
+    // Remove pragma statements
+    cleaned = cleaned.replace(/pragma\s+solidity\s+[^;]+;\s*/g, '');
+    
+    // Remove import statements
+    cleaned = cleaned.replace(/import\s+.*?;\s*/g, '');
+    
+    // Remove excess blank lines (3 or more consecutive newlines -> 2 newlines)
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+    
+    // Trim leading and trailing whitespace
+    cleaned = cleaned.trim();
+    
+    return cleaned;
   }
 
   /**
@@ -446,8 +463,11 @@ export class OutputFormatter {
    * @returns The pragma statement (e.g., "pragma solidity ^0.8.0;") or null
    */
   public extractPragma(content: string): string | null {
-    // TODO: Implement pragma extraction
-    return null;
+    // Match pragma solidity statements
+    // Supports various version patterns: ^0.8.0, >=0.8.0 <0.9.0, 0.8.19, etc.
+    const pragmaPattern = /pragma\s+solidity\s+([^;]+);/;
+    const match = content.match(pragmaPattern);
+    return match ? `pragma solidity ${match[1]};` : null;
   }
 
   /**
@@ -459,8 +479,11 @@ export class OutputFormatter {
    * @returns The license identifier (e.g., "MIT", "UNLICENSED") or null
    */
   public extractSPDX(content: string): string | null {
-    // TODO: Implement SPDX extraction
-    return null;
+    // Match SPDX-License-Identifier patterns
+    // Supports both comment styles: // and /* */
+    const spdxPattern = /SPDX-License-Identifier:\s*([^\s*\/]+)/;
+    const match = content.match(spdxPattern);
+    return match ? match[1].trim() : null;
   }
 
   /**

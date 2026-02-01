@@ -693,67 +693,167 @@ describe("OutputFormatter", () => {
 
   describe("cleanSource", () => {
     it("should remove SPDX identifier", () => {
-      // TODO: Implement test
+      const source = `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Test {}`;
+      const result = formatter.cleanSource(source);
+      expect(result).to.not.include("SPDX-License-Identifier");
+      expect(result).to.include("contract Test");
     });
 
     it("should remove pragma statement", () => {
-      // TODO: Implement test
+      const source = `pragma solidity ^0.8.0;
+
+contract Test {}`;
+      const result = formatter.cleanSource(source);
+      expect(result).to.not.include("pragma solidity");
+      expect(result).to.include("contract Test");
     });
 
     it("should remove import statements", () => {
-      // TODO: Implement test
+      const source = `import "./Facet1.sol";
+import {SomeContract} from "./SomeContract.sol";
+
+contract Test {}`;
+      const result = formatter.cleanSource(source);
+      expect(result).to.not.include("import");
+      expect(result).to.include("contract Test");
     });
 
     it("should remove excess blank lines", () => {
-      // TODO: Implement test
+      const source = `contract Test {
+
+
+
+    function test() public {}
+}`;
+      const result = formatter.cleanSource(source);
+      const lines = result.split("\n");
+      let maxConsecutiveBlank = 0;
+      let currentBlank = 0;
+      for (const line of lines) {
+        if (line.trim() === "") {
+          currentBlank++;
+          maxConsecutiveBlank = Math.max(maxConsecutiveBlank, currentBlank);
+        } else {
+          currentBlank = 0;
+        }
+      }
+      expect(maxConsecutiveBlank).to.be.lessThan(3);
     });
 
     it("should preserve comments", () => {
-      // TODO: Implement test
+      const source = `pragma solidity ^0.8.0;
+
+// This is a comment
+contract Test {
+    /* Multi-line
+       comment */
+    function test() public {}
+}`;
+      const result = formatter.cleanSource(source);
+      expect(result).to.include("// This is a comment");
+      expect(result).to.include("/* Multi-line");
     });
 
     it("should preserve contract definitions", () => {
-      // TODO: Implement test
+      const source = `pragma solidity ^0.8.0;
+import "./Base.sol";
+
+contract Test is Base {
+    uint256 public value;
+    
+    function setValue(uint256 _value) public {
+        value = _value;
+    }
+}`;
+      const result = formatter.cleanSource(source);
+      expect(result).to.include("contract Test is Base");
+      expect(result).to.include("uint256 public value");
+      expect(result).to.include("function setValue");
     });
 
     it("should perform complete cleaning", () => {
-      // TODO: Implement test
+      const source = `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./Facet1.sol";
+import "./Facet2.sol";
+
+
+contract Test {
+    function test() public {}
+}`;
+      const result = formatter.cleanSource(source);
+      expect(result).to.not.include("SPDX");
+      expect(result).to.not.include("pragma");
+      expect(result).to.not.include("import");
+      expect(result).to.include("contract Test");
+      expect(result).to.include("function test");
     });
   });
 
   describe("extractSPDX", () => {
     it("should extract MIT license", () => {
-      // TODO: Implement test
+      const source = `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;`;
+      const result = formatter.extractSPDX(source);
+      expect(result).to.equal("MIT");
     });
 
     it("should extract UNLICENSED", () => {
-      // TODO: Implement test
+      const source = `// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.0;`;
+      const result = formatter.extractSPDX(source);
+      expect(result).to.equal("UNLICENSED");
     });
 
     it("should return null if missing", () => {
-      // TODO: Implement test
+      const source = `pragma solidity ^0.8.0;
+contract Test {}`;
+      const result = formatter.extractSPDX(source);
+      expect(result).to.be.null;
     });
 
     it("should handle multiple SPDX lines", () => {
-      // TODO: Implement test
+      const source = `// SPDX-License-Identifier: MIT
+// Some other comment
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.0;`;
+      const result = formatter.extractSPDX(source);
+      // Should extract first occurrence
+      expect(result).to.equal("MIT");
     });
   });
 
   describe("extractPragma", () => {
     it("should extract pragma with caret", () => {
-      // TODO: Implement test
+      const source = `pragma solidity ^0.8.0;
+contract Test {}`;
+      const result = formatter.extractPragma(source);
+      expect(result).to.equal("pragma solidity ^0.8.0;");
     });
 
     it("should extract pragma with comparison", () => {
-      // TODO: Implement test
+      const source = `pragma solidity >=0.8.0 <0.9.0;
+contract Test {}`;
+      const result = formatter.extractPragma(source);
+      expect(result).to.equal("pragma solidity >=0.8.0 <0.9.0;");
     });
 
     it("should extract exact version pragma", () => {
-      // TODO: Implement test
+      const source = `pragma solidity 0.8.19;
+contract Test {}`;
+      const result = formatter.extractPragma(source);
+      expect(result).to.equal("pragma solidity 0.8.19;");
     });
 
     it("should return null if missing", () => {
-      // TODO: Implement test
+      const source = `contract Test {}`;
+      const result = formatter.extractPragma(source);
+      expect(result).to.be.null;
     });
   });
+
 });
