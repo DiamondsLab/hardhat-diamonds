@@ -434,23 +434,23 @@ export class OutputFormatter {
    */
   public cleanSource(content: string): string {
     let cleaned = content;
-    
+
     // Remove SPDX license identifier (single-line and multi-line comments)
-    cleaned = cleaned.replace(/\/\/\s*SPDX-License-Identifier:.*$/gm, '');
-    cleaned = cleaned.replace(/\/\*\s*SPDX-License-Identifier:.*?\*\//gs, '');
-    
+    cleaned = cleaned.replace(/\/\/\s*SPDX-License-Identifier:.*$/gm, "");
+    cleaned = cleaned.replace(/\/\*\s*SPDX-License-Identifier:.*?\*\//gs, "");
+
     // Remove pragma statements
-    cleaned = cleaned.replace(/pragma\s+solidity\s+[^;]+;\s*/g, '');
-    
+    cleaned = cleaned.replace(/pragma\s+solidity\s+[^;]+;\s*/g, "");
+
     // Remove import statements
-    cleaned = cleaned.replace(/import\s+.*?;\s*/g, '');
-    
+    cleaned = cleaned.replace(/import\s+.*?;\s*/g, "");
+
     // Remove excess blank lines (3 or more consecutive newlines -> 2 newlines)
-    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
-    
+    cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+
     // Trim leading and trailing whitespace
     cleaned = cleaned.trim();
-    
+
     return cleaned;
   }
 

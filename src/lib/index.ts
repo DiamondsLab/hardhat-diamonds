@@ -25,6 +25,9 @@ export { loadDiamondContract } from "./LoadDiamondArtifact";
 
 export { DiamondFlattener } from "./DiamondFlattener";
 
+export { OutputFormatter } from "./OutputFormatter";
+export type { SummaryHeaderOptions } from "./OutputFormatter";
+
 export { FlattenError, ErrorCodes } from "./FlattenError";
 export type { ErrorCode } from "./FlattenError";
 
