@@ -75,8 +75,113 @@ export class OutputFormatter {
    * @returns Formatted selector table wrapped in block comment, or empty table message if no selectors
    */
   public generateSelectorTable(selectorMap: Map<string, SelectorInfo>): string {
-    // TODO: Implement selector table generation
-    return "";
+    // Handle empty map
+    if (selectorMap.size === 0) {
+      const emptyMessage = [
+        this.TOP_LEFT +
+          this.HORIZONTAL.repeat(this.TOTAL_WIDTH - 2) +
+          this.TOP_RIGHT,
+        this.VERTICAL +
+          this.padCell(
+            "No function selectors found",
+            this.TOTAL_WIDTH - 2,
+            "center"
+          ) +
+          this.VERTICAL,
+        this.BOTTOM_LEFT +
+          this.HORIZONTAL.repeat(this.TOTAL_WIDTH - 2) +
+          this.BOTTOM_RIGHT,
+      ].join("\n");
+      return this.wrapInBlockComment(emptyMessage);
+    }
+
+    const parts: string[] = [];
+
+    // Top border
+    parts.push(
+      this.TOP_LEFT +
+        this.HORIZONTAL.repeat(this.TOTAL_WIDTH - 2) +
+        this.TOP_RIGHT
+    );
+
+    // Title row
+    parts.push(
+      this.VERTICAL +
+        this.padCell(
+          "DIAMOND FUNCTION SELECTOR MAP",
+          this.TOTAL_WIDTH - 2,
+          "center"
+        ) +
+        this.VERTICAL
+    );
+
+    // Column separator
+    parts.push(
+      this.LEFT_T +
+        this.HORIZONTAL.repeat(this.SELECTOR_WIDTH) +
+        this.TOP_T +
+        this.HORIZONTAL.repeat(this.FACET_WIDTH) +
+        this.TOP_T +
+        this.HORIZONTAL.repeat(this.FUNCTION_WIDTH) +
+        this.RIGHT_T
+    );
+
+    // Column headers
+    parts.push(
+      this.VERTICAL +
+        this.padCell("Selector", this.SELECTOR_WIDTH, "center") +
+        this.VERTICAL +
+        this.padCell("Facet", this.FACET_WIDTH, "center") +
+        this.VERTICAL +
+        this.padCell("Function", this.FUNCTION_WIDTH, "center") +
+        this.VERTICAL
+    );
+
+    // Data separator
+    parts.push(
+      this.LEFT_T +
+        this.HORIZONTAL.repeat(this.SELECTOR_WIDTH) +
+        this.CROSS +
+        this.HORIZONTAL.repeat(this.FACET_WIDTH) +
+        this.CROSS +
+        this.HORIZONTAL.repeat(this.FUNCTION_WIDTH) +
+        this.RIGHT_T
+    );
+
+    // Sort entries by selector
+    const sortedEntries = Array.from(selectorMap.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0])
+    );
+
+    // Data rows
+    for (const [selector, info] of sortedEntries) {
+      const truncatedSig = this.truncateSignature(
+        info.signature,
+        this.FUNCTION_WIDTH - 2
+      );
+      parts.push(
+        this.VERTICAL +
+          this.padCell(selector, this.SELECTOR_WIDTH, "left") +
+          this.VERTICAL +
+          this.padCell(info.facetName, this.FACET_WIDTH, "left") +
+          this.VERTICAL +
+          this.padCell(truncatedSig, this.FUNCTION_WIDTH, "left") +
+          this.VERTICAL
+      );
+    }
+
+    // Bottom border
+    parts.push(
+      this.BOTTOM_LEFT +
+        this.HORIZONTAL.repeat(this.SELECTOR_WIDTH) +
+        this.BOTTOM_T +
+        this.HORIZONTAL.repeat(this.FACET_WIDTH) +
+        this.BOTTOM_T +
+        this.HORIZONTAL.repeat(this.FUNCTION_WIDTH) +
+        this.BOTTOM_RIGHT
+    );
+
+    return this.wrapInBlockComment(parts.join("\n"));
   }
 
   /**
@@ -201,8 +306,23 @@ export class OutputFormatter {
     width: number,
     align: "left" | "center" | "right" = "left"
   ): string {
-    // TODO: Implement cell padding
-    return content;
+    // If content is already longer than width, return as-is
+    if (content.length >= width) {
+      return content;
+    }
+
+    const padding = width - content.length;
+
+    if (align === "left") {
+      return content + " ".repeat(padding);
+    } else if (align === "right") {
+      return " ".repeat(padding) + content;
+    } else {
+      // center
+      const leftPad = Math.floor(padding / 2);
+      const rightPad = padding - leftPad;
+      return " ".repeat(leftPad) + content + " ".repeat(rightPad);
+    }
   }
 
   /**
@@ -214,8 +334,13 @@ export class OutputFormatter {
    * @returns Content wrapped in block comment
    */
   private wrapInBlockComment(content: string): string {
-    // TODO: Implement block comment wrapping
-    return content;
+    if (!content) {
+      return "/*\n */";
+    }
+
+    const lines = content.split("\n");
+    const wrappedLines = lines.map((line) => " * " + line);
+    return "/*\n" + wrappedLines.join("\n") + "\n */";
   }
 
   /**
@@ -226,8 +351,10 @@ export class OutputFormatter {
    * @returns Truncated signature with "..." if too long, or original if within limit
    */
   private truncateSignature(signature: string, maxLength: number): string {
-    // TODO: Implement signature truncation
-    return signature;
+    if (signature.length <= maxLength) {
+      return signature;
+    }
+    return signature.substring(0, maxLength - 3) + "...";
   }
 
   /**

@@ -25,35 +25,184 @@ describe("OutputFormatter", () => {
     });
 
     it("should generate table with single selector", () => {
-      // TODO: Implement test
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0x12345678", {
+        selector: "0x12345678",
+        facetName: "ExampleFacet",
+        signature: "example()",
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+      expect(result).to.include("0x12345678");
+      expect(result).to.include("ExampleFacet");
+      expect(result).to.include("example()");
+      expect(result).to.include("DIAMOND FUNCTION SELECTOR MAP");
+      expect(result).to.match(/^\/\*/);
+      expect(result).to.match(/\*\/$/);
     });
 
     it("should generate table with multiple selectors", () => {
-      // TODO: Implement test
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0x12345678", {
+        selector: "0x12345678",
+        facetName: "FacetA",
+        signature: "funcA()",
+      });
+      selectorMap.set("0xabcdef00", {
+        selector: "0xabcdef00",
+        facetName: "FacetB",
+        signature: "funcB(uint256)",
+      });
+      selectorMap.set("0x99887766", {
+        selector: "0x99887766",
+        facetName: "FacetC",
+        signature: "funcC(address,bool)",
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+      expect(result).to.include("0x12345678");
+      expect(result).to.include("0xabcdef00");
+      expect(result).to.include("0x99887766");
+      expect(result).to.include("FacetA");
+      expect(result).to.include("FacetB");
+      expect(result).to.include("FacetC");
     });
 
     it("should sort selectors alphabetically", () => {
-      // TODO: Implement test
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0xffffffff", {
+        selector: "0xffffffff",
+        facetName: "FacetZ",
+        signature: "last()",
+      });
+      selectorMap.set("0x00000000", {
+        selector: "0x00000000",
+        facetName: "FacetA",
+        signature: "first()",
+      });
+      selectorMap.set("0x88888888", {
+        selector: "0x88888888",
+        facetName: "FacetM",
+        signature: "middle()",
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+      const lines = result.split("\n");
+
+      // Find data rows (skip header rows)
+      const dataRows = lines.filter((line) => line.includes("0x"));
+      const firstDataRow = dataRows.find((line) => line.includes("first()"));
+      const middleDataRow = dataRows.find((line) => line.includes("middle()"));
+      const lastDataRow = dataRows.find((line) => line.includes("last()"));
+
+      // Check order by comparing indices
+      const firstIndex = lines.indexOf(firstDataRow!);
+      const middleIndex = lines.indexOf(middleDataRow!);
+      const lastIndex = lines.indexOf(lastDataRow!);
+
+      expect(firstIndex).to.be.lessThan(middleIndex);
+      expect(middleIndex).to.be.lessThan(lastIndex);
     });
 
     it("should truncate long function signatures", () => {
-      // TODO: Implement test
+      const longSignature =
+        "veryLongFunctionNameWithManyParameters(uint256,address,bool,string,bytes32,uint256[])";
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0x12345678", {
+        selector: "0x12345678",
+        facetName: "TestFacet",
+        signature: longSignature,
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+      expect(result).to.include("...");
+      expect(result).to.not.include(longSignature);
     });
 
     it("should preserve short function signatures", () => {
-      // TODO: Implement test
+      const shortSignature = "test()";
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0x12345678", {
+        selector: "0x12345678",
+        facetName: "TestFacet",
+        signature: shortSignature,
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+      expect(result).to.include(shortSignature);
+      expect(result).to.not.include("...");
     });
 
     it("should have consistent border alignment", () => {
-      // TODO: Implement test
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0x12345678", {
+        selector: "0x12345678",
+        facetName: "TestFacet",
+        signature: "test()",
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+      const lines = result.split("\n");
+
+      // Get table lines (between /* and */)
+      const tableLines = lines.slice(1, -1).map((line) => {
+        // Remove " * " prefix
+        return line.substring(3);
+      });
+
+      // Filter out empty lines and check width consistency
+      const nonEmptyLines = tableLines.filter((line) => line.length > 0);
+      const widths = nonEmptyLines.map((line) => line.length);
+      const uniqueWidths = [...new Set(widths)];
+
+      // All non-empty table lines should have the same width
+      expect(uniqueWidths.length).to.equal(1);
     });
 
     it("should wrap output in block comment", () => {
-      // TODO: Implement test
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0x12345678", {
+        selector: "0x12345678",
+        facetName: "TestFacet",
+        signature: "test()",
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+      expect(result).to.match(/^\/\*/);
+      expect(result).to.match(/\*\/$/);
+
+      const lines = result.split("\n");
+      expect(lines[0]).to.equal("/*");
+      expect(lines[lines.length - 1]).to.equal(" */");
+
+      // Check that all middle lines start with " * "
+      for (let i = 1; i < lines.length - 1; i++) {
+        expect(lines[i]).to.match(/^ \* /);
+      }
     });
 
     it("should use Unicode box-drawing characters", () => {
-      // TODO: Implement test
+      const selectorMap = new Map<string, SelectorInfo>();
+      selectorMap.set("0x12345678", {
+        selector: "0x12345678",
+        facetName: "TestFacet",
+        signature: "test()",
+      });
+
+      const result = formatter.generateSelectorTable(selectorMap);
+
+      // Check for Unicode box-drawing characters
+      expect(result).to.include("═"); // Horizontal
+      expect(result).to.include("║"); // Vertical
+      expect(result).to.include("╔"); // Top left
+      expect(result).to.include("╗"); // Top right
+      expect(result).to.include("╚"); // Bottom left
+      expect(result).to.include("╝"); // Bottom right
+      expect(result).to.include("╠"); // Left T
+      expect(result).to.include("╣"); // Right T
+      expect(result).to.include("╦"); // Top T
+      expect(result).to.include("╩"); // Bottom T
+      expect(result).to.include("╬"); // Cross
     });
   });
 
