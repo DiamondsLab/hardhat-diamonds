@@ -798,4 +798,274 @@ export class DiamondFlattener {
 
     return deduplicatedSources;
   }
+
+  /**
+   * Main flatten method - orchestrates the entire flattening process
+   * 
+   * This method:
+   * 1. Discovers all facets in the Diamond
+   * 2. Builds selector mapping
+   * 3. Discovers the Diamond contract itself
+   * 4. Resolves all dependencies
+   * 5. Deduplicates sources
+   * 6. Formats the final output
+   * 
+   * @returns Promise resolving to DiamondFlattenResult with flattened source and metadata
+   * @throws {FlattenError} If any critical step fails
+   */
+  public async flatten(): Promise<DiamondFlattenResult> {
+    const startTime = Date.now();
+
+    try {
+      // Import dependencies
+      const { SourceResolver } = require("./SourceResolver");
+      const { DependencyGraph } = require("./DependencyGraph");
+      const { OutputFormatter } = require("./OutputFormatter");
+
+      this.log(chalk.blue(`\n🔨 Starting flatten process for ${this.options.diamondName}...`));
+
+      // Step 1: Discover facets
+      this.log(chalk.blue("\n📋 Step 1: Discovering facets..."));
+      const facets = await this.discoverFacets();
+
+      // Step 2: Build selector map
+      this.log(chalk.blue("\n🔍 Step 2: Building selector map..."));
+      const selectorMapInternal = await this.buildSelectorMap(facets);
+      // Convert Map to Record for the result
+      const selectorMap: Record<string, SelectorInfo> = {};
+      selectorMapInternal.forEach((value, key) => {
+        selectorMap[key] = value;
+      });
+
+      // Step 3: Discover diamond contract
+      this.log(chalk.blue("\n💎 Step 3: Discovering Diamond contract..."));
+      const diamondContract = await this.discoverDiamondContract();
+
+      // Step 4: Resolve sources and dependencies
+      this.log(chalk.blue("\n📦 Step 4: Resolving dependencies..."));
+      const sourceResolver = new SourceResolver(this.hre, {
+        contractsPath: this.options.contractsPath,
+        verbose: this.options.verbose,
+      });
+
+      // Collect all contract names to resolve
+      const contractNames: string[] = [
+        ...facets.map((f) => f.name),
+        diamondContract.name,
+      ];
+
+      // Resolve all sources
+      const sources = await sourceResolver.resolveSources(contractNames);
+
+      // Build dependency graph
+      const dependencyGraph = new DependencyGraph(this.hre, {
+        verbose: this.options.verbose,
+      });
+
+      for (const source of sources) {
+        dependencyGraph.addSource(source);
+      }
+
+      // Get topologically sorted nodes
+      const sortedNodes = dependencyGraph.topologicalSort();
+
+      // Step 5: Deduplicate sources
+      this.log(chalk.blue("\n🔄 Step 5: Deduplicating sources..."));
+      const deduplicatedSources = this.deduplicateSources(sortedNodes);
+
+      // Step 6: Format output
+      this.log(chalk.blue("\n📝 Step 6: Formatting output..."));
+      const outputFormatter = new OutputFormatter();
+
+      // Generate selector tables for each facet
+      const facetSelectorTables: string[] = [];
+      for (const facet of facets) {
+        if (facet.selectors.length > 0) {
+          const table = outputFormatter.generateSelectorTable(
+            facet.selectors,
+            facet.name
+          );
+          facetSelectorTables.push(table);
+        }
+      }
+
+      // Calculate statistics
+      const totalSelectors = facets.reduce((sum, f) => sum + f.selectors.length, 0);
+      const totalContracts = deduplicatedSources.filter((s) => s.kept).length;
+      const deduplicatedCount = deduplicatedSources.filter((s) => !s.kept).length;
+      const totalLines = deduplicatedSources
+        .filter((s) => s.kept)
+        .reduce((sum, s) => sum + s.content.split("\n").length, 0);
+
+      // Generate summary header
+      const summaryHeader = outputFormatter.generateSummaryHeader({
+        diamondName: this.options.diamondName,
+        totalContracts,
+        totalFacets: facets.length,
+        totalSelectors,
+        totalDependencies: sortedNodes.length - facets.length - 1, // Exclude facets and diamond
+        generatorVersion: "1.0.0", // TODO: Get from package.json
+        networkName: this.options.networkName,
+      });
+
+      // Combine all parts into final flattened source
+      let flattenedSource = summaryHeader + "\n\n";
+
+      // Add selector tables
+      if (facetSelectorTables.length > 0) {
+        flattenedSource += facetSelectorTables.join("\n\n") + "\n\n";
+      }
+
+      // Add deduplicated sources
+      const keptSources = deduplicatedSources.filter((s) => s.kept);
+      flattenedSource += keptSources.map((s) => {
+        const header = outputFormatter.generateContractHeader(s.name, s.path);
+        return `${header}\n\n${s.content}`;
+      }).join("\n\n");
+
+      // Build final result
+      const result: DiamondFlattenResult = {
+        flattenedSource,
+        facets,
+        selectorMap,
+        warnings: this.warnings,
+        stats: {
+          totalFacets: facets.length,
+          totalSelectors,
+          totalContracts,
+          totalLines,
+          deduplicatedContracts: deduplicatedCount,
+          executionTimeMs: Date.now() - startTime,
+        },
+      };
+
+      this.log(chalk.green(`\n✅ Flatten complete in ${result.stats.executionTimeMs}ms`));
+
+      return result;
+    } catch (error) {
+      // If it's already a FlattenError, re-throw it
+      if (error instanceof FlattenError) {
+        throw error;
+      }
+
+      // Otherwise, wrap in FlattenError
+      throw new FlattenError(
+        `Flatten operation failed: ${error instanceof Error ? error.message : String(error)}`,
+        ErrorCodes.FILE_SYSTEM_ERROR,
+        { diamondName: this.options.diamondName, originalError: error }
+      );
+    }
+  }
+
+}
+
+/**
+ * Flatten a Diamond contract programmatically
+ * 
+ * This is the main programmatic API for flattening Diamond proxy contracts.
+ * It creates a DiamondFlattener instance, executes the flattening process,
+ * and returns the complete result with flattened source code and metadata.
+ * 
+ * @param hre - Hardhat Runtime Environment
+ * @param options - Flattening options (diamondName is required)
+ * @returns Promise resolving to DiamondFlattenResult
+ * @throws {FlattenError} If flattening fails for any reason
+ * 
+ * @example
+ * ```typescript
+ * import { flattenDiamond } from '@diamondslab/hardhat-diamonds';
+ * import hre from 'hardhat';
+ * 
+ * // Basic usage
+ * const result = await flattenDiamond(hre, {
+ *   diamondName: 'MyDiamond',
+ * });
+ * 
+ * console.log(`Flattened ${result.stats.totalFacets} facets`);
+ * console.log(`Total selectors: ${result.stats.totalSelectors}`);
+ * fs.writeFileSync('flattened.sol', result.flattenedSource);
+ * 
+ * // Advanced usage with custom options
+ * const result2 = await flattenDiamond(hre, {
+ *   diamondName: 'ProductionDiamond',
+ *   networkName: 'mainnet',
+ *   outputPath: './audit/flattened.sol',
+ *   verbose: true,
+ * });
+ * 
+ * // Handle warnings
+ * if (result2.warnings.length > 0) {
+ *   console.warn('Warnings:');
+ *   result2.warnings.forEach(w => console.warn(`  - ${w}`));
+ * }
+ * ```
+ */
+export async function flattenDiamond(
+  hre: HardhatRuntimeEnvironment,
+  options: Partial<DiamondFlattenOptions> & {
+    diamondName: string;
+    outputPath?: string;
+  }
+): Promise<DiamondFlattenResult> {
+  // Apply defaults for optional parameters
+  const networkName = options.networkName ?? hre.network.name;
+  const chainId = options.chainId ?? (hre.network.config.chainId as number | undefined) ?? 31337;
+  const diamondsPath =
+    options.diamondsPath ??
+    hre.config.diamonds?.paths?.[options.diamondName]?.deploymentsPath ??
+    "diamonds";
+  const contractsPath =
+    options.contractsPath ??
+    hre.config.diamonds?.paths?.[options.diamondName]?.contractsPath ??
+    "contracts";
+  const verbose = options.verbose ?? false;
+  const outputPath = options.outputPath ?? `./flattened/${options.diamondName}.sol`;
+
+  // Create flattener instance
+  const flattener = new DiamondFlattener(hre, {
+    diamondName: options.diamondName,
+    outputPath,
+    networkName,
+    chainId,
+    diamondsPath,
+    contractsPath,
+    verbose,
+  });
+
+  // Execute flatten and return result
+  return flattener.flatten();
+}
+
+/**
+ * Result of Diamond flattening operation
+ */
+export interface DiamondFlattenResult {
+  /** Complete flattened source code */
+  flattenedSource: string;
+  /** Discovered facets with selector information */
+  facets: DiscoveredFacet[];
+  /** Function selector to facet mapping */
+  selectorMap: Record<string, SelectorInfo>;
+  /** Warnings collected during flattening */
+  warnings: string[];
+  /** Statistics about the flattening operation */
+  stats: FlattenStats;
+}
+
+/**
+ * Statistics from flatten operation
+ */
+export interface FlattenStats {
+  /** Total number of facets processed */
+  totalFacets: number;
+  /** Total number of function selectors */
+  totalSelectors: number;
+  /** Total number of contracts in output */
+  totalContracts: number;
+  /** Total lines of code in output */
+  totalLines: number;
+  /** Number of contracts deduplicated */
+  deduplicatedContracts: number;
+  /** Execution time in milliseconds */
+  executionTimeMs: number;
 }
