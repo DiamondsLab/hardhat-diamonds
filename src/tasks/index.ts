@@ -42,6 +42,10 @@ export {
   generateTypeChainTypes,
 } from "../lib/TypeChainIntegration";
 
+// Epic 5 programmatic API exports
+export { flattenDiamond, DiamondFlattener } from "../lib/DiamondFlattener";
+export { FlattenError, FlattenErrorCode } from "../lib/errors";
+
 // NOTE: LocalDiamondDeployer is exported from lib/index.ts instead
 // to avoid circular dependency when used programmatically
 // export {

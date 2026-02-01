@@ -23,13 +23,18 @@ export {
 
 export { loadDiamondContract } from "./LoadDiamondArtifact";
 
-export { DiamondFlattener } from "./DiamondFlattener";
+export { DiamondFlattener, flattenDiamond } from "./DiamondFlattener";
+export type { DiamondFlattenResult, FlattenStats } from "./DiamondFlattener";
 
 export { OutputFormatter } from "./OutputFormatter";
 export type { SummaryHeaderOptions } from "./OutputFormatter";
 
 export { FlattenError, ErrorCodes } from "./FlattenError";
 export type { ErrorCode } from "./FlattenError";
+
+// Epic 5 error handling exports
+export { FlattenError as FlattenErrorEpic5, FlattenErrorCode } from "./errors";
+export type { FlattenErrorCodeType } from "./errors";
 
 export { SourceResolver } from "./SourceResolver";
 export type { LoadedSource, ImportInfo } from "./SourceResolver";
