@@ -29,6 +29,7 @@ describe("OutputFormatter", () => {
       selectorMap.set("0x12345678", {
         selector: "0x12345678",
         facetName: "ExampleFacet",
+        functionName: "example",
         signature: "example()",
       });
 
@@ -46,16 +47,19 @@ describe("OutputFormatter", () => {
       selectorMap.set("0x12345678", {
         selector: "0x12345678",
         facetName: "FacetA",
+        functionName: "funcA",
         signature: "funcA()",
       });
       selectorMap.set("0xabcdef00", {
         selector: "0xabcdef00",
         facetName: "FacetB",
+        functionName: "funcB",
         signature: "funcB(uint256)",
       });
       selectorMap.set("0x99887766", {
         selector: "0x99887766",
         facetName: "FacetC",
+        functionName: "funcC",
         signature: "funcC(address,bool)",
       });
 
@@ -73,16 +77,19 @@ describe("OutputFormatter", () => {
       selectorMap.set("0xffffffff", {
         selector: "0xffffffff",
         facetName: "FacetZ",
+        functionName: "last",
         signature: "last()",
       });
       selectorMap.set("0x00000000", {
         selector: "0x00000000",
         facetName: "FacetA",
+        functionName: "first",
         signature: "first()",
       });
       selectorMap.set("0x88888888", {
         selector: "0x88888888",
         facetName: "FacetM",
+        functionName: "middle",
         signature: "middle()",
       });
 
@@ -111,6 +118,7 @@ describe("OutputFormatter", () => {
       selectorMap.set("0x12345678", {
         selector: "0x12345678",
         facetName: "TestFacet",
+        functionName: "veryLongFunctionNameWithManyParameters",
         signature: longSignature,
       });
 
@@ -125,6 +133,7 @@ describe("OutputFormatter", () => {
       selectorMap.set("0x12345678", {
         selector: "0x12345678",
         facetName: "TestFacet",
+        functionName: "test",
         signature: shortSignature,
       });
 
@@ -138,6 +147,7 @@ describe("OutputFormatter", () => {
       selectorMap.set("0x12345678", {
         selector: "0x12345678",
         facetName: "TestFacet",
+        functionName: "test",
         signature: "test()",
       });
 
@@ -164,6 +174,7 @@ describe("OutputFormatter", () => {
       selectorMap.set("0x12345678", {
         selector: "0x12345678",
         facetName: "TestFacet",
+        functionName: "test",
         signature: "test()",
       });
 
@@ -186,6 +197,7 @@ describe("OutputFormatter", () => {
       selectorMap.set("0x12345678", {
         selector: "0x12345678",
         facetName: "TestFacet",
+        functionName: "test",
         signature: "test()",
       });
 
@@ -208,61 +220,296 @@ describe("OutputFormatter", () => {
 
   describe("generateFacetHeader", () => {
     it("should generate header with all metadata", () => {
-      // TODO: Implement test
+      const facet: DiscoveredFacet = {
+        name: "ExampleFacet",
+        contractPath: "/path/to/ExampleFacet.sol",
+        selectors: ["0x12345678", "0x87654321", "0xabcdef00"],
+        isInit: false,
+        priority: 10,
+        version: "1.2.3",
+      };
+
+      const result = formatter.generateFacetHeader(facet);
+      const lines = result.split("\n");
+
+      // Should be wrapped in block comment
+      expect(lines[0]).to.equal("/*");
+      expect(lines[lines.length - 1]).to.equal(" */");
+
+      // Extract content lines (without /* and */)
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      // Check structure
+      expect(contentLines[0]).to.match(/^={80}$/); // Top border
+      expect(contentLines[1]).to.include("FACET: ExampleFacet");
+      expect(contentLines[2]).to.match(/^={80}$/); // Separator
+      expect(contentLines[3]).to.include("Priority:");
+      expect(contentLines[3]).to.include("10");
+      expect(contentLines[4]).to.include("Version:");
+      expect(contentLines[4]).to.include("1.2.3");
+      expect(contentLines[5]).to.include("Selectors:");
+      expect(contentLines[5]).to.include("3");
+      expect(contentLines[6]).to.match(/^={80}$/); // Bottom border
+
+      // Verify all content lines are exactly 80 characters
+      contentLines.forEach((line, idx) => {
+        expect(
+          line.length,
+          `Line ${idx} should be 80 chars: "${line}"`
+        ).to.equal(80);
+      });
     });
 
     it("should handle missing priority", () => {
-      // TODO: Implement test
+      const facet: DiscoveredFacet = {
+        name: "TestFacet",
+        contractPath: "/path/to/TestFacet.sol",
+        selectors: [],
+        isInit: false,
+        version: "1.0.0",
+      };
+
+      const result = formatter.generateFacetHeader(facet);
+      expect(result).to.include("Priority:");
+      expect(result).to.include("N/A");
     });
 
     it("should handle missing version", () => {
-      // TODO: Implement test
+      const facet: DiscoveredFacet = {
+        name: "TestFacet",
+        contractPath: "/path/to/TestFacet.sol",
+        selectors: [],
+        isInit: false,
+        priority: 5,
+      };
+
+      const result = formatter.generateFacetHeader(facet);
+      expect(result).to.include("Version:");
+      expect(result).to.include("N/A");
     });
 
     it("should handle zero selectors", () => {
-      // TODO: Implement test
+      const facet: DiscoveredFacet = {
+        name: "EmptyFacet",
+        contractPath: "/path/to/EmptyFacet.sol",
+        selectors: [],
+        isInit: false,
+        priority: 1,
+        version: "1.0.0",
+      };
+
+      const result = formatter.generateFacetHeader(facet);
+      expect(result).to.include("Selectors:");
+      expect(result).to.include("0");
     });
 
     it("should be exactly 80 characters wide", () => {
-      // TODO: Implement test
+      const facet: DiscoveredFacet = {
+        name: "VeryLongFacetNameThatMightCauseIssues",
+        contractPath: "/path/to/file.sol",
+        selectors: ["0x11111111"],
+        isInit: false,
+        priority: 999,
+        version: "10.20.30",
+      };
+
+      const result = formatter.generateFacetHeader(facet);
+      const lines = result.split("\n");
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      contentLines.forEach((line, idx) => {
+        expect(
+          line.length,
+          `Line ${idx} should be 80 chars: "${line}"`
+        ).to.equal(80);
+      });
     });
   });
 
   describe("generateInitHeader", () => {
     it("should generate init contract header", () => {
-      // TODO: Implement test
+      const initContract: DiscoveredFacet = {
+        name: "DiamondInit",
+        contractPath: "/path/to/DiamondInit.sol",
+        selectors: [],
+        isInit: true,
+        priority: 1,
+        version: "1.0.0",
+      };
+
+      const result = formatter.generateInitHeader(initContract);
+      const lines = result.split("\n");
+
+      // Should be wrapped in block comment
+      expect(lines[0]).to.equal("/*");
+      expect(lines[lines.length - 1]).to.equal(" */");
+
+      // Extract content lines
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      // Check structure
+      expect(contentLines[0]).to.match(/^={80}$/); // Top border
+      expect(contentLines[1]).to.include("INIT CONTRACT: DiamondInit");
+      expect(contentLines[2]).to.match(/^={80}$/); // Separator
+      expect(contentLines[3]).to.include("Priority:");
+      expect(contentLines[3]).to.include("1");
+      expect(contentLines[4]).to.include("Version:");
+      expect(contentLines[4]).to.include("1.0.0");
+      expect(contentLines[5]).to.match(/^={80}$/); // Bottom border
+
+      // Verify all content lines are exactly 80 characters
+      contentLines.forEach((line, idx) => {
+        expect(
+          line.length,
+          `Line ${idx} should be 80 chars: "${line}"`
+        ).to.equal(80);
+      });
     });
 
     it("should label as INIT CONTRACT", () => {
-      // TODO: Implement test
+      const initContract: DiscoveredFacet = {
+        name: "InitContract",
+        contractPath: "/path/to/InitContract.sol",
+        selectors: [],
+        isInit: true,
+      };
+
+      const result = formatter.generateInitHeader(initContract);
+      expect(result).to.include("INIT CONTRACT:");
+      expect(result).to.include("InitContract");
     });
 
     it("should be exactly 80 characters wide", () => {
-      // TODO: Implement test
+      const initContract: DiscoveredFacet = {
+        name: "VeryLongInitContractName",
+        contractPath: "/path/to/file.sol",
+        selectors: [],
+        isInit: true,
+        priority: 100,
+        version: "2.0.0",
+      };
+
+      const result = formatter.generateInitHeader(initContract);
+      const lines = result.split("\n");
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      contentLines.forEach((line, idx) => {
+        expect(
+          line.length,
+          `Line ${idx} should be 80 chars: "${line}"`
+        ).to.equal(80);
+      });
     });
   });
 
   describe("generateDependenciesHeader", () => {
     it("should generate dependencies header", () => {
-      // TODO: Implement test
+      const result = formatter.generateDependenciesHeader();
+      const lines = result.split("\n");
+
+      // Should be wrapped in block comment
+      expect(lines[0]).to.equal("/*");
+      expect(lines[lines.length - 1]).to.equal(" */");
+
+      // Extract content lines
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      // Check structure: top border, title, bottom border
+      expect(contentLines[0]).to.match(/^={80}$/); // Top border
+      expect(contentLines[1]).to.include("SHARED DEPENDENCIES");
+      expect(contentLines[2]).to.match(/^={80}$/); // Bottom border
+
+      // Verify centered title
+      const titleLine = contentLines[1];
+      const title = "SHARED DEPENDENCIES";
+      const expectedPadding = Math.floor((80 - title.length) / 2);
+      expect(titleLine.indexOf(title)).to.equal(expectedPadding);
     });
 
     it("should be exactly 80 characters wide", () => {
-      // TODO: Implement test
+      const result = formatter.generateDependenciesHeader();
+      const lines = result.split("\n");
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      contentLines.forEach((line, idx) => {
+        expect(
+          line.length,
+          `Line ${idx} should be 80 chars: "${line}"`
+        ).to.equal(80);
+      });
     });
   });
 
   describe("generateDiamondHeader", () => {
     it("should generate diamond header with short name", () => {
-      // TODO: Implement test
+      const result = formatter.generateDiamondHeader("MyDiamond");
+      const lines = result.split("\n");
+
+      // Should be wrapped in block comment
+      expect(lines[0]).to.equal("/*");
+      expect(lines[lines.length - 1]).to.equal(" */");
+
+      // Extract content lines
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      // Check structure: top border, title, bottom border
+      expect(contentLines[0]).to.match(/^={80}$/); // Top border
+      expect(contentLines[1]).to.include("DIAMOND: MyDiamond");
+      expect(contentLines[2]).to.match(/^={80}$/); // Bottom border
+
+      // Verify centered title
+      const titleLine = contentLines[1];
+      const title = "DIAMOND: MyDiamond";
+      const expectedPadding = Math.floor((80 - title.length) / 2);
+      expect(titleLine.indexOf(title)).to.equal(expectedPadding);
     });
 
     it("should handle long diamond names", () => {
-      // TODO: Implement test
+      const longName = "VeryLongDiamondNameThatIsQuiteLong";
+      const result = formatter.generateDiamondHeader(longName);
+      const lines = result.split("\n");
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      // Should still be 80 characters wide
+      contentLines.forEach((line, idx) => {
+        expect(
+          line.length,
+          `Line ${idx} should be 80 chars: "${line}"`
+        ).to.equal(80);
+      });
+
+      expect(result).to.include(`DIAMOND: ${longName}`);
     });
 
     it("should be exactly 80 characters wide", () => {
-      // TODO: Implement test
+      const result = formatter.generateDiamondHeader("TestDiamond");
+      const lines = result.split("\n");
+      const contentLines = lines
+        .slice(1, -1)
+        .map((line) => line.replace(/^ \* /, ""));
+
+      contentLines.forEach((line, idx) => {
+        expect(
+          line.length,
+          `Line ${idx} should be 80 chars: "${line}"`
+        ).to.equal(80);
+      });
     });
   });
 

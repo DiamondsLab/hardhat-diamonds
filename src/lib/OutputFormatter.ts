@@ -193,8 +193,21 @@ export class OutputFormatter {
    * @returns Formatted facet header (80 characters wide per line)
    */
   public generateFacetHeader(facet: DiscoveredFacet): string {
-    // TODO: Implement facet header generation
-    return "";
+    const parts: string[] = [];
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    const titleLine = this.padCell(`FACET: ${facet.name}`, this.HEADER_WIDTH, "center");
+    parts.push(titleLine);
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    const priority = facet.priority ?? "N/A";
+    const version = facet.version ?? "N/A";
+    const selectorCount = facet.selectors?.length ?? 0;
+    parts.push(
+      this.formatStatLine("Priority", priority.toString()),
+      this.formatStatLine("Version", version.toString()),
+      this.formatStatLine("Selectors", selectorCount.toString()),
+    );
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    return this.wrapInBlockComment(parts.join("\n"));
   }
 
   /**
@@ -206,8 +219,19 @@ export class OutputFormatter {
    * @returns Formatted init contract header (80 characters wide per line)
    */
   public generateInitHeader(initContract: DiscoveredFacet): string {
-    // TODO: Implement init header generation
-    return "";
+    const parts: string[] = [];
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    const titleLine = this.padCell(`INIT CONTRACT: ${initContract.name}`, this.HEADER_WIDTH, "center");
+    parts.push(titleLine);
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    const priority = initContract.priority ?? "N/A";
+    const version = initContract.version ?? "N/A";
+    parts.push(
+      this.formatStatLine("Priority", priority.toString()),
+      this.formatStatLine("Version", version.toString()),
+    );
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    return this.wrapInBlockComment(parts.join("\n"));
   }
 
   /**
@@ -218,8 +242,12 @@ export class OutputFormatter {
    * @returns Formatted dependencies header (80 characters wide per line)
    */
   public generateDependenciesHeader(): string {
-    // TODO: Implement dependencies header generation
-    return "";
+    const parts: string[] = [];
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    const titleLine = this.padCell("SHARED DEPENDENCIES", this.HEADER_WIDTH, "center");
+    parts.push(titleLine);
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    return this.wrapInBlockComment(parts.join("\n"));
   }
 
   /**
@@ -231,8 +259,12 @@ export class OutputFormatter {
    * @returns Formatted diamond header (80 characters wide per line)
    */
   public generateDiamondHeader(diamondName: string): string {
-    // TODO: Implement diamond header generation
-    return "";
+    const parts: string[] = [];
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    const titleLine = this.padCell(`DIAMOND: ${diamondName}`, this.HEADER_WIDTH, "center");
+    parts.push(titleLine);
+    parts.push("=".repeat(this.HEADER_WIDTH));
+    return this.wrapInBlockComment(parts.join("\n"));
   }
 
   /**
@@ -365,7 +397,8 @@ export class OutputFormatter {
    * @returns Formatted line with proper padding and borders
    */
   private formatStatLine(label: string, value: string | number): string {
-    // TODO: Implement stat line formatting
-    return "";
+    const labelPart = `${label}:`;
+    const padding = " ".repeat(2);
+    return this.padCell(`${labelPart}${padding}${value}`, this.HEADER_WIDTH, "left");
   }
 }
