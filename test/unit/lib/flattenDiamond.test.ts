@@ -188,9 +188,9 @@ describe("Epic 5: flattenDiamond Programmatic API", () => {
       };
 
       // diamondsPath defaults to "diamonds" or from config
-      expect(mockHre.config?.diamonds?.paths?.TestDiamond?.deploymentsPath).to.equal(
-        "diamonds"
-      );
+      expect(
+        (mockHre.config as any)?.diamonds?.paths?.TestDiamond?.deploymentsPath
+      ).to.equal("diamonds");
     });
 
     it("should use default contractsPath when not provided", () => {
@@ -199,9 +199,9 @@ describe("Epic 5: flattenDiamond Programmatic API", () => {
       };
 
       // contractsPath defaults to "contracts" or from config
-      expect(mockHre.config?.diamonds?.paths?.TestDiamond?.contractsPath).to.equal(
-        "contracts/examplediamond"
-      );
+      expect(
+        (mockHre.config as any)?.diamonds?.paths?.TestDiamond?.contractsPath
+      ).to.equal("contracts/examplediamond");
     });
 
     it("should use verbose false when not provided", () => {

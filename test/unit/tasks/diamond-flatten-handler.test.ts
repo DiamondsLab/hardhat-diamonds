@@ -18,7 +18,7 @@ describe("Epic 5: Task Action Handler", () => {
     it("should call process.exit(1) on error", () => {
       // This test verifies the handler would call process.exit(1)
       const error = new Error("Test error");
-      
+
       // Simulate error path
       try {
         throw error;
@@ -32,21 +32,23 @@ describe("Epic 5: Task Action Handler", () => {
 
     it("should extract error message from Error instance", () => {
       const error = new Error("Test error message");
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
       expect(errorMessage).to.equal("Test error message");
     });
 
     it("should convert non-Error to string", () => {
-      const error = "String error";
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
+      const error: any = "String error";
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
       expect(errorMessage).to.equal("String error");
     });
 
     it("should check for Error instance and stack trace", () => {
       const error = new Error("Test");
-      
+
       expect(error instanceof Error).to.be.true;
       expect(error.stack).to.be.a("string");
     });
@@ -191,9 +193,9 @@ describe("Epic 5: Task Action Handler", () => {
     it("should iterate over warnings", () => {
       const warnings = ["Warning 1", "Warning 2"];
       const formatted: string[] = [];
-      
-      warnings.forEach(w => formatted.push(`   - ${w}`));
-      
+
+      warnings.forEach((w) => formatted.push(`   - ${w}`));
+
       expect(formatted).to.have.lengthOf(2);
       expect(formatted[0]).to.equal("   - Warning 1");
       expect(formatted[1]).to.equal("   - Warning 2");
@@ -205,14 +207,14 @@ describe("Epic 5: Task Action Handler", () => {
       const root = "/test/project";
       const outputArg = "./flattened/output.sol";
       // Would use: resolve(root, outputArg)
-      
+
       expect(outputArg).to.equal("./flattened/output.sol");
     });
 
     it("should create parent directories recursively", () => {
       const outputPath = "/test/project/flattened/deep/nested/output.sol";
       // Would use: mkdirSync(dirname(outputPath), { recursive: true })
-      
+
       expect(outputPath).to.include("flattened/deep/nested");
     });
   });
@@ -275,23 +277,24 @@ describe("Epic 5: Task Action Handler", () => {
     it("should show stack trace only when both verbose and Error instance", () => {
       const verbose = true;
       const error = new Error("Test");
-      
-      const shouldShowStack = verbose && error instanceof Error && !!error.stack;
+
+      const shouldShowStack =
+        verbose && error instanceof Error && !!error.stack;
       expect(shouldShowStack).to.be.true;
     });
 
     it("should not show stack trace when not verbose", () => {
       const verbose = false;
       const error = new Error("Test");
-      
+
       const shouldShowStack = verbose && error instanceof Error && error.stack;
       expect(shouldShowStack).to.be.false;
     });
 
     it("should not show stack trace for non-Error", () => {
       const verbose = true;
-      const error = "String error";
-      
+      const error: any = "String error";
+
       const shouldShowStack = verbose && error instanceof Error;
       expect(shouldShowStack).to.be.false;
     });
