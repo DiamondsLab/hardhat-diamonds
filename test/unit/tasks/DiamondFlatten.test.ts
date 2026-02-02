@@ -80,10 +80,10 @@ describe("DiamondFlatten Task Validation", () => {
 
       // Verbose defaults to false
       expect(args.verbose).to.be.undefined;
-      
+
       // Output defaults to stdout (undefined)
       expect(args.output).to.be.undefined;
-      
+
       // Network defaults to current network (undefined here)
       expect(args.network).to.be.undefined;
     });
@@ -92,7 +92,7 @@ describe("DiamondFlatten Task Validation", () => {
   describe("Diamond configuration validation", () => {
     it("should validate diamond exists in configuration", () => {
       const diamondName = "TestDiamond";
-      const config = mockHRE.config;
+      const config = mockHRE.config as any;
 
       expect(config.diamonds).to.exist;
       expect(config.diamonds.paths).to.exist;
@@ -101,7 +101,7 @@ describe("DiamondFlatten Task Validation", () => {
 
     it("should handle missing diamond configuration", () => {
       const diamondName = "NonExistentDiamond";
-      const config = mockHRE.config;
+      const config = mockHRE.config as any;
 
       expect(config.diamonds.paths[diamondName]).to.be.undefined;
     });
@@ -110,20 +110,20 @@ describe("DiamondFlatten Task Validation", () => {
   describe("Path validation", () => {
     it("should validate output path is writable", () => {
       const outputPath = "./flattened/TestDiamond.sol";
-      
+
       // Basic path validation
       expect(outputPath).to.match(/\.sol$/);
     });
 
     it("should handle relative output paths", () => {
       const outputPath = "./flattened/Test.sol";
-      
+
       expect(outputPath.startsWith(".")).to.be.true;
     });
 
     it("should handle absolute output paths", () => {
       const outputPath = "/absolute/path/Test.sol";
-      
+
       expect(outputPath.startsWith("/")).to.be.true;
     });
   });
