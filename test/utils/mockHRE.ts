@@ -15,10 +15,10 @@ export interface MockHREConfig {
 
 /**
  * Creates a mock Hardhat Runtime Environment for testing
- * 
+ *
  * @param config - Configuration options for the mock HRE
  * @returns Mocked HardhatRuntimeEnvironment instance
- * 
+ *
  * @example
  * ```typescript
  * const mockHRE = createMockHRE({
@@ -28,7 +28,9 @@ export interface MockHREConfig {
  * });
  * ```
  */
-export function createMockHRE(config?: MockHREConfig): HardhatRuntimeEnvironment {
+export function createMockHRE(
+  config?: MockHREConfig
+): HardhatRuntimeEnvironment {
   const diamondName = config?.diamondName || "TestDiamond";
   const contractsPath = config?.contractsPath || "/mock/contracts";
   const deploymentsPath = config?.deploymentsPath || "/mock/deployments";
@@ -74,14 +76,10 @@ export function createMockHRE(config?: MockHREConfig): HardhatRuntimeEnvironment
     getArtifactPaths: sinon.stub().resolves([]),
     getBuildInfo: sinon.stub().resolves(undefined),
     getBuildInfoPaths: sinon.stub().resolves([]),
-    getDebugFilePaths: sinon.stub().resolves([]),
     artifactExists: sinon.stub().resolves(true),
     getAllFullyQualifiedNames: sinon.stub().resolves([]),
-    getBuildInfoSync: sinon.stub().returns(undefined),
-    getArtifactPathsSync: sinon.stub().returns([]),
     saveArtifactAndDebugFile: sinon.stub().resolves(),
     formArtifactPathFromFullyQualifiedName: sinon.stub().returns(""),
-    getDbgPaths: sinon.stub().resolves([]),
   };
 
   // Create minimal mock HRE
@@ -106,7 +104,7 @@ export function createMockHRE(config?: MockHREConfig): HardhatRuntimeEnvironment
 
 /**
  * Creates a mock artifacts object with custom behavior
- * 
+ *
  * @param artifacts - Map of contract names to artifact data
  * @returns Mocked Artifacts interface
  */
@@ -114,12 +112,12 @@ export function createMockArtifacts(
   artifacts: Record<string, any> = {}
 ): Artifacts {
   const readArtifactStub = sinon.stub();
-  
+
   // Configure stub to return specific artifacts
   Object.keys(artifacts).forEach((contractName) => {
     readArtifactStub.withArgs(contractName).resolves(artifacts[contractName]);
   });
-  
+
   // Default behavior for unknown contracts
   readArtifactStub.rejects(new Error("Artifact not found"));
 
@@ -129,20 +127,16 @@ export function createMockArtifacts(
     getArtifactPaths: sinon.stub().resolves([]),
     getBuildInfo: sinon.stub().resolves(undefined),
     getBuildInfoPaths: sinon.stub().resolves([]),
-    getDebugFilePaths: sinon.stub().resolves([]),
     artifactExists: sinon.stub().resolves(true),
     getAllFullyQualifiedNames: sinon.stub().resolves([]),
-    getBuildInfoSync: sinon.stub().returns(undefined),
-    getArtifactPathsSync: sinon.stub().returns([]),
     saveArtifactAndDebugFile: sinon.stub().resolves(),
     formArtifactPathFromFullyQualifiedName: sinon.stub().returns(""),
-    getDbgPaths: sinon.stub().resolves([]),
-  } as Artifacts;
+  } as unknown as Artifacts;
 }
 
 /**
  * Resets all stubs in a mock HRE
- * 
+ *
  * @param mockHRE - The mock HRE to reset
  */
 export function resetMockHRE(mockHRE: HardhatRuntimeEnvironment): void {
@@ -156,7 +150,7 @@ export function resetMockHRE(mockHRE: HardhatRuntimeEnvironment): void {
       }
     });
   }
-  
+
   if ((mockHRE as any).run?.restore) {
     (mockHRE as any).run.restore();
   }
