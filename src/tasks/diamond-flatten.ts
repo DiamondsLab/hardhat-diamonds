@@ -122,14 +122,17 @@ task(
           console.log(
             chalk.yellow(`\n⚠ ${result.warnings.length} warning(s):`)
           );
-          result.warnings.forEach((w) => console.log(chalk.yellow(`   - ${w}`)));
+          result.warnings.forEach((w) =>
+            console.log(chalk.yellow(`   - ${w}`))
+          );
         }
 
         return result;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         console.error(chalk.red(`\n❌ Failed: ${errorMessage}`));
-        
+
         if (args.flattenVerbose && error instanceof Error && error.stack) {
           console.error(chalk.gray(error.stack));
         }

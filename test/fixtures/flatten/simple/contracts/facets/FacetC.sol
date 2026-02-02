@@ -8,7 +8,7 @@ pragma solidity ^0.8.19;
 contract FacetC {
     bytes32 constant COUNTER_POSITION = keccak256("diamond.facetc.counter");
 
-    function counterStorage() internal pure returns (uint256 counter) {
+    function counterStorage() internal view returns (uint256 counter) {
         bytes32 position = COUNTER_POSITION;
         assembly {
             counter := sload(position)
