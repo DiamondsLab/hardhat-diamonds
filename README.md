@@ -17,6 +17,7 @@ This plugin works in conjunction with the [`diamonds`](https://github.com/Genius
 
 - **Diamond Configuration Management**: Centralized configuration for multiple Diamond contracts
 - **Diamond ABI Generation**: Generate combined ABIs from Diamond proxy configurations
+- **Diamond Flattening**: Flatten Diamond contracts into single files for verification and auditing
 - **TypeScript Type Generation**: Automatic TypeChain integration for type-safe contract interactions
 - **Type-Safe Integration**: Full TypeScript support with proper type definitions
 - **Hardhat Tasks**: Built-in tasks for Diamond operations and development workflow
@@ -146,36 +147,84 @@ npx hardhat diamond:generate-abi-typechain --diamond-name MyDiamond --verbose
 Flatten a Diamond contract into a single Solidity file for verification or auditing.
 
 ```bash
-# Output to stdout (default)
+# Basic usage with default output
 npx hardhat diamond:flatten --diamond-name ExampleDiamond
 
-# Save to file
-npx hardhat diamond:flatten --diamond-name MyDiamond --output ./flattened/MyDiamond.sol
+# Save to custom file
+npx hardhat diamond:flatten --diamond-name MyDiamond --output ./flat/MyDiamond.sol
 
-# Verbose mode with summary
-npx hardhat diamond:flatten --diamond-name MyDiamond --flatten-verbose
+# Enable verbose logging
+npx hardhat diamond:flatten --diamond-name MyDiamond --verbose
 
-# Specify target network
-npx hardhat diamond:flatten --diamond-name MyDiamond --target-network sepolia --output ./verified/sepolia-diamond.sol
+# Specify network
+npx hardhat diamond:flatten --diamond-name MyDiamond --network mainnet
 ```
 
 **Parameters:**
 
 - `--diamond-name` (required): Name of the diamond to flatten
-- `--output` (optional): Path to save flattened source file (outputs to stdout if not specified)
-- `--flatten-verbose` (flag): Enable verbose logging and show summary
-- `--target-network` (optional): Target network (uses current network if not specified)
+- `--output` (optional): Path to save flattened source file (default: `flat/{diamondname}-flat.sol`)
+- `--verbose` (flag): Enable verbose logging for debugging
+- `--network` (optional): Target network (uses `hardhat` if not specified)
 
-**Summary Statistics:**
-When using `--output` or `--flatten-verbose`, the tool displays:
-- Total facets processed
-- Total function selectors extracted
-- Total contracts included
-- Total lines of code
-- Contracts deduplicated
-- Execution time
+**What it does:**
 
-**See also:** [Diamond Flatten API Documentation](./docs/flatten-api.md) for programmatic usage and advanced features.
+The flatten tool:
+1. Discovers all facets from the Diamond configuration
+2. Resolves all contract dependencies (including OpenZeppelin contracts)
+3. Topologically sorts contracts in dependency order
+4. Generates a comprehensive function selector table
+5. Deduplicates SPDX licenses and pragma directives
+6. Outputs a single, verifiable Solidity file
+
+**Output includes:**
+
+- SPDX License Identifier (extracted from main Diamond contract)
+- Pragma Directives (combined and deduplicated)
+- Function Selector Table (comprehensive mapping of selectors to functions)
+- Contract Sources (all contract code in dependency order)
+
+**Example output structure:**
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+/*
+ * Diamond Function Selector Table
+ * 
+ * FacetA:
+ *   0x12345678 => setValue(uint256)
+ *   0x23456789 => getValue()
+ * 
+ * FacetB:
+ *   0x34567890 => calculate(uint256,uint256)
+ */
+
+// Dependencies (libraries, interfaces, etc.)
+// ... dependency contracts ...
+
+// Diamond contract
+contract ExampleDiamond {
+  // ... implementation ...
+}
+
+// Facets in priority order
+contract FacetA {
+  // ... implementation ...
+}
+
+contract FacetB {
+  // ... implementation ...
+}
+```
+
+**Documentation:**
+
+- [FLATTEN.md](./docs/FLATTEN.md) - Complete user guide with examples
+- [API.md](./docs/API.md) - Programmatic API reference
+- [EXAMPLES.md](./docs/EXAMPLES.md) - Real-world usage scenarios
+- [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) - Common issues and solutions
 
 ### Programmatic Usage
 
