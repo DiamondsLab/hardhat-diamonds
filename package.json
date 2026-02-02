@@ -26,6 +26,8 @@
   "scripts": {
     "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && yarn exec eslint --fix 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "lint": "yarn exec eslint 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
+    "format": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
+    "format:check": "prettier --check 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "build": "tsc",
     "watch": "tsc -w",
     "prepublishOnly": "npm run build",

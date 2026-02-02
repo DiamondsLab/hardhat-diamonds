@@ -1,0 +1,93 @@
+name: Code Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  coverage:
+    name: Generate Coverage Report
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Build packages
+        run: yarn workspace:build
+      
+      - name: Compile contracts
+        run: npx hardhat compile
+      
+      - name: Run tests with coverage
+        run: yarn test:coverage:flatten
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/coverage-final.json
+          flags: flatten
+          name: flatten-coverage
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      
+      - name: Generate coverage summary
+        if: always()
+        run: |
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f coverage/coverage-summary.json ]; then
+            STATEMENTS=$(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')
+            BRANCHES=$(cat coverage/coverage-summary.json | jq -r '.total.branches.pct')
+            FUNCTIONS=$(cat coverage/coverage-summary.json | jq -r '.total.functions.pct')
+            LINES=$(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')
+            
+            echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|----------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Statements | ${STATEMENTS}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Branches | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Functions | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Lines | ${LINES}% |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Coverage summary not found" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check coverage threshold
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            STATEMENTS=$(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')
+            THRESHOLD=90
+            
+            if (( $(echo "$STATEMENTS < $THRESHOLD" | bc -l) )); then
+              echo "❌ Coverage ${STATEMENTS}% is below threshold ${THRESHOLD}%"
+              exit 1
+            else
+              echo "✓ Coverage ${STATEMENTS}% meets threshold ${THRESHOLD}%"
+            fi
+          fi
+      
+      - name: Archive coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
