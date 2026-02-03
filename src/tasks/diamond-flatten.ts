@@ -78,6 +78,7 @@ task(
           networkName: args.targetNetwork || hre.network.name,
           chainId: hre.network.config.chainId || 31337,
           verbose: args.flattenVerbose || false,
+          includeSummary: !!args.output, // Only include summary header when writing to file
         });
 
         // 3. Execute flatten
@@ -93,16 +94,12 @@ task(
           const outputPath = resolve(hre.config.paths.root, args.output);
           mkdirSync(dirname(outputPath), { recursive: true });
           writeFileSync(outputPath, result.flattenedSource, "utf-8");
-          console.log(chalk.green(`\n✅ Written to: ${outputPath}`));
-        } else {
-          // Output to stdout
-          console.log(result.flattenedSource);
-        }
-
-        // 5. Summary display (verbose mode OR file output)
-        if (args.flattenVerbose || args.output) {
+          
+          console.log(chalk.green(`\n✅ Flattened source written to: ${outputPath}`));
+          
+          // Always show summary when writing to file
           const executionTime = Date.now() - startTime;
-          console.log(chalk.blue("\n📊 Summary:"));
+          console.log(chalk.blue("\n📊 Flattening Summary:"));
           console.log(chalk.gray(`   Facets:     ${result.stats.totalFacets}`));
           console.log(
             chalk.gray(`   Selectors:  ${result.stats.totalSelectors}`)
@@ -114,16 +111,38 @@ task(
           console.log(
             chalk.gray(`   Deduped:    ${result.stats.deduplicatedContracts}`)
           );
-          console.log(chalk.gray(`   Time:       ${executionTime}ms`));
+          console.log(chalk.gray(`   Execution Time: ${executionTime}ms`));
+        } else {
+          // Output to stdout
+          console.log(result.flattenedSource);
+          
+          // Only show summary in verbose mode for stdout
+          if (args.flattenVerbose) {
+            const executionTime = Date.now() - startTime;
+            console.error(chalk.blue("\n📊 Flattening Summary:"));
+            console.error(chalk.gray(`   Facets:     ${result.stats.totalFacets}`));
+            console.error(
+              chalk.gray(`   Selectors:  ${result.stats.totalSelectors}`)
+            );
+            console.error(
+              chalk.gray(`   Contracts:  ${result.stats.totalContracts}`)
+            );
+            console.error(chalk.gray(`   Lines:      ${result.stats.totalLines}`));
+            console.error(
+              chalk.gray(`   Deduped:    ${result.stats.deduplicatedContracts}`)
+            );
+            console.error(chalk.gray(`   Execution Time: ${executionTime}ms`));
+          }
         }
 
-        // 6. Display warnings
+        // 5. Display warnings
         if (result.warnings.length > 0) {
-          console.log(
+          const warningOutput = args.output ? console.log : console.error;
+          warningOutput(
             chalk.yellow(`\n⚠ ${result.warnings.length} warning(s):`)
           );
           result.warnings.forEach((w) =>
-            console.log(chalk.yellow(`   - ${w}`))
+            warningOutput(chalk.yellow(`   - ${w}`))
           );
         }
 
@@ -131,11 +150,18 @@ task(
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
-        console.error(chalk.red(`\n❌ Failed: ${errorMessage}`));
+        console.error(chalk.red(`\n❌ Error: ${errorMessage}`));
 
-        if (args.flattenVerbose && error instanceof Error && error.stack) {
-          console.error(chalk.gray(error.stack));
+        // Show suggestion if available (Epic 5 requirement)
+        if (error instanceof FlattenError && error.suggestion) {
+          console.error(chalk.yellow(`\n💡 Suggestion: ${error.suggestion}`));
         }
+
+        // Show stack trace only in verbose mode
+        if (args.flattenVerbose && error instanceof Error && error.stack) {
+          console.error(chalk.gray(`\n${error.stack}`));
+        }
+        
         process.exit(1);
       }
     }

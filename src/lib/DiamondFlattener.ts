@@ -73,6 +73,7 @@ export class DiamondFlattener {
         hre.config.diamonds?.paths?.[options.diamondName]?.contractsPath ??
         "contracts",
       verbose: options.verbose ?? false,
+      includeSummary: options.includeSummary ?? true,
       hre: hre,
     };
 
@@ -97,14 +98,23 @@ export class DiamondFlattener {
 
     // Check if Diamond configuration exists in Hardhat config
     if (!this.hre.config.diamonds?.paths?.[diamondName]) {
+      const availableDiamonds = Object.keys(
+        this.hre.config.diamonds?.paths ?? {}
+      );
+      const suggestion =
+        availableDiamonds.length > 0
+          ? `Available diamonds: ${availableDiamonds.join(", ")}. Check your hardhat.config.ts diamonds.paths configuration.`
+          : "No diamonds are configured. Add your diamond configuration to hardhat.config.ts under diamonds.paths.";
+
       throw new FlattenError(
         `Diamond configuration for '${diamondName}' not found in Hardhat config. ` +
           `Make sure you have configured the Diamond in hardhat.config.ts under diamonds.paths.${diamondName}`,
         ErrorCodes.DIAMOND_NOT_FOUND,
         {
           diamondName,
-          availableDiamonds: Object.keys(this.hre.config.diamonds?.paths ?? {}),
-        }
+          availableDiamonds,
+        },
+        suggestion
       );
     }
 
@@ -847,10 +857,13 @@ export class DiamondFlattener {
 
       // Step 4: Resolve sources and dependencies
       this.log(chalk.blue("\n📦 Step 4: Resolving dependencies..."));
-      const sourceResolver = new SourceResolver(this.hre, {
-        contractsPath: this.options.contractsPath,
-        verbose: this.options.verbose,
-      });
+      const sourceResolver = new SourceResolver(this.hre, this.options.verbose);
+
+      // Build dependency graph
+      const dependencyGraph = new DependencyGraph(
+        sourceResolver,
+        this.options.verbose
+      );
 
       // Collect all contract names to resolve
       const contractNames: string[] = [
@@ -858,16 +871,17 @@ export class DiamondFlattener {
         diamondContract.name,
       ];
 
-      // Resolve all sources
-      const sources = await sourceResolver.resolveSources(contractNames);
-
-      // Build dependency graph
-      const dependencyGraph = new DependencyGraph(this.hre, {
-        verbose: this.options.verbose,
-      });
-
-      for (const source of sources) {
-        dependencyGraph.addSource(source);
+      // Resolve all sources by loading each contract
+      for (const contractName of contractNames) {
+        // Find the contract path
+        const contractPath = await this.resolveContractPath(contractName);
+        if (contractPath) {
+          await dependencyGraph.addRoot(contractPath);
+        } else {
+          this.warnings.push(
+            `Could not find contract: ${contractName} - skipping`
+          );
+        }
       }
 
       // Get topologically sorted nodes
@@ -877,9 +891,42 @@ export class DiamondFlattener {
       this.log(chalk.blue("\n🔄 Step 5: Deduplicating sources..."));
       const deduplicatedSources = this.deduplicateSources(sortedNodes);
 
-      // Step 6: Format output
-      this.log(chalk.blue("\n📝 Step 6: Formatting output..."));
+      // Step 6: Extract SPDX and pragma from first source
+      this.log(chalk.blue("\n📋 Step 6: Extracting SPDX and pragma..."));
       const outputFormatter = new OutputFormatter();
+      const firstSource = deduplicatedSources.find((s) => s.kept);
+      let spdxLicense = "UNLICENSED";
+      let pragmaDirective = "pragma solidity ^0.8.0;";
+
+      if (firstSource) {
+        const extractedSpdx = outputFormatter.extractSPDX(firstSource.content);
+        if (extractedSpdx) {
+          spdxLicense = extractedSpdx;
+          this.log(chalk.gray(`  Found SPDX license: ${spdxLicense}`));
+        }
+
+        const extractedPragma = outputFormatter.extractPragma(
+          firstSource.content
+        );
+        if (extractedPragma) {
+          pragmaDirective = extractedPragma;
+          this.log(chalk.gray(`  Found pragma: ${pragmaDirective}`));
+        }
+      }
+
+      // Step 7: Clean all sources (remove SPDX, pragma, imports)
+      this.log(
+        chalk.blue(
+          "\n🧹 Step 7: Cleaning sources (remove SPDX, pragma, imports)..."
+        )
+      );
+      const cleanedSources = deduplicatedSources.map((s) => ({
+        ...s,
+        content: outputFormatter.cleanSource(s.content),
+      }));
+
+      // Step 8: Format output
+      this.log(chalk.blue("\n📝 Step 8: Formatting output..."));
 
       // Generate selector tables for each facet
       const facetSelectorTables: string[] = [];
@@ -898,39 +945,43 @@ export class DiamondFlattener {
         (sum, f) => sum + f.selectors.length,
         0
       );
-      const totalContracts = deduplicatedSources.filter((s) => s.kept).length;
-      const deduplicatedCount = deduplicatedSources.filter(
-        (s) => !s.kept
-      ).length;
-      const totalLines = deduplicatedSources
+      const totalContracts = cleanedSources.filter((s) => s.kept).length;
+      const deduplicatedCount = cleanedSources.filter((s) => !s.kept).length;
+      const totalLines = cleanedSources
         .filter((s) => s.kept)
         .reduce((sum, s) => sum + s.content.split("\n").length, 0);
 
-      // Generate summary header
-      const summaryHeader = outputFormatter.generateSummaryHeader({
-        diamondName: this.options.diamondName,
-        totalContracts,
-        totalFacets: facets.length,
-        totalSelectors,
-        totalDependencies: sortedNodes.length - facets.length - 1, // Exclude facets and diamond
-        generatorVersion: "1.0.0", // TODO: Get from package.json
-        networkName: this.options.networkName,
-      });
+      // Generate summary header (conditional based on options)
+      const summaryHeader = this.options.includeSummary
+        ? outputFormatter.generateSummaryHeader({
+            diamondName: this.options.diamondName,
+            totalContracts,
+            totalFacets: facets.length,
+            totalSelectors,
+            totalDependencies: sortedNodes.length - facets.length - 1, // Exclude facets and diamond
+            generatorVersion: "1.0.0", // TODO: Get from package.json
+            networkName: this.options.networkName,
+          })
+        : "";
 
-      // Combine all parts into final flattened source
-      let flattenedSource = summaryHeader + "\n\n";
+      // Combine all parts into final flattened source with SPDX and pragma at top
+      let flattenedSource = `// SPDX-License-Identifier: ${spdxLicense}\n`;
+      flattenedSource += `${pragmaDirective}\n\n`;
+      if (summaryHeader) {
+        flattenedSource += summaryHeader + "\n\n";
+      }
 
       // Add selector tables
       if (facetSelectorTables.length > 0) {
         flattenedSource += facetSelectorTables.join("\n\n") + "\n\n";
       }
 
-      // Add deduplicated sources
-      const keptSources = deduplicatedSources.filter((s) => s.kept);
+      // Add cleaned deduplicated sources
+      const keptSources = cleanedSources.filter((s) => s.kept);
       flattenedSource += keptSources
         .map((s) => {
-          const header = outputFormatter.generateContractHeader(s.name, s.path);
-          return `${header}\n\n${s.content}`;
+          // Add a simple comment header for each contract
+          return `// Source: ${s.name}\n// Path: ${s.path}\n\n${s.content}`;
         })
         .join("\n\n");
 

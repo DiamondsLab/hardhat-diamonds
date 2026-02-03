@@ -141,6 +141,8 @@ export interface DiamondFlattenOptions {
   hre?: any; // Will be typed as HardhatRuntimeEnvironment in implementation
   /** Enable verbose logging */
   verbose?: boolean;
+  /** Include summary header in flattened output (default: true) */
+  includeSummary?: boolean;
 }
 
 /**

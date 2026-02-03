@@ -11,11 +11,13 @@ export class FlattenError extends Error {
    * @param message - Human-readable error message describing what went wrong
    * @param code - Machine-readable error code from ErrorCodes constant
    * @param details - Optional additional context or data related to the error
+   * @param suggestion - Optional helpful suggestion for resolving the error
    */
   constructor(
     message: string,
     public code: string,
-    public details?: unknown
+    public details?: unknown,
+    public suggestion?: string
   ) {
     super(message);
     this.name = "FlattenError";
@@ -24,6 +26,13 @@ export class FlattenError extends Error {
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, FlattenError);
     }
+  }
+
+  /**
+   * Get error context (alias for details property for Epic 5 compatibility)
+   */
+  get context(): unknown {
+    return this.details;
   }
 }
 
