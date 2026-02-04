@@ -1,4 +1,4 @@
-name: Release
+name: Publish
 
 on:
   push:
@@ -27,15 +27,15 @@ jobs:
           cache: 'yarn'
       
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutible
       
       - name: Build packages
         run: yarn workspace:build
       
       - name: Compile contracts
-        run: npx hardhat compile
+        run: yarn compile
       
-      - name: Run all tests
+      - name: Run all flatten tests
         run: |
           yarn test:unit:flatten
           yarn test:integration:flatten
@@ -80,7 +80,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutible
       
       - name: Build packages
         run: yarn workspace:build
