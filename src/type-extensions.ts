@@ -27,8 +27,9 @@ export const _hardhatDiamondsTypesLoaded = true;
 // Re-export task option types for external use
 export type {
   DiamondAbiGenerationOptions,
-  DiamondAbiGenerationResult, DiamondAbiTaskArgs,
-  DiamondAbiTypechainTaskArgs, TypeChainGenerationOptions,
-  TypeChainGenerationResult
+  DiamondAbiGenerationResult,
+  DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs,
+  TypeChainGenerationOptions,
+  TypeChainGenerationResult,
 } from "./tasks/shared/TaskOptions";
-

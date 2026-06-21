@@ -1,8 +1,12 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { existsSync, accessSync, constants, statSync } from "fs";
-import { join, resolve, isAbsolute } from "path";
+import { join, resolve, isAbsolute, dirname, extname } from "path";
 import chalk from "chalk";
-import { DiamondAbiTaskArgs, DiamondAbiTypechainTaskArgs } from "./TaskOptions";
+import {
+  DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs,
+  DiamondFlattenTaskArgs,
+} from "./TaskOptions";
 
 /**
  * Validation error details
@@ -137,6 +141,155 @@ export class TaskValidation {
       if (!outDirValidation.isValid) {
         errors.push(...outDirValidation.errors);
         warnings.push(...outDirValidation.warnings);
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
+    };
+  }
+
+  /**
+   * Validate diamond flatten task arguments
+   *
+   * @param args - Task arguments to validate
+   * @returns Validation result
+   */
+  validateDiamondFlattenArgs(args: DiamondFlattenTaskArgs): ValidationResult {
+    const errors: ValidationError[] = [];
+    const warnings: string[] = [];
+
+    // Validate required diamond name
+    if (
+      !args.diamondName ||
+      typeof args.diamondName !== "string" ||
+      args.diamondName.trim() === ""
+    ) {
+      errors.push({
+        field: "diamondName",
+        message: "Diamond name is required and must be a non-empty string",
+        suggestion:
+          "Provide a valid diamond name, e.g., --diamond-name ExampleDiamond",
+      });
+    } else {
+      // Validate diamond name format
+      if (!/^[a-zA-Z0-9_-]+$/.test(args.diamondName)) {
+        errors.push({
+          field: "diamondName",
+          message:
+            "Diamond name must contain only letters, numbers, underscores, and hyphens",
+          suggestion:
+            "Use a valid identifier format, e.g., ExampleDiamond or MyDiamond-V2",
+        });
+      } else {
+        // Check if diamond configuration exists
+        try {
+          const diamondConfig = this.hre.diamonds.getDiamondConfig(
+            args.diamondName
+          );
+          if (!diamondConfig) {
+            const availableDiamonds = Object.keys(
+              this.hre.config.diamonds?.paths || {}
+            );
+            errors.push({
+              field: "diamondName",
+              message: `Diamond "${args.diamondName}" not found in configuration`,
+              suggestion:
+                availableDiamonds.length > 0
+                  ? `Available diamonds: ${availableDiamonds.join(", ")}`
+                  : "Add diamond configuration to hardhat.config.ts",
+            });
+          }
+        } catch (error) {
+          warnings.push(
+            `Could not verify diamond configuration: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
+    }
+
+    // Validate optional output path
+    if (args.output !== undefined && args.output !== null) {
+      if (typeof args.output !== "string" || args.output.trim() === "") {
+        errors.push({
+          field: "output",
+          message: "Output path must be a non-empty string when provided",
+          suggestion:
+            "Provide a valid file path, e.g., --output ./flat/Diamond.sol",
+        });
+      } else {
+        const resolvedPath = this.resolvePath(args.output);
+
+        // Check if path is a directory
+        if (existsSync(resolvedPath)) {
+          try {
+            const stats = statSync(resolvedPath);
+            if (stats.isDirectory()) {
+              errors.push({
+                field: "output",
+                message: `Output path must be a file, not a directory: ${resolvedPath}`,
+                suggestion:
+                  "Provide a file path with a filename, e.g., ./flat/Diamond.sol",
+              });
+            }
+          } catch (error) {
+            errors.push({
+              field: "output",
+              message: `Cannot access output path: ${error instanceof Error ? error.message : String(error)}`,
+              suggestion: "Check path validity and permissions",
+            });
+          }
+        } else {
+          // Validate parent directory exists or can be created
+          const parentDir = dirname(resolvedPath);
+          if (existsSync(parentDir)) {
+            try {
+              accessSync(parentDir, constants.W_OK);
+            } catch {
+              errors.push({
+                field: "output",
+                message: `Cannot write to parent directory: ${parentDir}`,
+                suggestion:
+                  "Check directory permissions or choose a different path",
+              });
+            }
+          } else {
+            warnings.push(`Parent directory will be created: ${parentDir}`);
+          }
+        }
+
+        // Warn if extension is not .sol
+        const ext = extname(args.output);
+        if (ext && ext !== ".sol") {
+          warnings.push(
+            `Output file extension is "${ext}" instead of ".sol" - this may not be a Solidity file`
+          );
+        } else if (!ext) {
+          warnings.push(
+            "Output file has no extension - consider using .sol extension"
+          );
+        }
+
+        // Validate path format
+        if (args.output.includes("..") && !isAbsolute(args.output)) {
+          warnings.push(
+            'Relative paths with ".." can be dangerous, consider using absolute paths'
+          );
+        }
+      }
+    }
+
+    // Validate network if provided
+    if (args.targetNetwork !== undefined && args.targetNetwork !== null) {
+      const networkValidation = this.validateNetwork(
+        args.targetNetwork,
+        "targetNetwork"
+      );
+      if (!networkValidation.isValid) {
+        errors.push(...networkValidation.errors);
+        warnings.push(...networkValidation.warnings);
       }
     }
 
@@ -308,9 +461,13 @@ export class TaskValidation {
    * Validate network configuration
    *
    * @param networkName - Network name to validate
+   * @param fieldName - Name of the field (defaults to "network")
    * @returns Validation result
    */
-  private validateNetwork(networkName: string): ValidationResult {
+  private validateNetwork(
+    networkName: string,
+    fieldName: string = "network"
+  ): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: string[] = [];
 
@@ -320,7 +477,7 @@ export class TaskValidation {
       networkName.trim() === ""
     ) {
       errors.push({
-        field: "network",
+        field: fieldName,
         message: "Network name must be a non-empty string",
         suggestion:
           "Provide a valid network name from your Hardhat configuration",
@@ -332,7 +489,7 @@ export class TaskValidation {
     const networks = this.hre.config.networks;
     if (!networks[networkName]) {
       errors.push({
-        field: "network",
+        field: fieldName,
         message: `Network "${networkName}" not found in Hardhat configuration`,
         suggestion: `Available networks: ${Object.keys(networks).join(", ")}`,
       });

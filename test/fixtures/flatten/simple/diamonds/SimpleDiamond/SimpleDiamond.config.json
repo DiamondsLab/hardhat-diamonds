@@ -1,0 +1,22 @@
+{
+  "DiamondName": "SimpleDiamond",
+  "DeploymentRecord": "SimpleDiamond-localhost-31337.json",
+  "DiamondContract": "SimpleDiamond",
+  "Facets": [
+    {
+      "name": "FacetA",
+      "priority": 1,
+      "version": "1.0.0"
+    },
+    {
+      "name": "FacetB",
+      "priority": 2,
+      "version": "1.0.0"
+    },
+    {
+      "name": "FacetC",
+      "priority": 3,
+      "version": "1.0.0"
+    }
+  ]
+}
