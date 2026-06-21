@@ -10,7 +10,7 @@ import {
   cutKey,
   impersonateAndFundSigner,
 } from "@diamondslab/diamonds";
-import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
+import type { Signer } from "ethers";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import { join } from "path";
 
@@ -18,7 +18,7 @@ import { join } from "path";
 
 export interface LocalDiamondDeployerConfig extends DiamondConfig {
   provider?: SupportedProvider;
-  signer?: SignerWithAddress;
+  signer?: Signer;
   localDiamondDeployerKey?: string;
 }
 
@@ -30,7 +30,7 @@ export class LocalDiamondDeployer {
   private verbose: boolean = true;
   private config: LocalDiamondDeployerConfig;
   private provider: SupportedProvider;
-  private signer: SignerWithAddress;
+  private signer: Signer;
   private diamondName: string;
   private networkName: string = "hardhat";
 
@@ -70,7 +70,7 @@ export class LocalDiamondDeployer {
 
     this.diamond = new Diamond(this.config, repository);
     this.diamond.setProvider(this.provider);
-    this.diamond.setSigner(this.signer as any);
+    this.diamond.setSigner(this.signer);
   }
 
   public static async getInstance(
@@ -160,20 +160,22 @@ export class LocalDiamondDeployer {
       );
       const deployedDiamondData = repository.loadDeployedDiamondData();
 
-      const [signer0] = await hre.ethers.getSigners();
-      if (!deployedDiamondData.DeployerAddress) {
-        config.signer = signer0;
-      } else {
-        config.signer = await hre.ethers.getSigner(
-          deployedDiamondData.DeployerAddress
-        );
-        await impersonateAndFundSigner(
-          deployedDiamondData.DeployerAddress,
-          config.provider
-        );
-      }
-      const instance = new LocalDiamondDeployer(hre, config, repository);
-      this.instances.set(key, instance);
+			const [signer0] = await hre.ethers.getSigners();
+			if (!deployedDiamondData.DeployerAddress) {
+				config.signer = signer0;
+			} else {
+				// Impersonate + fund FIRST, then use the signer it returns (bound to
+				// config.provider / the fork). Calling hre.ethers.getSigner() before
+				// impersonation throws "invalid account" for a non-test deployer address,
+				// which broke every fork-based UPGRADE (new deployments worked only because
+				// DeployerAddress was empty).
+				config.signer = await impersonateAndFundSigner(
+					deployedDiamondData.DeployerAddress,
+					config.provider,
+				);
+			}
+			const instance = new LocalDiamondDeployer(hre, config, repository);
+			this.instances.set(key, instance);
 
       // Generate Diamond ABI with Typechain using hardhat task
       await hre.run("diamond:generate-abi-typechain", {
