@@ -156,8 +156,12 @@ export class LocalDiamondDeployer {
 			if (!deployedDiamondData.DeployerAddress) {
 				config.signer = signer0;
 			} else {
-				config.signer = await hre.ethers.getSigner(deployedDiamondData.DeployerAddress);
-				await impersonateAndFundSigner(
+				// Impersonate + fund FIRST, then use the signer it returns (bound to
+				// config.provider / the fork). Calling hre.ethers.getSigner() before
+				// impersonation throws "invalid account" for a non-test deployer address,
+				// which broke every fork-based UPGRADE (new deployments worked only because
+				// DeployerAddress was empty).
+				config.signer = await impersonateAndFundSigner(
 					deployedDiamondData.DeployerAddress,
 					config.provider,
 				);
