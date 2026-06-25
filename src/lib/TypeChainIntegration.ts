@@ -138,13 +138,20 @@ export class HardhatTypeChainIntegration {
         });
         // Navigate from typechain module to CLI
         typechainCliPath = join(
-          typechainPath.substring(0, typechainPath.indexOf("typechain") + "typechain".length),
+          typechainPath.substring(
+            0,
+            typechainPath.indexOf("typechain") + "typechain".length
+          ),
           "dist",
           "cli",
           "cli.js"
         );
       } catch {
-        reject(new Error("TypeChain module not found. Install it with: npm install --save-dev typechain"));
+        reject(
+          new Error(
+            "TypeChain module not found. Install it with: npm install --save-dev typechain"
+          )
+        );
         return;
       }
 
@@ -268,7 +275,10 @@ export class HardhatTypeChainIntegration {
 
       // Verify CLI exists
       const typechainCliPath = join(
-        typechainPath.substring(0, typechainPath.indexOf("typechain") + "typechain".length),
+        typechainPath.substring(
+          0,
+          typechainPath.indexOf("typechain") + "typechain".length
+        ),
         "dist",
         "cli",
         "cli.js"

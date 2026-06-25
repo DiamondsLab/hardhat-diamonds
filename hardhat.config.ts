@@ -1,6 +1,6 @@
 import "@nomicfoundation/hardhat-toolbox";
 import { HardhatUserConfig } from "hardhat/config";
-
+import path from "path";
 
 // Load the plugin
 import "./src/index";
@@ -35,6 +35,11 @@ const config: HardhatUserConfig = {
       MockDiamond: {
         deploymentsPath: "test/mocks/diamonds",
         contractsPath: "test/mocks/contracts",
+      },
+      // Add ExampleDiamond config for SPDX consolidation tests
+      ExampleDiamond: {
+        deploymentsPath: path.resolve(__dirname, "../../diamonds"),
+        contractsPath: path.resolve(__dirname, "../../contracts/examplediamond"),
       },
     },
   },
