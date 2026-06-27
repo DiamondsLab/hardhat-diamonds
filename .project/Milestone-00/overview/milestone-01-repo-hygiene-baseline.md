@@ -72,9 +72,11 @@ There are **no blocking owner gates** in M0 — that's why it leads. (The owner 
 |------|-------|-------|--------|----------|
 | M0-E1 | `gitignore-and-cruft` | Eng | Low | [e1-gitignore-and-cruft](../Epic-01/overview/e1-gitignore-and-cruft.md) |
 | M0-E2 | `release-baseline-inventory` | Eng | Low | [e2-release-baseline-inventory](../Epic-02/overview/e2-release-baseline-inventory.md) |
-| M0-E3 | `prettier-formatting-pass` *(added during M0-E1)* | Eng | Low | Epic-03 (to break out) |
+| M0-E3 ✅ | `prettier-formatting-pass` *(added during M0-E1)* | Eng | Low | [e3-prettier-formatting-pass](../Epic-03/overview/e3-prettier-formatting-pass.md) |
 
-> **Discovered during M0-E1 execution (2026-06-27):** `yarn lint` and `yarn build` are **both red at baseline** — 225 pre-existing `prettier/prettier` errors and a `tsc` TS2740 error in `LocalDiamondDeployer.ts`. Neither was caused by M0-E1. The lint failure spawned **M0-E3** (formatting pass); the build failure is tracked as **M2-E4** (`fix-tsc-build`, a v1.2.0 **release blocker**). M0-E1's lint/build exit criteria were relaxed to "no worse than baseline."
+> **Discovered during M0-E1 execution (2026-06-27) — both now RESOLVED:** `yarn lint` and `yarn build` were **both red at baseline** (225 `prettier/prettier` errors + a `tsc` TS2740 in `LocalDiamondDeployer.ts`); neither was caused by M0-E1. The lint failure spawned **M0-E3** (formatting pass) → ✅ lint green. The build failure spawned **M2-E4** (`fix-tsc-build`) → ✅ build green. Both fixed on the integration branch.
+>
+> ✅ **M0 milestone COMPLETE (2026-06-27):** all three epics done (E1 gitignore/cruft, E2 baseline, E3 formatting). `yarn lint` + `yarn build` + `yarn test` all green.
 
 ### M0-E1 — `gitignore-and-cruft`
 

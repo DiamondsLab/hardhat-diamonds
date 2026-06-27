@@ -115,7 +115,7 @@ Pulled from `CLAUDE.md` and standard release hygiene:
 |------|-------|---------|-------|--------|
 | M0-E1 | `gitignore-and-cruft` | Un-ignore `notes/` and `.project/` (remove the `notes` line); ensure `coverage.json`, `package.tgz`, `test-output/`, `.nyc_output/` are ignored & untracked; delete legacy `.travis.yml` and `tslint.json`; consolidate the duplicate eslint config (`.eslintrc.json` vs `eslint.config.mjs`) to **one** — first verify which eslint `^8.57` actually resolves (flat config needs eslint 9 or `ESLINT_USE_FLAT_CONFIG`); a full eslint-9/flat migration may defer to M2. | Eng | Low |
 | M0-E2 | `release-baseline-inventory` | Record current public exports (`index.ts`, `lib/`, `utils`), `yarn pack --dry-run` file list, tag-vs-HEAD state (`v1.1.15` +2), and test/coverage baseline into `.project/`. | Eng | Low |
-| M0-E3 | `prettier-formatting-pass` | **(Added during M0-E1 execution.)** Run `yarn lint:fix` (prettier `--write` + `eslint --fix`) across `src/`/`test/` to clear the **225 pre-existing `prettier/prettier` errors** discovered in M0-E1, bringing `yarn lint` to exit 0. Mechanical, reversible diff; isolate in its own commit. | Eng | Low |
+| M0-E3 | `prettier-formatting-pass` | ✅ **DONE (2026-06-27).** Ran `yarn lint:fix`; reformatted 6 `src/` files; `yarn lint` now exits 0 (was 225 errors), build + tests unchanged. See [Epic-03 overview](../Milestone-00/Epic-03/overview/e3-prettier-formatting-pass.md). | Eng | Low |
 
 ### M1 — `licensing-changelog`
 
