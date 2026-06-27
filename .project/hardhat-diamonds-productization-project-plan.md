@@ -140,7 +140,7 @@ Pulled from `CLAUDE.md` and standard release hygiene:
 | M2-E1 | `package-json-metadata` | Replace non-standard `authors` with `author`; add `engines` (node/yarn); add `publishConfig` (`access: public`, provenance); convert `repository` to object form with correct **DiamondsLab** casing; verify `bugs`/`homepage`; fix `prepublishOnly` to use yarn (or `prepack`). | Eng | Med |
 | M2-E2 | `exports-entrypoints` | Add an `exports` map formalizing `.`, `./utils`, `./lib` (README documents `@diamondslab/hardhat-diamonds/dist/utils`). Preserve raw `./dist/*` subpaths for back-compat to avoid a breaking change; verify types resolve under `NodeNext`. *(Full public-API redesign deferred to v2.)* | Eng | Med |
 | M2-E3 | `tarball-verification` | Reconcile `.npmignore` vs `files` whitelist (pick one strategy); `yarn pack` and audit contents include dist + README + LICENSE + docs and exclude tests/source/cruft; install the tarball into a throwaway consumer to confirm it works. | Eng | Med |
-| M2-E4 | `fix-tsc-build` | **(Added during M0-E1 execution — RELEASE BLOCKER.)** Fix the pre-existing `tsc` failure `LocalDiamondDeployer.ts(164,5): TS2740` (`Signer` vs `HardhatEthersSigner`) so `yarn build` exits 0. Required before the M5 `v1.2.0` cut (the published `dist/` must build cleanly from source). Sequence **before** M2-E2/E3 since those depend on a green build. | Eng | High |
+| M2-E4 | `fix-tsc-build` | ✅ **DONE (pulled forward, 2026-06-27).** Fixed `LocalDiamondDeployer.ts` TS2740 by widening `signer` to ethers `Signer`; `yarn build` exits 0, tests unchanged (120 passing). See [Epic-04 overview](../Milestone-02/Epic-04/overview/e4-fix-tsc-build.md). Minor public type change → fold into M2-E2. | Eng | High |
 
 ### M3 — `docs-readme-audit`
 
@@ -205,7 +205,7 @@ These run through every milestone:
 
 | Risk | Likelihood | Impact | Mitigation | Owner |
 |------|-----------|--------|------------|-------|
-| **`tsc` build is broken at baseline** (`LocalDiamondDeployer.ts` TS2740) — a clean `v1.2.0` can't be cut from source (discovered in M0-E1) | **Certain (present now)** | High | Dedicated fix epic **M2-E4** before M5; published `dist/` must rebuild cleanly; CI build gate (M4) prevents regression | Eng |
+| ~~`tsc` build broken at baseline (`LocalDiamondDeployer.ts` TS2740)~~ — **RESOLVED 2026-06-27 via M2-E4** (widened `signer` to `Signer`; build green, no test regression) | ~~Certain~~ → Resolved | High | Fixed on the integration branch; CI build gate (M4) will prevent regression before publish | Eng |
 | `exports` map breaks existing `/dist/utils` / `/dist/lib` imports (incl. this monorepo & README guidance) | Med | High | Preserve raw `./dist/*` subpaths for back-compat; build monorepo root after change; install-test a consumer (M2-E3) | Eng |
 | npm publish misconfigured (wrong access/scope, missing provenance, publishes secrets) | Med | High | Dry-run pack + `--dry-run` publish; tarball content audit; provenance via OIDC; secret scan before first publish | Eng + Owner |
 | Owner credential/secret tasks (M4-E3) block the release | Med | High | Surface as explicit blocking owner tasks early; M1–M3 proceed independently while pending | Owner |

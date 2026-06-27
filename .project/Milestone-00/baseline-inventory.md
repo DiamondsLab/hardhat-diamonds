@@ -67,7 +67,7 @@ Three consumer entry points are in use today:
 | Check | Result | Tracked by |
 |-------|--------|------------|
 | `yarn test` (hardhat/mocha) | ✅ **120 passing, 12 pending, 0 failing** (~0.9s) | — (healthy) |
-| `yarn build` (`tsc`) | ❌ **FAILS** — `src/lib/LocalDiamondDeployer.ts(164,5): error TS2740` (`Signer` vs `HardhatEthersSigner`) | **M2-E4** (release blocker) |
+| `yarn build` (`tsc`) | ❌ **FAILED at baseline** — `LocalDiamondDeployer.ts(164,5): TS2740` → ✅ **RESOLVED 2026-06-27 by M2-E4** | **M2-E4** (done) |
 | `yarn lint` (eslint flat) | ❌ **FAILS** — 225 `prettier/prettier` errors across `src/` | **M0-E3** |
 | eslint resolution | flat `eslint.config.mjs` (eslint `8.57.1`, `globals 13.24.0`); `.eslintrc.json` was dead → removed in M0-E1 | — |
 | coverage | no `coverage` script in this package; stale `coverage/` + `coverage.json` + `.nyc_output/` from prior runs (now gitignored) | M2/M5 (optional) |
