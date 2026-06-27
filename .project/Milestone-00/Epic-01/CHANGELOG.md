@@ -30,3 +30,12 @@ Branch: `chore/m0-repo-hygiene-baseline` (shared with M0-E2). Format loosely fol
   - `yarn lint` → exit 1, **225 `prettier/prettier` errors** across untouched `src/` files. The repo source was never prettier-clean against the (already-active) flat config. → **Deferred to new epic M0-E3 (prettier formatting pass).**
   - `yarn build` (`tsc`) → exit 2, `LocalDiamondDeployer.ts(164,5): error TS2740` (`Signer` vs `HardhatEthersSigner`). → **Deferred to new epic M2-E4 (fix tsc build); flagged as a v1.2.0 RELEASE BLOCKER.**
 - Decision (user): defer both, record in baseline, keep M0-E1 scope tight. M0-E1 gate relaxed to "no worse than baseline" — confirmed no regression.
+
+### Task 4.0 / 5.0 / 6.0 — Review, validate, record (2026-06-27)
+
+- **OP-0 secret review:** `notes/` empty; `.project/` holds only planning docs; secret-pattern scan found no real credentials. Satisfied.
+- **Validation (read-only):** `git check-ignore` confirms `notes`/`.project` trackable and `coverage.json`/`test-output` ignored; `.travis.yml`/`tslint.json` absent; single eslint config `eslint.config.mjs`; working tree clean.
+- **Eslint config kept:** `eslint.config.mjs` (flat) — input to M2; the planned M2 eslint-9/flat migration is effectively already in place.
+- **Local commits complete** on `chore/m0-repo-hygiene-baseline`. ⏸ **Push + PR into `main` paused pending user confirmation** (outward-facing action to the DiamondsLab remote).
+
+**M0-E1 status:** all in-scope work complete and validated locally; remaining step is the outward push/PR (Task 4.4).

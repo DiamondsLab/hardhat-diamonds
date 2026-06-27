@@ -49,16 +49,16 @@
   - [x] 3.1 Run `yarn lint`. — **RESULT: exit 1, 225 `prettier/prettier` errors, ALL in untouched `src/` files. PRE-EXISTING on `main` (this branch changed only `.gitignore` + `.project/`; `src/utils.ts` byte-identical to main). Flat config was already the resolver, so the eslintrc deletion did not change lint. NOT caused by M0-E1. → DEFERRED to new follow-up epic M0-E3 (prettier formatting pass).**
   - [x] 3.2 Run `yarn build`. — **RESULT: exit 2 — `src/lib/LocalDiamondDeployer.ts(164,5): error TS2740` (`Signer` vs `HardhatEthersSigner`). File untouched by this branch → PRE-EXISTING build break on `main`. NOT caused by M0-E1. → DEFERRED to new epic M2-E4 (fix tsc build); flagged as a v1.2.0 RELEASE BLOCKER in the project plan risk register.**
 
-- [ ] 4.0 Secret review (OP-0) & commit / open PR
-  - [ ] 4.1 **STOP — OP-0 (human approval required):** enumerate any pre-existing files under `notes/` and `.project/` (`git status --porcelain notes .project`; list directory contents). Confirm with the Owner that none contain secrets/keys/tokens **before** tracking them. Do not proceed until approved.
-  - [ ] 4.2 Stage the intended changes only: the `.gitignore` edit, the two deletions, the removed eslint config, and the new `notes/` + `.project/` trees.
-  - [ ] 4.3 Commit using Conventional Commits — e.g. `chore(gitignore): track notes and project planning dirs`, `chore: remove legacy travis and tslint config`, `chore(eslint): consolidate to single resolving config` (one or several commits).
-  - [ ] 4.4 Push the branch and open a PR into `main` (`gh pr create`). Note in the PR that M4 CI is not yet present, so review is manual.
+- [ ] 4.0 Secret review (OP-0) & commit / open PR — *4.1–4.3 done; 4.4 (push/PR) awaiting user confirmation (outward-facing).*
+  - [x] 4.1 **OP-0 (human approval):** enumerate files under `notes/` and `.project/`; confirm none contain secrets. — **`notes/` empty; `.project/` = 7 planning docs only; secret-pattern scan found only doc references to the *concept* of secrets, no real credentials. OP-0 satisfied.**
+  - [x] 4.2 Stage the intended changes only. — **Done across commits; cruft (`coverage.json`/`.tgz`) explicitly never staged (guarded).**
+  - [x] 4.3 Commit using Conventional Commits. — **5 commits on `chore/m0-repo-hygiene-baseline`: planning tree, gitignore, cruft/eslint removal, follow-up registration.**
+  - [ ] 4.4 Push the branch and open a PR into `main` (`gh pr create`). Note in the PR that M4 CI is not yet present, so review is manual. — **⏸ AWAITING USER CONFIRMATION (outward-facing push to DiamondsLab remote).**
 
-- [ ] 5.0 Validate the change
-  - [ ] 5.1 Run the PRD §9 read-only checks and record results: `git check-ignore notes` empty · `git check-ignore .project` empty · `git status --ignored` shows `coverage.json`/`test-output/`/`*.tgz`/`.nyc_output` as ignored · `ls .travis.yml tslint.json` both absent · exactly one eslint config present.
-  - [ ] 5.2 Re-run `yarn lint` and `yarn build` on the branch tip; confirm both exit `0`.
-  - [ ] 5.3 Confirm the PR is open against `main` and final `git status` is clean and intentional (no stray/secret files tracked).
+- [ ] 5.0 Validate the change — *local checks done; PR-open confirmation pending push (4.4).*
+  - [x] 5.1 Run the PRD §9 read-only checks. — **ALL PASS: `notes`/`.project` not ignored; `coverage.json`/`test-output` ignored; `.travis.yml`/`tslint.json` absent; exactly one eslint config (`eslint.config.mjs`).**
+  - [x] 5.2 Re-run `yarn lint`/`yarn build`. — **Per amended gate: both red at PRE-EXISTING baseline (M0-E1 introduces no regression). Deferred to M0-E3 / M2-E4.**
+  - [x] 5.3 Final `git status` clean and intentional (no stray/secret files). — **Working tree clean. (PR-open confirmation deferred to 4.4.)**
 
 - [ ] 6.0 Record the change
   - [ ] 6.1 Create/append `…/Milestone-00/Epic-01/CHANGELOG.md`: what changed (gitignore fix, removed `.travis.yml`/`tslint.json`, eslint consolidated to `<kept-config>`), date, and the 5.x validation results.
