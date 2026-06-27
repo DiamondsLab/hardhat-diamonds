@@ -61,6 +61,7 @@ Pulled from `CLAUDE.md` and standard release hygiene:
 6. **Conventional Commits + SemVer.** Adopted from this project forward so the CHANGELOG and version bumps are mechanical and the release workflow can reason about them.
 7. **One canonical identity.** Everything points to **DiamondsLab** / `@diamondslab`; GeniusVentures/subaskar-s references are removed or demoted to upstream-mirror notes.
 8. **No secrets in artifacts.** Re-audit the published tarball and repo for tokens/keys before the first automated publish.
+9. **`main` is release-only.** (Owner direction, 2026-06-27.) Do **not** push/PR/merge productization work to `main` until the project is ready for a full `v1.2.0` release. All milestone/epic work accumulates on integration branches (M0 lives on `chore/m0-repo-hygiene-baseline`); merging to `main` is a deliberate release-time step in M5, not an end-of-epic action.
 
 ---
 

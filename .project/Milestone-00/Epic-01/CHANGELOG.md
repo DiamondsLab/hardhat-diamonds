@@ -38,4 +38,6 @@ Branch: `chore/m0-repo-hygiene-baseline` (shared with M0-E2). Format loosely fol
 - **Eslint config kept:** `eslint.config.mjs` (flat) — input to M2; the planned M2 eslint-9/flat migration is effectively already in place.
 - **Local commits complete** on `chore/m0-repo-hygiene-baseline`. ⏸ **Push + PR into `main` paused pending user confirmation** (outward-facing action to the DiamondsLab remote).
 
-**M0-E1 status:** all in-scope work complete and validated locally; remaining step is the outward push/PR (Task 4.4).
+**M0-E1 status:** ✅ **Complete** — all in-scope work done, committed locally, and validated.
+
+- **Merge policy (Owner direction):** no push/PR/merge to `main` until the project is release-ready. Task 4.4 deferred to the M5 release step; work stays on `chore/m0-repo-hygiene-baseline`. Recorded as guiding principle #9 in the project plan.

@@ -49,18 +49,18 @@
   - [x] 3.1 Run `yarn lint`. — **RESULT: exit 1, 225 `prettier/prettier` errors, ALL in untouched `src/` files. PRE-EXISTING on `main` (this branch changed only `.gitignore` + `.project/`; `src/utils.ts` byte-identical to main). Flat config was already the resolver, so the eslintrc deletion did not change lint. NOT caused by M0-E1. → DEFERRED to new follow-up epic M0-E3 (prettier formatting pass).**
   - [x] 3.2 Run `yarn build`. — **RESULT: exit 2 — `src/lib/LocalDiamondDeployer.ts(164,5): error TS2740` (`Signer` vs `HardhatEthersSigner`). File untouched by this branch → PRE-EXISTING build break on `main`. NOT caused by M0-E1. → DEFERRED to new epic M2-E4 (fix tsc build); flagged as a v1.2.0 RELEASE BLOCKER in the project plan risk register.**
 
-- [ ] 4.0 Secret review (OP-0) & commit / open PR — *4.1–4.3 done; 4.4 (push/PR) awaiting user confirmation (outward-facing).*
+- [x] 4.0 Secret review (OP-0) & commit / open PR — *4.1–4.3 done. 4.4 (push/PR/merge) **deferred to release time** per user direction: do not merge to `main` until the whole productization project is release-ready. Work stays on `chore/m0-repo-hygiene-baseline`.*
   - [x] 4.1 **OP-0 (human approval):** enumerate files under `notes/` and `.project/`; confirm none contain secrets. — **`notes/` empty; `.project/` = 7 planning docs only; secret-pattern scan found only doc references to the *concept* of secrets, no real credentials. OP-0 satisfied.**
   - [x] 4.2 Stage the intended changes only. — **Done across commits; cruft (`coverage.json`/`.tgz`) explicitly never staged (guarded).**
   - [x] 4.3 Commit using Conventional Commits. — **5 commits on `chore/m0-repo-hygiene-baseline`: planning tree, gitignore, cruft/eslint removal, follow-up registration.**
-  - [ ] 4.4 Push the branch and open a PR into `main` (`gh pr create`). Note in the PR that M4 CI is not yet present, so review is manual. — **⏸ AWAITING USER CONFIRMATION (outward-facing push to DiamondsLab remote).**
+  - [~] 4.4 Push the branch and open a PR into `main`. — **DEFERRED to release time (user direction): no push/PR/merge to `main` until the project is ready for a full release. Commits remain local on `chore/m0-repo-hygiene-baseline`.**
 
-- [ ] 5.0 Validate the change — *local checks done; PR-open confirmation pending push (4.4).*
+- [x] 5.0 Validate the change — *all local read-only checks pass; PR-open is a release-time item (4.4), not part of this epic's local completion.*
   - [x] 5.1 Run the PRD §9 read-only checks. — **ALL PASS: `notes`/`.project` not ignored; `coverage.json`/`test-output` ignored; `.travis.yml`/`tslint.json` absent; exactly one eslint config (`eslint.config.mjs`).**
   - [x] 5.2 Re-run `yarn lint`/`yarn build`. — **Per amended gate: both red at PRE-EXISTING baseline (M0-E1 introduces no regression). Deferred to M0-E3 / M2-E4.**
   - [x] 5.3 Final `git status` clean and intentional (no stray/secret files). — **Working tree clean. (PR-open confirmation deferred to 4.4.)**
 
-- [ ] 6.0 Record the change
-  - [ ] 6.1 Create/append `…/Milestone-00/Epic-01/CHANGELOG.md`: what changed (gitignore fix, removed `.travis.yml`/`tslint.json`, eslint consolidated to `<kept-config>`), date, and the 5.x validation results.
-  - [ ] 6.2 Tick the satisfied acceptance-criteria checkboxes in the PRD and epic overview; record **which eslint config was kept** (input to the M2 eslint-9/flat decision).
-  - [ ] 6.3 If keeping the legacy `.eslintrc.json` confirms a future migration is wanted, note the follow-up against M2 in the milestone overview / project plan.
+- [x] 6.0 Record the change
+  - [x] 6.1 Create/append `…/Milestone-00/Epic-01/CHANGELOG.md`. — **Done: per-task entries incl. gitignore fix, travis/tslint/eslintrc removal (kept `eslint.config.mjs`), baseline findings, validation, OP-0.**
+  - [x] 6.2 Tick the satisfied acceptance-criteria checkboxes in the PRD and epic overview; record **which eslint config was kept**. — **Epic overview §3 ticked; lint/build amended to "no worse than baseline"; kept `eslint.config.mjs`.**
+  - [x] 6.3 Note the follow-up against M2 in the milestone overview / project plan. — **Done: flat config already active (M2 eslint migration moot); registered M0-E3 (formatting) and M2-E4 (tsc build, release blocker).**
