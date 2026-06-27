@@ -38,16 +38,16 @@
   - [x] 1.2 Add `coverage.json` and `test-output/` under a clear comment; confirm `*.tgz`, `.nyc_output`, `coverage`, `dist/`, and `*.tsbuildinfo` patterns remain intact. — **Added `coverage.json` to coverage section + `test-output/`; existing patterns intact.**
   - [x] 1.3 Verify: `git check-ignore notes` → empty; `git check-ignore .project` → empty; `git check-ignore coverage.json test-output` → both reported as ignored. — **All confirmed: notes/.project NOT ignored; coverage.json/test-output/coverage/package.tgz ignored.**
 
-- [ ] 2.0 Remove legacy cruft & consolidate the eslint config
-  - [ ] 2.1 Confirm `.travis.yml` and `tslint.json` are unreferenced: grep `package.json` scripts and the monorepo for `travis` / `tslint` (expect no hits).
-  - [ ] 2.2 Delete `.travis.yml` and `tslint.json` (`git rm`).
-  - [ ] 2.3 Identify the eslint config that eslint `^8.57` actually resolves: `yarn exec eslint --print-config src/index.ts` (compare to the 0.3 baseline). Expectation: `.eslintrc.json` (eslintrc is eslint 8's default; flat `eslint.config.mjs` needs eslint 9 / `ESLINT_USE_FLAT_CONFIG`).
-  - [ ] 2.4 Delete the **non-resolving** eslint config; keep the lint-green one. If `eslint.config.mjs` is the survivor, confirm its `globals` dependency is installed (`yarn why globals`).
-  - [ ] 2.5 Confirm exactly one eslint config remains: `ls .eslintrc.json eslint.config.mjs 2>/dev/null` lists exactly one. **Do not** bump eslint or force flat config (that's M2).
+- [x] 2.0 Remove legacy cruft & consolidate the eslint config
+  - [x] 2.1 Confirm `.travis.yml` and `tslint.json` are unreferenced: grep `package.json` scripts and the monorepo for `travis` / `tslint` (expect no hits). — **Only inert hits: `.ignore` search-list, generated `typechain-types/*` `/* tslint:disable */` headers, one double-commented test line. No tooling consumes either file; `.eslintrc.json` has zero refs.**
+  - [x] 2.2 Delete `.travis.yml` and `tslint.json` (`git rm`). — **Done.**
+  - [x] 2.3 Identify the eslint config that eslint `^8.57` actually resolves — **Done in 0.3: FLAT `eslint.config.mjs` resolves (debug confirmed), NOT `.eslintrc.json`. (Note: opposite of the usual eslint-8 default — verified empirically.)**
+  - [x] 2.4 Delete the **non-resolving** eslint config; keep the lint-green one. Confirm `globals` is installed. — **Deleted dead `.eslintrc.json`; kept `eslint.config.mjs`; `globals@13.24.0` confirmed installed.**
+  - [x] 2.5 Confirm exactly one eslint config remains. — **Only `eslint.config.mjs` remains. No eslint bump / no flat-forcing (correct — flat already active).**
 
-- [ ] 3.0 Verify the package still lints & builds
-  - [ ] 3.1 Run `yarn lint`; confirm exit `0` (only pre-existing, unchanged warnings allowed). If new errors appear, the wrong config was kept — restore it and re-evaluate 2.3–2.4.
-  - [ ] 3.2 Run `yarn build`; confirm `tsc` exits `0`.
+- [x] 3.0 Verify the package still lints & builds — ✅ **Gate relaxed to "no worse than baseline" (user decision). Both failures are PRE-EXISTING and DEFERRED; M0-E1 introduces no regression.**
+  - [x] 3.1 Run `yarn lint`. — **RESULT: exit 1, 225 `prettier/prettier` errors, ALL in untouched `src/` files. PRE-EXISTING on `main` (this branch changed only `.gitignore` + `.project/`; `src/utils.ts` byte-identical to main). Flat config was already the resolver, so the eslintrc deletion did not change lint. NOT caused by M0-E1. → DEFERRED to new follow-up epic M0-E3 (prettier formatting pass).**
+  - [x] 3.2 Run `yarn build`. — **RESULT: exit 2 — `src/lib/LocalDiamondDeployer.ts(164,5): error TS2740` (`Signer` vs `HardhatEthersSigner`). File untouched by this branch → PRE-EXISTING build break on `main`. NOT caused by M0-E1. → DEFERRED to new epic M2-E4 (fix tsc build); flagged as a v1.2.0 RELEASE BLOCKER in the project plan risk register.**
 
 - [ ] 4.0 Secret review (OP-0) & commit / open PR
   - [ ] 4.1 **STOP — OP-0 (human approval required):** enumerate any pre-existing files under `notes/` and `.project/` (`git status --porcelain notes .project`; list directory contents). Confirm with the Owner that none contain secrets/keys/tokens **before** tracking them. Do not proceed until approved.
