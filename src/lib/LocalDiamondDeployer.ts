@@ -10,7 +10,7 @@ import {
   cutKey,
   impersonateAndFundSigner,
 } from '@diamondslab/diamonds';
-import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
+import { Signer } from 'ethers';
 import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { join } from 'path';
 
@@ -18,7 +18,7 @@ import { join } from 'path';
 
 export interface LocalDiamondDeployerConfig extends DiamondConfig {
 	provider?: SupportedProvider;
-	signer?: SignerWithAddress;
+	signer?: Signer;
 	localDiamondDeployerKey?: string;
 }
 
@@ -30,7 +30,7 @@ export class LocalDiamondDeployer {
 	private verbose: boolean = true;
 	private config: LocalDiamondDeployerConfig;
 	private provider: SupportedProvider;
-	private signer: SignerWithAddress;
+	private signer: Signer;
 	private diamondName: string;
 	private networkName: string = 'hardhat';
 
