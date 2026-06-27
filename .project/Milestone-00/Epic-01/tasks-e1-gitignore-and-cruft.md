@@ -33,10 +33,10 @@
   - [x] 0.2 Create and checkout the shared M0 branch: `git checkout -b chore/m0-repo-hygiene-baseline`. (No separate backup — the branch is the snapshot.) — **Switched to `chore/m0-repo-hygiene-baseline`; staged planning docs carried over.**
   - [x] 0.3 Capture a pre-change baseline to compare against later: save `git status --ignored`, a top-level `ls -a`, and the **active eslint config** via `yarn exec eslint --print-config src/index.ts` to a scratch file (this also feeds M0-E2's inventory). — **FINDING: eslint 8.57.1 resolves the FLAT config (`eslint.config.mjs`) — debug: `Using flat config? true`, `Loading config from …/eslint.config.mjs`; `.eslintrc.json` is dead. So 2.x keeps `eslint.config.mjs`, deletes `.eslintrc.json`. `globals` confirmed installed (print-config exit 0). M2 flat-migration follow-up is now moot.**
 
-- [ ] 1.0 Correct `.gitignore`
-  - [ ] 1.1 Remove the `notes` entry (and its `# random notes` comment) from `.gitignore`.
-  - [ ] 1.2 Add `coverage.json` and `test-output/` under a clear comment; confirm `*.tgz`, `.nyc_output`, `coverage`, `dist/`, and `*.tsbuildinfo` patterns remain intact.
-  - [ ] 1.3 Verify: `git check-ignore notes` → empty; `git check-ignore .project` → empty; `git check-ignore coverage.json test-output` → both reported as ignored.
+- [x] 1.0 Correct `.gitignore`
+  - [x] 1.1 Remove the `notes` entry (and its `# random notes` comment) from `.gitignore`. — **Removed lines 66-67.**
+  - [x] 1.2 Add `coverage.json` and `test-output/` under a clear comment; confirm `*.tgz`, `.nyc_output`, `coverage`, `dist/`, and `*.tsbuildinfo` patterns remain intact. — **Added `coverage.json` to coverage section + `test-output/`; existing patterns intact.**
+  - [x] 1.3 Verify: `git check-ignore notes` → empty; `git check-ignore .project` → empty; `git check-ignore coverage.json test-output` → both reported as ignored. — **All confirmed: notes/.project NOT ignored; coverage.json/test-output/coverage/package.tgz ignored.**
 
 - [ ] 2.0 Remove legacy cruft & consolidate the eslint config
   - [ ] 2.1 Confirm `.travis.yml` and `tslint.json` are unreferenced: grep `package.json` scripts and the monorepo for `travis` / `tslint` (expect no hits).
