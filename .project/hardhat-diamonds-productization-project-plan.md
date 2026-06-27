@@ -126,7 +126,7 @@ Pulled from `CLAUDE.md` and standard release hygiene:
 | Epic | Title | Summary | Owner | Impact |
 |------|-------|---------|-------|--------|
 | M1-E1 | `license-mit` | Add root `LICENSE` (MIT), copyright **DiamondsLab** (year 2025–2026). **Owner confirms exact legal entity name.** Ensure listed in `package.json: files`. | Eng + Owner (confirm) | Low |
-| M1-E2 | `changelog-backfill` | Create `CHANGELOG.md` (Keep a Changelog). Backfill from tags `v1.0.11 → v1.1.15`; add `[Unreleased]`/`[1.2.0]` documenting `LoadDiamondArtifact`, circular-dep fix, peer-dep export. | Eng | Low |
+| M1-E2 | `changelog-backfill` | Create `CHANGELOG.md` (Keep a Changelog). Backfill from tags `v1.0.11 → v1.1.15`; add `[Unreleased]`/`[1.2.0]` documenting `LoadDiamondArtifact` (`loadDiamondContract`), circular-dep fix, peer-dep export, and the **M2-E4 `signer` type widening** (`SignerWithAddress` → `Signer`). | Eng | Low |
 | M1-E3 | `versioning-policy` | Document SemVer + Conventional Commits adoption (short `CONTRIBUTING`-level policy); optional commitlint wiring noted for M4. | Eng | Low |
 
 ### M2 — `packaging-metadata`
