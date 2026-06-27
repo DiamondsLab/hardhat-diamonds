@@ -21,11 +21,11 @@ Record a measurable, committed snapshot of the package's **current** state so ev
 
 ## 3. Acceptance criteria
 
-- [ ] Public-API surface is enumerated: exports from `src/index.ts`, `src/lib/index.ts`, `src/tasks/index.ts`, `src/utils.ts`, plus the documented subpaths `@diamondslab/hardhat-diamonds/dist/utils` and `/dist/lib`.
-- [ ] `yarn pack` (dry-run) file list is captured verbatim, with the **missing-`LICENSE`** discrepancy explicitly flagged (it is listed in `package.json: files` but absent on disk — fixed in M1-E1).
-- [ ] Version/tag state is recorded: `package.json` `1.1.15`, latest tag `v1.1.15`, HEAD = `v1.1.15` +2 (`c9e2e07`, `c497fab`), and the historically inconsistent `release:`/`chore: release` commit messages noted.
-- [ ] Test/coverage baseline is recorded: pass/fail counts from `yarn test` and the coverage % (with any known-flaky tests called out).
-- [ ] `.project/Milestone-00/baseline-inventory.md` is written and committed.
+- [x] Public-API surface is enumerated: exports from `src/index.ts`, `src/lib/index.ts`, `src/tasks/index.ts`, `src/utils.ts`, plus the documented subpaths `@diamondslab/hardhat-diamonds/dist/utils` and `/dist/lib`. — **§2 of baseline-inventory.md.**
+- [x] `yarn pack` (dry-run) file list is captured verbatim, with the **missing-`LICENSE`** discrepancy explicitly flagged. — **§3: 41 files / 302.8kB; LICENSE absent; ships internal TESTING docs.**
+- [x] Version/tag state is recorded: `package.json` `1.1.15`, latest tag `v1.1.15`, origin/main +2 (`c9e2e07`, `c497fab`), messy release-commit history noted. — **§4.**
+- [x] Test/coverage baseline is recorded. — **§5: 120 passing, 12 pending, 0 failing; build broken (TS2740); lint 225 prettier errors; no coverage script in-package.**
+- [x] `.project/Milestone-00/baseline-inventory.md` is written and committed. — **Done.**
 
 ## 4. Tasks
 
