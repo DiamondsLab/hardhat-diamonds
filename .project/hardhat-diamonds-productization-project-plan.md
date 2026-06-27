@@ -114,6 +114,7 @@ Pulled from `CLAUDE.md` and standard release hygiene:
 |------|-------|---------|-------|--------|
 | M0-E1 | `gitignore-and-cruft` | Un-ignore `notes/` and `.project/` (remove the `notes` line); ensure `coverage.json`, `package.tgz`, `test-output/`, `.nyc_output/` are ignored & untracked; delete legacy `.travis.yml` and `tslint.json`; consolidate the duplicate eslint config (`.eslintrc.json` vs `eslint.config.mjs`) to **one** — first verify which eslint `^8.57` actually resolves (flat config needs eslint 9 or `ESLINT_USE_FLAT_CONFIG`); a full eslint-9/flat migration may defer to M2. | Eng | Low |
 | M0-E2 | `release-baseline-inventory` | Record current public exports (`index.ts`, `lib/`, `utils`), `yarn pack --dry-run` file list, tag-vs-HEAD state (`v1.1.15` +2), and test/coverage baseline into `.project/`. | Eng | Low |
+| M0-E3 | `prettier-formatting-pass` | **(Added during M0-E1 execution.)** Run `yarn lint:fix` (prettier `--write` + `eslint --fix`) across `src/`/`test/` to clear the **225 pre-existing `prettier/prettier` errors** discovered in M0-E1, bringing `yarn lint` to exit 0. Mechanical, reversible diff; isolate in its own commit. | Eng | Low |
 
 ### M1 — `licensing-changelog`
 
@@ -138,6 +139,7 @@ Pulled from `CLAUDE.md` and standard release hygiene:
 | M2-E1 | `package-json-metadata` | Replace non-standard `authors` with `author`; add `engines` (node/yarn); add `publishConfig` (`access: public`, provenance); convert `repository` to object form with correct **DiamondsLab** casing; verify `bugs`/`homepage`; fix `prepublishOnly` to use yarn (or `prepack`). | Eng | Med |
 | M2-E2 | `exports-entrypoints` | Add an `exports` map formalizing `.`, `./utils`, `./lib` (README documents `@diamondslab/hardhat-diamonds/dist/utils`). Preserve raw `./dist/*` subpaths for back-compat to avoid a breaking change; verify types resolve under `NodeNext`. *(Full public-API redesign deferred to v2.)* | Eng | Med |
 | M2-E3 | `tarball-verification` | Reconcile `.npmignore` vs `files` whitelist (pick one strategy); `yarn pack` and audit contents include dist + README + LICENSE + docs and exclude tests/source/cruft; install the tarball into a throwaway consumer to confirm it works. | Eng | Med |
+| M2-E4 | `fix-tsc-build` | **(Added during M0-E1 execution — RELEASE BLOCKER.)** Fix the pre-existing `tsc` failure `LocalDiamondDeployer.ts(164,5): TS2740` (`Signer` vs `HardhatEthersSigner`) so `yarn build` exits 0. Required before the M5 `v1.2.0` cut (the published `dist/` must build cleanly from source). Sequence **before** M2-E2/E3 since those depend on a green build. | Eng | High |
 
 ### M3 — `docs-readme-audit`
 
@@ -202,6 +204,7 @@ These run through every milestone:
 
 | Risk | Likelihood | Impact | Mitigation | Owner |
 |------|-----------|--------|------------|-------|
+| **`tsc` build is broken at baseline** (`LocalDiamondDeployer.ts` TS2740) — a clean `v1.2.0` can't be cut from source (discovered in M0-E1) | **Certain (present now)** | High | Dedicated fix epic **M2-E4** before M5; published `dist/` must rebuild cleanly; CI build gate (M4) prevents regression | Eng |
 | `exports` map breaks existing `/dist/utils` / `/dist/lib` imports (incl. this monorepo & README guidance) | Med | High | Preserve raw `./dist/*` subpaths for back-compat; build monorepo root after change; install-test a consumer (M2-E3) | Eng |
 | npm publish misconfigured (wrong access/scope, missing provenance, publishes secrets) | Med | High | Dry-run pack + `--dry-run` publish; tarball content audit; provenance via OIDC; secret scan before first publish | Eng + Owner |
 | Owner credential/secret tasks (M4-E3) block the release | Med | High | Surface as explicit blocking owner tasks early; M1–M3 proceed independently while pending | Owner |

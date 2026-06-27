@@ -11,6 +11,8 @@
 - **Branch:** all of **M0 (E1 + E2)** lands on a **single feature branch** (suggested `chore/m0-repo-hygiene-baseline`) → PR into `main`.
 - **Artifacts:** **ignore-only** — do not physically delete untracked on-disk build artifacts.
 
+**Amendment (during execution, 2026-06-27):** `yarn lint` (225 pre-existing prettier errors) and `yarn build` (pre-existing `tsc` TS2740) are **both red at baseline**, unrelated to this epic. Requirements 7–8 are amended from "exit 0" to **"no worse than baseline"**; the failures are deferred to **M0-E3** (formatting) and **M2-E4** (build fix — release blocker).
+
 ---
 
 ## 1. Overview & Problem

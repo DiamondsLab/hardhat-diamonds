@@ -13,6 +13,12 @@
 
 Record a measurable, committed snapshot of the package's **current** state so every later milestone can prove its changes rather than assert them. Four captures: the **public-API surface** (the contract M2's `exports` map must preserve), the **`yarn pack` file list** (what M2-E3 verifies), the **version/tag reconciliation** (HEAD vs `v1.1.15`, feeding M1's CHANGELOG backfill and M5's version bump), and the **test/coverage baseline**. The deliverable is a single tracked document, `baseline-inventory.md`, referenced by M2, M3, and M5.
 
+> **Pre-captured during M0-E1 execution (2026-06-27) — fold into `baseline-inventory.md`:**
+> - **`yarn lint` → exit 1, 225 `prettier/prettier` errors** across `src/` (e.g. `tasks/index.ts`, `utils.ts`, `type-extensions.ts`). Source was never prettier-clean against the active flat config. → remediated by **M0-E3**.
+> - **`yarn build` (`tsc`) → exit 2**, `src/lib/LocalDiamondDeployer.ts(164,5): error TS2740` (`Signer` vs `HardhatEthersSigner`). → remediated by **M2-E4** (release blocker).
+> - **eslint resolution:** eslint `8.57.1` loads the **flat** `eslint.config.mjs` (`.eslintrc.json` was dead, removed in M0-E1).
+> - **Tooling versions:** eslint `8.57.1`, `globals 13.24.0`.
+
 ## 3. Acceptance criteria
 
 - [ ] Public-API surface is enumerated: exports from `src/index.ts`, `src/lib/index.ts`, `src/tasks/index.ts`, `src/utils.ts`, plus the documented subpaths `@diamondslab/hardhat-diamonds/dist/utils` and `/dist/lib`.
