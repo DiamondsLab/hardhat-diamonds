@@ -4,7 +4,7 @@
 > **Author:** Am0rfu5 (DiamondsLab)
 > **Date:** 2026-06-27
 > **Package:** `@diamondslab/hardhat-diamonds` — current `v1.1.15` (HEAD is +2 commits, untagged)
-> **Target release:** `v1.2.0` (minor — new public export `LoadDiamondArtifact` since `v1.1.15`)
+> **Target release:** `v1.2.0` (minor) — **corrected rationale (M1-E2):** `LoadDiamondArtifact`/`loadDiamondContract` actually shipped *in* `v1.1.15`; the minor bump is justified by the forthcoming **M2 `exports` map** (new supported entry points) + the **M2-E4 `signer` public type change**. Post-`v1.1.15` code changes alone are fix-level; **final number decided at M5.**
 > **Companion architecture doc:** *none at this scope.* Chosen scope is **code & packaging hardening**, not full API stabilization, so a formal API-surface/architecture doc is **deferred** to a future `v2` stabilization effort (see M2-E2 note).
 
 **Governing constraint:** This is a **published npm package** consumed both downstream (public registry) and inside this monorepo via `workspace:*`. Every change must keep the package **buildable, type-resolvable, and publishable**, and must **not break the consuming monorepo**. Reversible-first; the actual npm publish and any GitHub repo-settings/secret changes are **owner-gated**.

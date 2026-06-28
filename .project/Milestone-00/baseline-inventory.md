@@ -58,7 +58,7 @@ Three consumer entry points are in use today:
 - `origin/main` is **2 commits ahead** of `v1.1.15`:
   - `c9e2e07` fix(gnus-ai): impersonate Signer first, fund second
   - `c497fab` style: update formatting in LoadDiamondArtifact.ts
-  - (plus the earlier untagged `LoadDiamondArtifact` feature commits that introduced the **new public export `loadDiamondContract`** → justifies a **minor** bump to **`1.2.0`**.)
+  - **Correction (M1-E2):** `LoadDiamondArtifact`/`loadDiamondContract` actually shipped *in* `v1.1.14`/`v1.1.15` (already released, not a 1.2.0 delta). The post-`v1.1.15` commits are fix-level (`c9e2e07` signer fork-fix); the **`1.2.0` minor** is justified by the **M2 `exports` map + M2-E4 `signer` type change**. Final version decided at M5.
 - Historical commit messages are inconsistent (`release: vX`, `chore: release vX`) — M1-E2 normalizes the changelog narrative; M5 adopts a single release-commit convention.
 - The 6 local M0 commits live only on `chore/m0-repo-hygiene-baseline` (not pushed, per the release-only-`main` policy).
 

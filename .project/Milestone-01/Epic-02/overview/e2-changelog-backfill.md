@@ -12,14 +12,11 @@ Create a root `CHANGELOG.md` (Keep a Changelog format) giving consumers a trustw
 
 ## 3. Acceptance criteria
 
-- [ ] `CHANGELOG.md` at package root follows [Keep a Changelog](https://keepachangelog.com/) structure (`## [x.y.z] - date`, `Added/Changed/Fixed/Removed` groups) with a SemVer-ordered history.
-- [ ] Released versions `v1.0.11 → v1.1.15` are represented (older patches may be summarized; recent ones detailed), derived from `git tag` + `git log`.
-- [ ] An `[Unreleased]` (→ `[1.2.0]`) section captures the user-facing changes known so far:
-  - **Added:** `loadDiamondContract` export (`LoadDiamondArtifact`); `LocalDiamondDeployer`/`LocalDiamondDeployerConfig` exported for peer-dependency use.
-  - **Fixed:** circular-dependency / `lib` entry point; fork-upgrade signer (impersonate-first) bug.
-  - **Changed:** `LocalDiamondDeployerConfig.signer` type widened `SignerWithAddress` → ethers `Signer` (M2-E4) — minor, non-breaking for typical use.
-- [ ] The inconsistent historical tagging (e.g. `v1.0.11` tagged after `v1.1.7`) is acknowledged, not silently "corrected."
-- [ ] A link/reference to the M1-E3 versioning policy.
+- [x] `CHANGELOG.md` at package root follows [Keep a Changelog](https://keepachangelog.com/) structure with a SemVer-ordered history.
+- [x] Released versions `v1.1.0 → v1.1.15` are represented (older summarized, recent detailed), derived from `git tag` + `git log`.
+- [x] **CORRECTED:** `loadDiamondContract` / peer-dep export / circular-dep fix were found **already released** (`v1.1.12`–`v1.1.15`) and are backfilled there — **not** `[Unreleased]`. `[Unreleased]` correctly holds the true post-`v1.1.15` deltas: **Fixed** fork-upgrade signer; **Changed** `signer` type widened to ethers `Signer` (M2-E4).
+- [x] The inconsistent historical tagging (`v1.0.11` after `v1.1.7`; skipped patches) is acknowledged, not silently "corrected."
+- [x] A reference to the M1-E3 versioning policy (marked "added in M1-E3" until it lands).
 
 ## 4. Tasks
 

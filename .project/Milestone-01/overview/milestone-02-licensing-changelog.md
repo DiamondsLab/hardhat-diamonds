@@ -23,7 +23,7 @@ This milestone sits early on the critical path: it runs in parallel with M3 (doc
 
 - [ ] A root `LICENSE` (MIT) exists, names the confirmed DiamondsLab copyright holder + year, and **appears in the `yarn pack` tarball**.
 - [ ] `CHANGELOG.md` (Keep a Changelog format) exists with a backfilled history (`v1.0.11 → v1.1.15`) and a seeded `[Unreleased]` / `[1.2.0]` section.
-- [ ] The `[1.2.0]` section documents the user-facing changes known so far: new `loadDiamondContract` export, `LocalDiamondDeployer` peer-dep export + circular-dep fix, and the **M2-E4 `signer` type widening** (`SignerWithAddress` → `Signer`).
+- [ ] The `[Unreleased]` section documents the **true** post-`v1.1.15` deltas: the fork-upgrade signer fix and the **M2-E4 `signer` type widening** (`SignerWithAddress` → `Signer`). *(Corrected M1-E2: `loadDiamondContract`, the peer-dep export, and the circular-dep fix were already released in `v1.1.12`–`v1.1.15` and are backfilled into those sections, not `[Unreleased]`.)*
 - [ ] A SemVer + Conventional Commits policy is documented (CONTRIBUTING-level), matching the convention already used on this branch.
 - [ ] No code/runtime behavior changes; `yarn build`/`yarn test`/`yarn lint` remain green.
 
