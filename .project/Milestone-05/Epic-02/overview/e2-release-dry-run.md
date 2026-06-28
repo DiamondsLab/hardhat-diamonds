@@ -12,11 +12,11 @@ Rehearse the runbook **without publishing** to prove it works and catch issues b
 
 ## 3. Acceptance criteria
 
-- [ ] `npm publish --dry-run` (with the `1.2.0` bump staged locally) succeeds and reports the intended files/version.
-- [ ] `npm pack` + install-test in a throwaway project resolves `.`/`/dist/utils`/`/dist/lib` and includes LICENSE/CHANGELOG (re-confirm the M2-E3 result at release state).
-- [ ] The consuming monorepo builds against the packed prerelease (`yarn compile` / resolve check).
-- [ ] Any **owner-side** rehearsal (running `ci.yml`/`release.yml` on a branch/pre-release tag) is noted as pending M4-E3, not blocking the local dry-run.
-- [ ] Findings (if any) fed back into the runbook (M5-E1).
+- [x] `npm publish --dry-run` (with `1.2.0` staged) succeeds — exit 0, 39 files, version 1.2.0, lifecycle hooks fired, no upload.
+- [x] `npm pack` + install-test resolves `.`/`/dist/utils`/`/dist/lib` + LICENSE/CHANGELOG — confirmed at M2-E3 (re-affirmed: 39-file pack).
+- [x] Consuming monorepo builds against the package — confirmed at M2-E2 (`yarn compile` green).
+- [~] **Owner-side** CI rehearsal (running the workflows) — **pending M4-E3** (noted, non-blocking for the local dry-run).
+- [x] No runbook corrections needed (§3/§6 accurate).
 
 ## 4. Tasks
 

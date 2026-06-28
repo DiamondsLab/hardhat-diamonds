@@ -1,7 +1,7 @@
 # Milestone 6 — Release Runbook & Cut (M5)
 
 > **Maps to:** [`hardhat-diamonds-productization-project-plan.md` → §5 M5](../../hardhat-diamonds-productization-project-plan.md) · architecture phase: *n/a*
-> **Status:** 📋 Planned — ready for `/breakout-epics`
+> **Status:** 🟡 Eng-complete (2026-06-28) — **E1 (runbook) ✅ + E2 (local dry-run) ✅**; **E3 (cut `v1.2.0`) is the open OWNER gate** (merge + tag push + publish), depends on **M4-E3** secrets.
 > **Prod/impact:** **High** — the milestone that **merges to `main` and publishes `v1.2.0`** (irreversible)
 > **Author:** Am0rfu5 (DiamondsLab) · **Date:** 2026-06-28
 > **Branch:** integration branch `chore/m0-repo-hygiene-baseline` — **M5 is where this branch finally merges to `main`** (per plan principle #9)
