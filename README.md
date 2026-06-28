@@ -1,6 +1,6 @@
-# hardhat-diamonds
+# @diamondslab/hardhat-diamonds
 
-[![npm version](https://badge.fury.io/js/hardhat-diamonds.svg)](https://badge.fury.io/js/hardhat-diamonds)
+[![npm version](https://img.shields.io/npm/v/@diamondslab/hardhat-diamonds.svg)](https://www.npmjs.com/package/@diamondslab/hardhat-diamonds)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![Hardhat](https://img.shields.io/badge/Built%20for-Hardhat-f39c12.svg)](https://hardhat.org/)
@@ -9,9 +9,9 @@ A Hardhat Extension for Diamonds node module, Tools for deploying and interfacin
 
 ## Overview
 
-`hardhat-diamonds` is a Hardhat plugin that provides scaffolding for working with the [ERC-2535 Diamond Proxy Standard](https://eips.ethereum.org/EIPS/eip-2535). This plugin extends Hardhat with configuration management and utilities specifically designed for Diamond smart contract development, deployment, and upgrades.
+`@diamondslab/hardhat-diamonds` is a Hardhat plugin that provides scaffolding for working with the [ERC-2535 Diamond Proxy Standard](https://eips.ethereum.org/EIPS/eip-2535). This plugin extends Hardhat with configuration management and utilities specifically designed for Diamond smart contract development, deployment, and upgrades.
 
-This plugin works in conjunction with the [`diamonds`](https://github.com/GeniusVentures/diamonds) module to provide a complete Diamond development toolkit.
+This plugin works in conjunction with the [`@diamondslab/diamonds`](https://github.com/DiamondsLab/diamonds) module to provide a complete Diamond development toolkit.
 
 ## Features
 
@@ -28,13 +28,13 @@ This plugin works in conjunction with the [`diamonds`](https://github.com/Genius
 Install the plugin and its peer dependency:
 
 ```bash
-npm install --save-dev hardhat-diamonds diamonds
+npm install --save-dev @diamondslab/hardhat-diamonds @diamondslab/diamonds
 ```
 
 Or with yarn:
 
 ```bash
-yarn add --dev hardhat-diamonds diamonds
+yarn add --dev @diamondslab/hardhat-diamonds @diamondslab/diamonds
 ```
 
 ## Setup
@@ -42,10 +42,22 @@ yarn add --dev hardhat-diamonds diamonds
 Add the plugin to your `hardhat.config.ts` or `hardhat.config.js`:
 
 ```typescript
-import "hardhat-diamonds";
+import "@diamondslab/hardhat-diamonds";
 
 // Rest of your Hardhat configuration
 ```
+
+## Package Entry Points
+
+The package exposes these entry points (via the `package.json` `exports` map):
+
+| Import | Purpose |
+| ------ | ------- |
+| `@diamondslab/hardhat-diamonds` | Main plugin — registers `hre.diamonds` config and the Diamond tasks. Import once in `hardhat.config.ts`. |
+| `@diamondslab/hardhat-diamonds/lib` | Programmatic library (no task registration): `LocalDiamondDeployer`, `generateDiamondAbi`, `generateTypeChainTypes`, `loadDiamondContract`, … |
+| `@diamondslab/hardhat-diamonds/utils` | Circular-dep-safe deployer utils: `LocalDiamondDeployer`, `LocalDiamondDeployerConfig`, `loadDiamondContract`. |
+
+> The `/utils` and `/lib` entry points are also available at the legacy `/dist/utils` and `/dist/lib` paths for backward compatibility. Import `LocalDiamondDeployer` from `/utils` (not the package root) to avoid the HH9 "Error while loading Hardhat's configuration" error.
 
 ## Configuration
 
@@ -53,7 +65,7 @@ Configure your Diamond contracts in your Hardhat config:
 
 ```typescript
 import { HardhatUserConfig } from "hardhat/config";
-import "hardhat-diamonds";
+import "@diamondslab/hardhat-diamonds";
 
 const config: HardhatUserConfig = {
   // ... other Hardhat configuration
@@ -147,7 +159,7 @@ You can also use the Diamond functionality programmatically in your scripts and 
 
 ```typescript
 import { task } from "hardhat/config";
-import { generateDiamondAbi } from "hardhat-diamonds";
+import { generateDiamondAbi } from "@diamondslab/hardhat-diamonds";
 
 task("diamond-info", "Get diamond configuration")
   .addParam("name", "Diamond name")
@@ -172,7 +184,7 @@ The `LocalDiamondDeployer` class provides a singleton deployer for Diamond contr
 
 #### Installation
 
-The `LocalDiamondDeployer` is included with the `hardhat-diamonds` package:
+The `LocalDiamondDeployer` is included with the `@diamondslab/hardhat-diamonds` package:
 
 ```typescript
 import { LocalDiamondDeployer, LocalDiamondDeployerConfig } from '@diamondslab/hardhat-diamonds/dist/utils';
@@ -193,8 +205,11 @@ interface LocalDiamondDeployerConfig {
   chainId: bigint;                  // Chain ID for the network
   writeDeployedDiamondData?: boolean; // Whether to persist deployment data (default: false)
   configFilePath: string;           // Path to diamond config file
+  signer?: Signer;                  // Optional ethers Signer (defaults to the first Hardhat signer)
 }
 ```
+
+> **Note:** `signer` is typed as an ethers `Signer` (as of `1.2.0`), so an impersonated signer — e.g. from `impersonateAndFundSigner` during fork upgrades — is accepted. When omitted, the deployer uses the first Hardhat signer.
 
 #### Basic Usage
 
@@ -395,7 +410,7 @@ Update your `hardhat.config.ts` to include the plugin:
 
 ```typescript
 import { HardhatUserConfig } from "hardhat/config";
-import "hardhat-diamonds";
+import "@diamondslab/hardhat-diamonds";
 
 const config: HardhatUserConfig = {
   // ... your existing config
@@ -510,14 +525,30 @@ const diamondConfig = hre.diamonds.getDiamondConfig("MyDiamond");
 
 ## Project Structure
 
-```bash
-hardhat-diamonds/
+```text
+@diamondslab/hardhat-diamonds/
 ├── src/
-│   ├── index.ts              # Main plugin entry point
-│   ├── DiamondsConfig.ts     # Configuration management class
-│   └── type-extensions.ts    # Hardhat type extensions
-├── test/                     # Test files
-├── dist/                     # Compiled output
+│   ├── index.ts                 # Main plugin entry point (registers config + tasks)
+│   ├── DiamondsConfig.ts        # hre.diamonds configuration management class
+│   ├── type-extensions.ts       # Hardhat type extensions
+│   ├── utils.ts                 # Circular-dep-safe entry (LocalDiamondDeployer, loadDiamondContract)
+│   ├── interfaces/              # Shared interfaces
+│   ├── lib/                     # Programmatic library (no task registration)
+│   │   ├── LocalDiamondDeployer.ts
+│   │   ├── DiamondAbiGenerator.ts
+│   │   ├── TypeChainIntegration.ts
+│   │   ├── LoadDiamondArtifact.ts
+│   │   └── index.ts
+│   └── tasks/                   # Hardhat task definitions
+│       ├── diamond-abi.ts
+│       ├── diamond-abi-typechain.ts
+│       ├── shared/              # Task helpers / validation / options
+│       └── index.ts
+├── test/                        # Test files
+├── docs/                        # VERSIONING.md, TESTING.md, …
+├── dist/                        # Compiled output (published)
+├── CHANGELOG.md
+├── LICENSE
 └── package.json
 ```
 
@@ -525,27 +556,28 @@ hardhat-diamonds/
 
 ### Prerequisites
 
-- Node.js >= 14
-- TypeScript >= 4.0
-- Hardhat >= 2.0.0
+- Node.js >= 18
+- TypeScript 5.x
+- Hardhat ^2.26
+- Yarn >= 4 (the package uses `yarn@4.10.3`)
 
 ### Building
 
 ```bash
-npm run build
+yarn build
 ```
 
 ### Testing
 
 ```bash
-npm test
+yarn test
 ```
 
 ### Linting
 
 ```bash
-npm run lint
-npm run lint:fix
+yarn lint
+yarn lint:fix
 ```
 
 ## Dependencies
@@ -553,17 +585,24 @@ npm run lint:fix
 ### Peer Dependencies
 
 - `hardhat`: ^2.0.0
-- `diamonds`: Compatible version for Diamond utilities
+- `ethers`: ^6.0.0
+- `@diamondslab/diamonds`: ^1.0.0
 
 ### Development Dependencies
 
-- TypeScript 4.x
-- Mocha for testing
-- ESLint and Prettier for code quality
+- TypeScript 5.x
+- Mocha + Chai for testing
+- ESLint (flat config) and Prettier for code quality
+
+## Documentation
+
+- [CHANGELOG.md](CHANGELOG.md) — release history (Keep a Changelog)
+- [docs/VERSIONING.md](docs/VERSIONING.md) — SemVer + Conventional Commits policy
+- [docs/TESTING.md](docs/TESTING.md) — testing guide
 
 ## Related Projects
 
-- [`diamonds`](https://github.com/GeniusVentures/diamonds): Core Diamond utilities and types
+- [`@diamondslab/diamonds`](https://github.com/DiamondsLab/diamonds): Core Diamond utilities and types
 - [ERC-2535 Diamond Standard](https://eips.ethereum.org/EIPS/eip-2535): The official Diamond standard specification
 
 ## Contributing
@@ -582,7 +621,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions and support, please refer to:
 
-- [GitHub Issues](https://github.com/GeniusVentures/hardhat-diamonds/issues)
+- [GitHub Issues](https://github.com/DiamondsLab/hardhat-diamonds/issues)
 - [ERC-2535 Documentation](https://eips.ethereum.org/EIPS/eip-2535)
 
 ## Authors

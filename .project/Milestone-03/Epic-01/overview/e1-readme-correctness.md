@@ -12,14 +12,14 @@ Make `README.md` accurate to the **DiamondsLab / `@diamondslab`** reality and th
 
 ## 3. Acceptance criteria
 
-- [ ] Install/usage use the scoped names: `@diamondslab/hardhat-diamonds` + peer `@diamondslab/diamonds` (README:31/37); all `import "hardhat-diamonds"` → `@diamondslab/hardhat-diamonds` (README:45/56/398).
-- [ ] npm badge points at `@diamondslab/hardhat-diamonds` (README:3) (or is removed if not yet published).
-- [ ] All **GeniusVentures** links replaced with **DiamondsLab** (README:14/566/585) — Related Projects, Support, the `diamonds` link.
-- [ ] Prerequisites refreshed: **Node ≥18, TypeScript 5.x, Hardhat ^2.26** (README:528/529); "Dev Dependencies" section updated (README:560).
-- [ ] "Project Structure" reflects the real `src/` tree (`src/lib`, `src/tasks`, `src/interfaces`, …).
-- [ ] Entry points documented incl. the new `./utils` / `./lib` aliases (M2-E2) alongside `/dist/utils`; note `LocalDiamondDeployerConfig.signer` is now ethers `Signer` (M2-E4).
-- [ ] Links to `docs/VERSIONING.md` and `CHANGELOG.md` added.
-- [ ] Full pass + grep sweep: no remaining unscoped `hardhat-diamonds`, no `GeniusVentures`, no `Node.js >= 14` / `TypeScript >= 4`.
+- [x] Install/usage use the scoped names `@diamondslab/hardhat-diamonds` + peer `@diamondslab/diamonds`; all imports scoped.
+- [x] npm badge → scoped shields.io (`@diamondslab/hardhat-diamonds`).
+- [x] All **GeniusVentures** links replaced with **DiamondsLab**.
+- [x] Prerequisites refreshed (Node ≥18, TS 5.x, Hardhat ^2.26, Yarn ≥4); Dev Dependencies updated; dev commands `npm`→`yarn`.
+- [x] "Project Structure" rewritten to the real `src/` tree.
+- [x] Entry points documented (`.`/`./utils`/`./lib` + `/dist/*` back-compat); `signer?: Signer` noted.
+- [x] `docs/VERSIONING.md` + `CHANGELOG.md` links added (Documentation section).
+- [x] Grep sweep clean — no unscoped name, no GeniusVentures, no stale versions.
 
 ## 4. Tasks
 
