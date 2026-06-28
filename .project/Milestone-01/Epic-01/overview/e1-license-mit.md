@@ -13,11 +13,11 @@ Add a root `LICENSE` file with the standard MIT text so the package's declared `
 
 ## 3. Acceptance criteria
 
-- [ ] `LICENSE` exists at the package root with verbatim, SPDX-correct MIT text.
-- [ ] Copyright line uses the **owner-confirmed** holder string (OP-1) and year `2025–2026`.
-- [ ] `package.json: "license": "MIT"` is unchanged and consistent (no SPDX edit needed).
-- [ ] `yarn pack --dry-run` (or `npm pack`) lists `LICENSE` in the tarball (it was missing in the M0-E2 baseline).
-- [ ] No other file changes; gates remain green.
+- [x] `LICENSE` exists at the package root with verbatim, SPDX-correct MIT text.
+- [x] Copyright line uses the **owner-confirmed** holder string (OP-1: `DiamondsLab`) and year `2025-2026`.
+- [x] `package.json: "license": "MIT"` is unchanged and consistent (no SPDX edit needed).
+- [x] `npm pack --dry-run` lists `LICENSE` in the tarball (42 files; was missing in the 41-file M0-E2 baseline).
+- [x] No other file changes; gates remain green (lint/build exit 0).
 
 ## 4. Tasks
 
