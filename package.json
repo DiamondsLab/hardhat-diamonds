@@ -15,19 +15,29 @@
     "blockchain",
     "erc-2535"
   ],
-  "authors": [
-    "Am0rfu5"
-  ],
+  "author": "Am0rfu5",
   "license": "MIT",
-  "repository": "github:diamondslab/hardhat-diamonds",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DiamondsLab/hardhat-diamonds.git"
+  },
   "bugs": {
-    "url": "https://github.com/diamondslab/hardhat-diamonds/issues"
+    "url": "https://github.com/DiamondsLab/hardhat-diamonds/issues"
+  },
+  "homepage": "https://github.com/DiamondsLab/hardhat-diamonds#readme",
+  "engines": {
+    "node": ">=18",
+    "yarn": ">=4"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && yarn exec eslint --fix 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "lint": "yarn exec eslint 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "build": "tsc",
     "watch": "tsc -w",
+    "prepack": "tsc",
     "prepublishOnly": "npm run build",
     "test": "yarn exec hardhat test",
     "test:comprehensive": "yarn exec hardhat test test/unit/core/DiamondsConfig.test.ts test/unit/core/HardhatPlugin.test.ts test/integration/e2e/ConfigurationManagement.test.ts",

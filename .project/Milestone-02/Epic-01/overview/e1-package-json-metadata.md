@@ -12,13 +12,13 @@ Make `package.json` standards-compliant and publish-ready. Today it has a non-st
 
 ## 3. Acceptance criteria
 
-- [ ] `author` field present (replacing the non-standard `authors` array).
-- [ ] `engines` present: `node >= 18` (devcontainer floor) and `yarn >= 4` (aligned with `packageManager: yarn@4.10.3`).
-- [ ] `publishConfig` present with `access: "public"` (provenance left to the M4 workflow).
-- [ ] `repository` in object form: `{ type: "git", url: "git+https://github.com/DiamondsLab/hardhat-diamonds.git" }` (correct **DiamondsLab** casing).
-- [ ] `bugs.url` corrected to the DiamondsLab casing; `homepage` added (`…/hardhat-diamonds#readme`).
-- [ ] Build/publish lifecycle reviewed: `prepublishOnly: "npm run build"` either justified or switched to a yarn-native `prepack` (so `yarn pack`/`yarn npm publish` build correctly).
-- [ ] `yarn build`/`yarn test`/`yarn lint` stay green; `npm pkg get <field>` confirms each value; the consuming monorepo still resolves the package.
+- [x] `author` field present (replacing the non-standard `authors` array).
+- [x] `engines` present: `node >= 18` and `yarn >= 4`.
+- [x] `publishConfig` present with `access: "public"` (provenance left to the M4 workflow).
+- [x] `repository` in object form with correct **DiamondsLab** casing.
+- [x] `bugs.url` corrected; `homepage` added.
+- [x] Lifecycle: added `prepack: "tsc"` (yarn-native) so pack/publish build a fresh `dist/`; kept `prepublishOnly`.
+- [x] Gates green (lint/build/test 120 passing); `npm pkg get` confirms each value; monorepo still resolves the package.
 
 ## 4. Tasks
 
