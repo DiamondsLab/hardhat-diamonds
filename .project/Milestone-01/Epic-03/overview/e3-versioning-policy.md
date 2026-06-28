@@ -12,11 +12,11 @@ Write down the versioning and commit conventions the project has already adopted
 
 ## 3. Acceptance criteria
 
-- [ ] A concise policy doc exists (a `## Versioning & Commits` section in `CONTRIBUTING.md`, or a standalone `docs/VERSIONING.md`).
-- [ ] States **SemVer**: patch/minor/major rules, with the concrete `v1.1.15 → 1.2.0` example (new public export `loadDiamondContract` = minor; the M2-E4 signer widening = minor/non-breaking).
-- [ ] States **Conventional Commits** (`feat`/`fix`/`chore`/`docs`/`style`/…), matching the convention already used on the integration branch.
-- [ ] States **Keep a Changelog** as the changelog format and the `[Unreleased]` → versioned-section release flow.
-- [ ] Notes that **commitlint/Husky enforcement is wired in M4** (CI), not here.
+- [x] A concise policy doc exists — standalone `docs/VERSIONING.md`.
+- [x] States **SemVer** with the `v1.1.15 → 1.2.0` example. *(Corrected: minor is justified by the M2 `exports` map + M2-E4 `signer` widening; `loadDiamondContract` shipped in `v1.1.15`.)*
+- [x] States **Conventional Commits** (with a type→SemVer mapping table), matching the branch convention.
+- [x] States **Keep a Changelog** + the `[Unreleased]` → versioned-release flow.
+- [x] Notes **commitlint/Husky enforcement is wired in M4**, not here.
 
 ## 4. Tasks
 

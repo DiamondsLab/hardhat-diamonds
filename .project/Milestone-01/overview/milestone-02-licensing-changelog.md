@@ -1,7 +1,7 @@
 # Milestone 2 — Licensing & Changelog (M1)
 
 > **Maps to:** [`hardhat-diamonds-productization-project-plan.md` → §5 M1](../../hardhat-diamonds-productization-project-plan.md) · architecture phase: *n/a*
-> **Status:** 📋 Planned — epics broken out, ready for `/create-prd`
+> **Status:** ✅ COMPLETE (2026-06-28) — all 3 epics done on the integration branch
 > **Prod/impact:** Low risk · adds legal + historical record-keeping · no runtime/code change
 > **Author:** Am0rfu5 (DiamondsLab) · **Date:** 2026-06-27
 > **Branch:** lands on the integration branch `chore/m0-repo-hygiene-baseline` (release-only-`main` policy, plan principle #9)
@@ -86,12 +86,12 @@ Pure additive documentation on the integration branch — `git revert` the M1 co
 | `[1.2.0]` section drifts as M2/M3 add changes | Treat `[Unreleased]` as the live accumulator; M5 finalizes/renames it to `[1.2.0]` at cut time. |
 | Versioning policy contradicts existing commit style | Policy documents the convention **already used** on this branch (Conventional Commits), so no retrofit needed. |
 
-## 9. Definition of Done for Milestone 2 (M1)
+## 9. Definition of Done for Milestone 2 (M1) — ✅ COMPLETE (2026-06-28)
 
-- [ ] All §2 exit criteria checked.
-- [ ] `LICENSE`, `CHANGELOG.md`, and the versioning policy doc are committed on the integration branch.
-- [ ] `yarn pack` shows `LICENSE` in the tarball.
-- [ ] Green gates unchanged (lint/build/test).
-- [ ] OP-1 (copyright entity) resolved or explicitly tracked as the one open owner item.
+- [x] All §2 exit criteria checked (with the M1-E2 version-rationale correction).
+- [x] `LICENSE`, `CHANGELOG.md`, and `docs/VERSIONING.md` committed on the integration branch.
+- [x] `npm pack` shows `LICENSE` in the tarball (42 files; was 41).
+- [x] Green gates unchanged (lint/build exit 0; tests 120 passing).
+- [x] OP-1 resolved — copyright holder `DiamondsLab` ("for now"; revisit if a legal entity is registered).
 
 ➡️ **Next:** run **`/df3ndr:create-prd`** per epic (start with `e1-license-mit.md`).
