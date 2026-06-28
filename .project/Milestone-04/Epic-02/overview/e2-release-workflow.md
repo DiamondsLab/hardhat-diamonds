@@ -12,12 +12,12 @@ Add `.github/workflows/release.yml` — a tag-triggered job that builds and **pu
 
 ## 3. Acceptance criteria
 
-- [ ] `.github/workflows/release.yml` exists and is **valid YAML**.
-- [ ] Trigger is **tags only**: `on: push: tags: ['v*']` (no publish on PR/branch).
-- [ ] Job `permissions: { contents: read, id-token: write }` (OIDC for provenance).
-- [ ] Steps: checkout → setup-node (corepack) → `yarn install --immutable` → `yarn build` → `npm publish --provenance --access public` with `NODE_AUTH_TOKEN=${{ secrets.NPM_TOKEN }}` and the npm registry configured.
-- [ ] Relies on `prepack: tsc --build --force` (M2-E3) for a clean `dist`; `files`/`publishConfig` already correct (M2).
-- [ ] Inert until merged + a tag pushed (real publish is **M5-E3**, owner-approved).
+- [x] `.github/workflows/release.yml` exists and is **valid YAML** (js-yaml parse OK).
+- [x] Trigger is **tags only** (`push.tags: ['v*']`) — verified no `pull_request`/branch path.
+- [x] `permissions: { contents: read, id-token: write }` (OIDC for provenance).
+- [x] Steps: checkout → setup-node (node 20, registry-url) → corepack → `yarn install` → `yarn build` → `npm publish --provenance --access public` with `NODE_AUTH_TOKEN=secrets.NPM_TOKEN`. *(Plain `yarn install` — no lockfile, consistent with M4-E1.)*
+- [x] Relies on `prepack: tsc --build --force` (M2-E3) + `publishConfig.access: public` (M2-E1).
+- [x] Inert until merged + a tag pushed (real publish = **M5-E3**, owner-approved, needs **M4-E3** secrets).
 
 ## 4. Tasks
 
