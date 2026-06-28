@@ -607,11 +607,19 @@ yarn lint:fix
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the
+development workflow, commit conventions ([Conventional Commits](https://www.conventionalcommits.org/),
+see [docs/VERSIONING.md](docs/VERSIONING.md)), and the PR checklist. By participating you
+agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+1. Fork the repository and create a feature branch (`git checkout -b feature/your-change`)
+2. Keep `yarn build`, `yarn test`, and `yarn lint` green; update `CHANGELOG.md` under `[Unreleased]`
+3. Commit using Conventional Commits and open a Pull Request against `main`
+
+## Security
+
+To report a security vulnerability, please follow [SECURITY.md](SECURITY.md) — do **not**
+open a public issue for security problems.
 
 ## License
 

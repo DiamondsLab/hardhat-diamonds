@@ -1,7 +1,7 @@
 # Milestone 4 — Docs & README Audit (M3)
 
 > **Maps to:** [`hardhat-diamonds-productization-project-plan.md` → §5 M3](../../hardhat-diamonds-productization-project-plan.md) · architecture phase: *n/a*
-> **Status:** 📋 Planned — ready for `/breakout-epics`
+> **Status:** ✅ COMPLETE (2026-06-28) — both epics done (E1 README correctness, E2 community docs)
 > **Prod/impact:** Low risk · outward-facing docs only · no runtime/code change
 > **Author:** Am0rfu5 (DiamondsLab) · **Date:** 2026-06-28
 > **Branch:** integration branch `chore/m0-repo-hygiene-baseline` (release-only-`main`)
@@ -89,11 +89,11 @@ Pure additive/edited documentation on the integration branch — `git revert` th
 | `SECURITY.md` lacks a real contact | Default to GitHub private vulnerability reporting + issues URL; flag for Owner. |
 | Community docs duplicate the versioning policy (M1-E3) | `CONTRIBUTING.md` **links** `docs/VERSIONING.md` rather than restating it. |
 
-## 9. Definition of Done for Milestone 4 (M3)
+## 9. Definition of Done for Milestone 4 (M3) — ✅ COMPLETE (2026-06-28)
 
-- [ ] All §2 exit criteria checked.
-- [ ] README accurate + fresh; community docs + templates present and linked.
-- [ ] Grep sweep clean (no unscoped `hardhat-diamonds`, no `GeniusVentures`, no stale versions).
-- [ ] Gates green (lint/build/test); nothing merged to `main`.
+- [x] All §2 exit criteria checked.
+- [x] README accurate + fresh (M3-E1); community docs + templates present and linked (M3-E2).
+- [x] Grep sweep clean (no unscoped `hardhat-diamonds`, no `GeniusVentures`, no stale versions).
+- [x] Gates green (lint/build exit 0); community docs confirmed repo-only (pack check); nothing merged to `main`.
 
 ➡️ **Next:** run **`/df3ndr:breakout-epics`** on M3 to expand E1 and E2.

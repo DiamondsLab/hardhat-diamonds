@@ -12,12 +12,12 @@ Add the community/governance docs a professional open-source package is expected
 
 ## 3. Acceptance criteria
 
-- [ ] `CONTRIBUTING.md` present: contribution flow (fork → branch → PR), and **links** the M1-E3 `docs/VERSIONING.md` + Conventional Commits (rather than restating it).
-- [ ] `SECURITY.md` present: supported versions + a reporting channel (GitHub private vulnerability reporting and/or a contact).
-- [ ] `CODE_OF_CONDUCT.md` present (e.g. Contributor Covenant).
-- [ ] `.github/` issue template(s) + a PR template present.
-- [ ] `docs/TESTING.md` / `TESTING_SUMMARY.md` references reconciled with the README (linked correctly; noted as repo-only, not shipped per M2-E3 `files`).
-- [ ] All new docs internally linked (README points to CONTRIBUTING/SECURITY); no broken references; gates green.
+- [x] `CONTRIBUTING.md` — flow (fork→branch→PR) + **links** `docs/VERSIONING.md` + Conventional Commits + yarn commands.
+- [x] `SECURITY.md` — supported versions + GitHub private vulnerability reporting (+ issues fallback). No fabricated email.
+- [x] `CODE_OF_CONDUCT.md` — Contributor Covenant v2.1.
+- [x] `.github/ISSUE_TEMPLATE/{bug_report,feature_request}.md` + `.github/PULL_REQUEST_TEMPLATE.md`.
+- [x] `docs/TESTING.md` reference resolves (README Documentation section); repo-only confirmed by pack check.
+- [x] README links CONTRIBUTING + SECURITY; no broken references; gates green.
 
 ## 4. Tasks
 
