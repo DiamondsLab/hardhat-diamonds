@@ -12,15 +12,15 @@ Author `notes/RELEASE_RUNBOOK.md` — the requested step-by-step release procedu
 
 ## 3. Acceptance criteria
 
-- [ ] `notes/RELEASE_RUNBOOK.md` exists and is self-contained.
-- [ ] **Preflight:** clean tree, green CI, M4-E3 secrets confirmed, integration branch up to date.
-- [ ] **Version bump:** `package.json` → the target version per `docs/VERSIONING.md` (`1.2.0` for this release).
-- [ ] **Changelog finalize:** `[Unreleased]` → `[x.y.z] - YYYY-MM-DD`, new empty `[Unreleased]`.
-- [ ] **Build + pack audit:** `yarn build`; `npm pack --dry-run` matches the expected manifest (≈39 files / 174.6 kB; dist + LICENSE + README + CHANGELOG + VERSIONING; no TESTING/src).
-- [ ] **Merge + tag:** merge the integration branch to `main`; `git tag vX.Y.Z && git push --tags` → `release.yml` publishes with provenance.
-- [ ] **Verify:** version live on npm; provenance attestation present; clean install resolves entry points.
-- [ ] **Rollback/recovery:** npm no-re-publish rule → forward fix (`x.y.z+1` + `npm deprecate`), dist-tag correction.
-- [ ] **Post-release:** update/verify the consuming monorepo against the published version.
+- [x] `notes/RELEASE_RUNBOOK.md` exists and is self-contained.
+- [x] **Preflight** (§0): clean tree, green CI, M4-E3 secrets confirmed, dry-run green.
+- [x] **Version bump** (§1): manual `npm pkg set version` → target per `docs/VERSIONING.md`.
+- [x] **Changelog finalize** (§2): `[Unreleased]` → `[x.y.z] - YYYY-MM-DD` + new empty `[Unreleased]`.
+- [x] **Build + pack audit** (§3): `yarn build` + `npm pack --dry-run` ≈39 files / 174.6 kB with the includes/excludes.
+- [x] **Merge + tag** (§4): merge to `main` [Owner]; `git tag vX.Y.Z && git push origin vX.Y.Z` → `release.yml` provenance publish.
+- [x] **Verify** (§5): `npm view …version`; provenance badge; clean install resolves entry points.
+- [x] **Rollback/recovery** (§7): no-re-publish → `npm deprecate` + patch + dist-tag.
+- [x] **Post-release** (§8): update/verify the consuming monorepo. *(Plus a Dry-run §6.)*
 
 ## 4. Tasks
 
