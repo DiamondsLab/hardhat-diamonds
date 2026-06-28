@@ -1,7 +1,7 @@
 # Milestone 3 — Packaging & Metadata (M2)
 
 > **Maps to:** [`hardhat-diamonds-productization-project-plan.md` → §5 M2](../../hardhat-diamonds-productization-project-plan.md) · architecture phase: *n/a*
-> **Status:** 🟡 In progress — **M2-E4 already complete**; E1/E2/E3 ready for `/breakout-epics`
+> **Status:** ✅ COMPLETE (2026-06-28) — all 4 epics done (E1 metadata, E2 exports, E3 tarball, E4 build fix)
 > **Prod/impact:** Medium · touches the **publish surface** (`package.json`, `exports`, tarball) — must not break existing `/dist/utils` & `/dist/lib` consumers
 > **Author:** Am0rfu5 (DiamondsLab) · **Date:** 2026-06-28
 > **Branch:** integration branch `chore/m0-repo-hygiene-baseline` (release-only-`main`)
@@ -94,12 +94,12 @@ All changes are to `package.json` + ignore/config files on the integration branc
 | Reconciling `.npmignore`/`files` accidentally drops a needed file or ships cruft | Audit `npm pack --dry-run` before/after; assert LICENSE/README/CHANGELOG/dist present and TESTING docs excluded (E3). |
 | `publishConfig`/provenance metadata interacts badly with the M4 publish | M2 only sets metadata; M4 validates the actual publish in a dry-run before going live. |
 
-## 9. Definition of Done for Milestone 3 (M2)
+## 9. Definition of Done for Milestone 3 (M2) — ✅ COMPLETE (2026-06-28)
 
-- [ ] All §2 exit criteria checked.
-- [ ] `package.json` metadata correct; `exports` map verified with `/dist/*` back-compat.
-- [ ] Tarball audited + clean-install tested; `.npmignore`/`files` reconciled.
-- [ ] Consuming monorepo builds green against the changes.
-- [ ] M2-E4 ✅ (already done). Gates (lint/build/test) green.
+- [x] All §2 exit criteria checked.
+- [x] `package.json` metadata correct (M2-E1); `exports` map verified with `/dist/*` back-compat (M2-E2).
+- [x] Tarball audited (39 files / 174.6kB) + clean-install tested; `.npmignore` removed, `files` reconciled; `prepack` hardened to a clean build (M2-E3).
+- [x] Consuming monorepo builds green (`yarn compile` passed against the `exports` change).
+- [x] M2-E4 ✅ (build fix). Gates (lint/build/test 120 passing) green.
 
 ➡️ **Next:** run **`/df3ndr:breakout-epics`** on M2 to expand E1/E2/E3 (E4 already has its overview).

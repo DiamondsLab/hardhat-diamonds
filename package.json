@@ -64,7 +64,7 @@
     "lint": "yarn exec eslint 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "build": "tsc",
     "watch": "tsc -w",
-    "prepack": "tsc",
+    "prepack": "tsc --build --force",
     "prepublishOnly": "npm run build",
     "test": "yarn exec hardhat test",
     "test:comprehensive": "yarn exec hardhat test test/unit/core/DiamondsConfig.test.ts test/unit/core/HardhatPlugin.test.ts test/integration/e2e/ConfigurationManagement.test.ts",
@@ -74,9 +74,10 @@
   },
   "files": [
     "dist/",
-    "docs/",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "docs/VERSIONING.md"
   ],
   "devDependencies": {
     "@diamondslab/diamonds": "^1.0.0",

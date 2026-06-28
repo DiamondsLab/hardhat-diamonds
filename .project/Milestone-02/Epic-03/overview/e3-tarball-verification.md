@@ -12,12 +12,12 @@ Make the published tarball correct and intentional: reconcile the redundant `.np
 
 ## 3. Acceptance criteria
 
-- [ ] A **single** packaging strategy is chosen (recommend the `files` whitelist) and the redundant `.npmignore` removed or reconciled so they can't conflict.
-- [ ] The tarball **includes**: `dist/`, `README.md`, `LICENSE`, **`CHANGELOG.md`** (currently NOT in `files` — npm does not auto-include it), and intended docs (`docs/VERSIONING.md`).
-- [ ] The tarball **excludes** internal/test docs (`docs/TESTING.md`, `docs/TESTING_SUMMARY.md`) and any cruft (source, tests, coverage, `*.tgz`, tsconfig).
-- [ ] `npm pack --dry-run` file list is audited and matches the intended manifest (diffed against the M0-E2 baseline + M1/M2 additions).
-- [ ] The packed tarball **installs cleanly** into a throwaway project and its documented imports (`.`, `/dist/utils`, `/dist/lib`) resolve.
-- [ ] Gates green; the result is recorded for the M5 runbook.
+- [x] A **single** packaging strategy: `.npmignore` removed; `files` whitelist is the only control.
+- [x] The tarball **includes** `dist/`, `README.md`, `LICENSE`, **`CHANGELOG.md`** (now ships), and `docs/VERSIONING.md`.
+- [x] The tarball **excludes** `docs/TESTING.md`/`TESTING_SUMMARY.md` and all source/test/coverage/tsbuildinfo cruft.
+- [x] `npm pack --dry-run` audited: 39 files / 174.6kB, matches the intended manifest.
+- [x] The packed tarball **installs cleanly**; `.`/`/dist/utils`/`/dist/lib` resolve; LICENSE+CHANGELOG present.
+- [x] Gates green (120 passing); manifest recorded for M5. **Bonus:** hardened `prepack` to `tsc --build --force` (clean build).
 
 ## 4. Tasks
 
