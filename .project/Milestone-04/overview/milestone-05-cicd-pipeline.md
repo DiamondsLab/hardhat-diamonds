@@ -84,6 +84,7 @@ Workflow files are config on the integration branch; **inert until merged** (no 
 | CI matrix/yarn setup doesn't match the package | Mirror the real scripts (`yarn build/lint/test`) + `packageManager` (corepack); validate YAML; the first real run is observed at M5. |
 | Owner provisioning (M4-E3) blocks release | Surface OP-1 early and explicitly; E1/E2 proceed independently; M5 cannot publish until E3 is done. |
 | Workflow can't be pushed (token lacks `workflow` scope) | N/A locally (release-only-`main`); the owner pushes/merges at M5 with appropriate rights. |
+| No committed `yarn.lock` → non-reproducible CI installs | **Discovered in M4-E1.** CI uses plain `yarn install` for now. **Follow-up:** commit a standalone `yarn.lock` (then `--immutable` + `cache: yarn`); can't be generated in-place (yarn resolves against the monorepo workspace). |
 
 ## 9. Definition of Done for Milestone 5 (M4)
 

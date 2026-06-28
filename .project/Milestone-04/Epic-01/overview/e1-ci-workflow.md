@@ -12,12 +12,12 @@ Add `.github/workflows/ci.yml` — a GitHub Actions quality gate that runs `inst
 
 ## 3. Acceptance criteria
 
-- [ ] `.github/workflows/ci.yml` exists and is **valid YAML** (parses).
-- [ ] Triggers on `pull_request` and `push`.
-- [ ] Matrix: Node **18, 20, 22** on `ubuntu-latest`; enables **corepack** (Yarn 4 per `packageManager`).
-- [ ] Steps: `actions/checkout` → `actions/setup-node` (with node-version + cache) → `corepack enable` → `yarn install --immutable` → `yarn build` → `yarn lint` → `yarn test`.
-- [ ] (Optional) a separate job/step running a conventional-commit / commitlint check.
-- [ ] Workflow is committed but **inert** (no run on the unmerged branch); local YAML validation passes.
+- [x] `.github/workflows/ci.yml` exists and is **valid YAML** (parses via js-yaml).
+- [x] Triggers on `pull_request` and `push` to `main`.
+- [x] Matrix: Node **18, 20, 22** on `ubuntu-latest`; enables **corepack** (Yarn 4).
+- [x] Steps: `checkout@v4` → `setup-node@v4` → `corepack enable` → `yarn install` → `yarn build` → `yarn lint` → `yarn test`. *(Plain `yarn install` — no committed `yarn.lock`; cache omitted.)*
+- [~] commitlint check — **deferred** (policy in `docs/VERSIONING.md`; can add a CI job later).
+- [x] Workflow committed but **inert** (no run until merged); YAML validation passed.
 
 ## 4. Tasks
 
