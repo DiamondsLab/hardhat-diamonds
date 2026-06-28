@@ -1,7 +1,7 @@
 # Milestone 5 — CI/CD Pipeline (M4)
 
 > **Maps to:** [`hardhat-diamonds-productization-project-plan.md` → §5 M4](../../hardhat-diamonds-productization-project-plan.md) · architecture phase: *n/a*
-> **Status:** 📋 Planned — ready for `/breakout-epics`
+> **Status:** 🟡 Eng-complete (2026-06-28) — **E1 (ci.yml) ✅ + E2 (release.yml) ✅ authored & validated**; **E3 (repo secrets + branch protection) is the open OWNER gate** (OP-1) — blocking M5-E3.
 > **Prod/impact:** Medium · adds automation + the **real publish path**; the only milestone with **hard owner gates**
 > **Author:** Am0rfu5 (DiamondsLab) · **Date:** 2026-06-28
 > **Branch:** integration branch `chore/m0-repo-hygiene-baseline` (release-only-`main`) — workflows are **inert until merged to `main`** (M5)
