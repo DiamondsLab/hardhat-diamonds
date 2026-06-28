@@ -162,7 +162,7 @@ Pulled from `CLAUDE.md` and standard release hygiene:
 | Epic | Title | Summary | Owner | Impact |
 |------|-------|---------|-------|--------|
 | M4-E1 | `ci-workflow` | `.github/workflows/ci.yml`: Yarn 4 install, build, lint, `hardhat test` (+ coverage) on PR/push; Node matrix per `engines`. Optional commitlint check. | Eng | Med |
-| M4-E2 | `release-workflow` | `.github/workflows/release.yml`: on `v*` tag, build + `yarn npm publish` with `--provenance`/OIDC; guard so only tags publish. | Eng | Med |
+| M4-E2 | `release-workflow` | `.github/workflows/release.yml`: on `v*` tag, build + **`npm publish --provenance --access public`** (npm's provenance+OIDC path) with `id-token: write` + `NPM_TOKEN`; guard so only tags publish. | Eng | Med |
 | M4-E3 | `repo-secrets-and-protection` | **Owner-only:** create npm **automation** token, add as repo secret (or configure npm OIDC trusted publisher); enable branch protection requiring CI; confirm Actions permissions for provenance. | **Owner** | High (blocking) |
 
 ### M5 — `release-runbook-cut`
