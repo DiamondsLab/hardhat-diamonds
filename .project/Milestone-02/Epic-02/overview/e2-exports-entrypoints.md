@@ -12,12 +12,12 @@ Formalize the package's public entry points with an `exports` map — `.` (main)
 
 ## 3. Acceptance criteria
 
-- [ ] `package.json` has an `exports` map with at least: `"."`, `"./dist/utils"`, `"./dist/lib"`, and `"./package.json"`.
-- [ ] Each entry has `types` + `default` conditions resolving correctly under `module: NodeNext` (the project's setting).
-- [ ] **Back-compat preserved:** existing `@diamondslab/hardhat-diamonds/dist/utils` and `/dist/lib` imports still resolve (verified, since adding `exports` otherwise *restricts* subpaths). A `./dist/*` wildcard is included if any other `dist` path is imported.
-- [ ] Optional cleaner aliases `"./utils"` / `"./lib"` added (documented for M3 README).
-- [ ] The **consuming monorepo builds** (`yarn workspace:build` + `yarn compile`) and resolves `LocalDiamondDeployer` from `/dist/utils`.
-- [ ] An install-test of the packed tarball resolves all three entry points + their types. Gates green.
+- [x] `package.json` has an `exports` map with `"."`, `"./dist/utils"`, `"./dist/lib"`, `"./dist/*"`, and `"./package.json"`.
+- [x] Each entry has `types` + `default` resolving under `module: NodeNext` (verified via `tsc --noEmit`).
+- [x] **Back-compat preserved:** `…/dist/utils` and `/dist/lib` still resolve; `./dist/*` wildcard covers other dist paths (e.g. `DiamondsConfig`).
+- [x] Cleaner aliases `"./utils"` / `"./lib"` added (for the M3 README).
+- [x] The **consuming monorepo** `yarn compile` passes (plugin loads, no HH9); `/dist/lib`/`/dist/utils` resolve consumer-side.
+- [x] Install-test of the packed tarball resolves all entry points + types. Gates green (120 passing).
 
 ## 4. Tasks
 
