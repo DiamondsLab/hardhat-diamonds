@@ -21,6 +21,9 @@ the [versioning policy](docs/VERSIONING.md) for the bump rules.
 - Fork-based Diamond **upgrades**: the deployer signer is now impersonated and funded
   *before* use, fixing `invalid account` errors for non-test deployer addresses.
   Previously only fresh deployments (empty `DeployerAddress`) worked on a fork.
+- **`chalk` pinned to `^4.1.2`** (was `^5`): chalk 5 is pure ESM and threw
+  `ERR_REQUIRE_ESM` when this CommonJS package `require()`d it in a consumer project.
+  v4 is CommonJS-compatible.
 
 ### Changed
 - `LocalDiamondDeployerConfig.signer` type widened from `SignerWithAddress`
