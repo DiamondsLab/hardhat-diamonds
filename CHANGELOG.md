@@ -14,23 +14,33 @@ the [versioning policy](docs/VERSIONING.md) for the bump rules.
 
 ## [Unreleased]
 
-> The next version number is finalized at release time (M5). Changes accumulated since
-> `v1.1.15`; later milestones (exports map, package metadata, docs) append here.
+## [1.2.0] - 2026-06-29
+
+### Added
+- An **`exports` map** formalizing the public entry points: `.`, plus new aliases
+  **`./utils`** and **`./lib`** (with backward-compatible `./dist/utils`, `./dist/lib`,
+  and `./dist/*`).
+- **`LICENSE`** file (MIT) — now present and shipped in the published package.
+- **`docs/VERSIONING.md`** — versioning & commit policy (SemVer + Conventional Commits).
+
+### Changed
+- `LocalDiamondDeployerConfig.signer` type widened from `SignerWithAddress`
+  (`HardhatEthersSigner`) to ethers `Signer` — accepts an impersonated signer and the
+  package compiles cleanly from source (`tsc` TS2740 resolved). Widening of an optional
+  input field; non-breaking for typical use.
+- `package.json` metadata corrected for publishing: added `engines` (node ≥ 18, yarn ≥ 4),
+  `publishConfig` (`access: public`), `author`, and object-form `repository`/`bugs`/`homepage`;
+  `prepack` now produces a clean `dist`.
+- Published file manifest tightened — ships `dist/`, `LICENSE`, `README.md`, `CHANGELOG.md`,
+  and `docs/VERSIONING.md`; excludes internal test docs and source.
+- README corrected — scoped package names (`@diamondslab/…`), DiamondsLab links, accurate
+  prerequisites, and the documented entry points.
 
 ### Fixed
 - Fork-based Diamond **upgrades**: the deployer signer is now impersonated and funded
   *before* use, fixing `invalid account` errors for non-test deployer addresses.
-  Previously only fresh deployments (empty `DeployerAddress`) worked on a fork.
 - **`chalk` pinned to `^4.1.2`** (was `^5`): chalk 5 is pure ESM and threw
   `ERR_REQUIRE_ESM` when this CommonJS package `require()`d it in a consumer project.
-  v4 is CommonJS-compatible.
-
-### Changed
-- `LocalDiamondDeployerConfig.signer` type widened from `SignerWithAddress`
-  (`HardhatEthersSigner`) to ethers `Signer`, so an impersonated signer is accepted and
-  the package compiles cleanly from source (`tsc` TS2740 resolved). This is a *widening*
-  of an optional input field — non-breaking for typical use (a Hardhat signer is still a
-  `Signer`).
 
 ## [1.1.15] - 2025-12-31
 ### Added
@@ -85,7 +95,8 @@ the [versioning policy](docs/VERSIONING.md) for the bump rules.
   configuration management (`hre.diamonds`), Diamond ABI generation, and TypeChain
   integration tasks.
 
-[Unreleased]: https://github.com/DiamondsLab/hardhat-diamonds/compare/v1.1.15...HEAD
+[Unreleased]: https://github.com/DiamondsLab/hardhat-diamonds/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/DiamondsLab/hardhat-diamonds/compare/v1.1.15...v1.2.0
 [1.1.15]: https://github.com/DiamondsLab/hardhat-diamonds/releases/tag/v1.1.15
 [1.1.14]: https://github.com/DiamondsLab/hardhat-diamonds/releases/tag/v1.1.14
 [1.1.12]: https://github.com/DiamondsLab/hardhat-diamonds/releases/tag/v1.1.12
