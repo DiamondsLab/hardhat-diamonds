@@ -34,14 +34,12 @@ jobs:
       - name: Build
         run: yarn build
 
-      # Publishes @diamondslab/hardhat-diamonds with provenance (OIDC via id-token: write).
-      # `prepack: tsc --build --force` rebuilds a clean dist; publishConfig.access is public.
-      #
-      # Requires (provisioned by the Owner in M4-E3):
-      #   - secrets.NPM_TOKEN (npm automation token), OR an npm Trusted Publisher (OIDC)
-      #     linked to DiamondsLab/hardhat-diamonds (then NODE_AUTH_TOKEN can be dropped).
-      # The first real run is the owner-approved v1.2.0 cut (M5-E3).
+      # Publishes via npm OIDC Trusted Publishing (configured on npmjs.com for
+      # DiamondsLab/hardhat-diamonds). No NPM_TOKEN needed — auth + provenance come from
+      # the OIDC token (`id-token: write`). `prepack: tsc --build --force` rebuilds a clean
+      # dist; publishConfig.access is public. First real run = the v1.2.0 cut (M5-E3).
+      - name: Update npm (Trusted Publishing requires a recent npm CLI)
+        run: npm install -g npm@latest
+
       - name: Publish
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
