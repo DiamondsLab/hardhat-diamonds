@@ -24,6 +24,7 @@ the [versioning policy](docs/VERSIONING.md) for the bump rules.
 - **`docs/VERSIONING.md`** — versioning & commit policy (SemVer + Conventional Commits).
 
 ### Changed
+- `@diamondslab/diamonds` dependency updated to `1.4.0`.
 - `LocalDiamondDeployerConfig.signer` type widened from `SignerWithAddress`
   (`HardhatEthersSigner`) to ethers `Signer` — accepts an impersonated signer and the
   package compiles cleanly from source (`tsc` TS2740 resolved). Widening of an optional
