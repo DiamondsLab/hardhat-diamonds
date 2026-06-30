@@ -18,11 +18,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # No registry-url: it writes an .npmrc with always-auth + a token placeholder, which
+      # forces token auth and blocks OIDC Trusted Publishing. OIDC needs only id-token: write.
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
 
       - name: Enable Corepack (Yarn 4)
         run: corepack enable
