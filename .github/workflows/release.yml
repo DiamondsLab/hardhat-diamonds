@@ -22,17 +22,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          # registry-url is required so npm targets npmjs.org via OIDC (no NODE_AUTH_TOKEN).
           registry-url: https://registry.npmjs.org
 
-      # npm OIDC Trusted Publishing requires npm >= 11.5.1 (Node 20 ships npm 10).
-      # Upgrade BEFORE corepack so a corepack `npm` shim can't shadow it; print to confirm.
-      - name: Upgrade npm (Trusted Publishing needs npm >= 11.5.1)
-        run: |
-          npm install -g npm@latest
-          npm --version
+      # npm OIDC Trusted Publishing needs npm >= 11.5.1 (Node 20 ships npm 10). Upgrade
+      # BEFORE corepack so a corepack `npm` shim cannot shadow the upgraded npm.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
 
-      # `corepack enable` (no args) also shims `npm` and would shadow the upgrade above.
-      # Enable Yarn only.
+      # `corepack enable` (no args) also shims npm; enable Yarn only.
       - name: Enable Corepack (Yarn)
         run: corepack enable yarn
 
@@ -42,12 +40,8 @@ jobs:
       - name: Build
         run: yarn build
 
-      # OIDC Trusted Publishing (configured on npmjs.com for DiamondsLab/hardhat-diamonds):
-      # no NPM_TOKEN needed — auth comes from the OIDC id-token; provenance is generated too.
+      # OIDC Trusted Publishing (configured on npm for DiamondsLab/hardhat-diamonds):
+      # no NPM_TOKEN — auth + provenance come from the OIDC id-token.
       # `prepack: tsc --build --force` rebuilds a clean dist; publishConfig.access is public.
-      - name: Publish (npm OIDC Trusted Publishing)
-        run: |
-          echo "npm: $(npm --version)"
-          echo "OIDC id-token URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+YES}"
-          echo "registry: $(npm config get registry)"
-          npm publish --provenance --access public
+      - name: Publish
+        run: npm publish --provenance --access public
