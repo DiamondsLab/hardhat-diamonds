@@ -80,7 +80,7 @@
     "docs/VERSIONING.md"
   ],
   "devDependencies": {
-    "@diamondslab/diamonds": "^1.0.0",
+    "@diamondslab/diamonds": "1.4.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
     "@nomicfoundation/hardhat-ignition": "^0.15.0",

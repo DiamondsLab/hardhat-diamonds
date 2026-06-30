@@ -21,9 +21,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@diamondslab/diamonds@npm:^1.0.0":
-  version: 1.3.2
-  resolution: "@diamondslab/diamonds@npm:1.3.2"
+"@diamondslab/diamonds@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@diamondslab/diamonds@npm:1.4.0"
   dependencies:
     "@ethersproject/abstract-signer": "npm:^5.8.0"
     axios: "npm:^1.12.0"
@@ -36,8 +36,8 @@ __metadata:
     ts-node: ^10.0.0
     typescript: ^5.0.0
   bin:
-    diamond-abi: dist/scripts/diamond-abi-cli.js
-  checksum: 10c0/756aad4d94b4882aeff5b6b7f9a0566f53a374acd88217c9a74315d6e56f12bfa5c1fe45d50b849915b8e8b9500244725529b4a69a6fdb1fb4ef31ddc8cb03a2
+    diamond-abi: dist/cli/diamond-abi-cli.js
+  checksum: 10c0/abdfaa91b6c077eca3d98c9baf8dd1c254420b92bbb2e09c4f54bed522e37070b1218e722cdbd152ca0c7772d6ff81a3d9ac62d514158590865d27fa1927c6f7
   languageName: node
   linkType: hard
 
@@ -45,7 +45,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@diamondslab/hardhat-diamonds@workspace:."
   dependencies:
-    "@diamondslab/diamonds": "npm:^1.0.0"
+    "@diamondslab/diamonds": "npm:1.4.0"
     "@nomicfoundation/hardhat-chai-matchers": "npm:^2.0.0"
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
     "@nomicfoundation/hardhat-ignition": "npm:^0.15.0"
