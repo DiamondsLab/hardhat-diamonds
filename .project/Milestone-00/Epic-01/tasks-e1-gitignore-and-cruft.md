@@ -1,0 +1,66 @@
+# Tasks — Gitignore & Cruft Removal (M0-E1)
+
+> Execution checklist for [`prd-e1-gitignore-and-cruft.md`](prd-e1-gitignore-and-cruft.md). Driven by `/df3ndr:process-task-list` (enforces the backup / confirm / verify / record protocol). **Planning artifact — nothing is implemented until the task list is executed.**
+>
+> **Repo:** `packages/hardhat-diamonds` submodule · **Branch:** `chore/m0-repo-hygiene-baseline` (shared with M0-E2) · **Owner:** Eng · **Date:** 2026-06-27
+
+## Relevant Files & Resources
+
+- `…/Milestone-00/Epic-01/prd-e1-gitignore-and-cruft.md` — The Change Plan this task list executes.
+- `…/Milestone-00/Epic-01/overview/e1-gitignore-and-cruft.md` — The epic overview both docs expand.
+- `…/Milestone-00/overview/milestone-01-repo-hygiene-baseline.md` — Parent milestone overview.
+- `packages/hardhat-diamonds/.gitignore` — Edited: remove the `notes` ignore; add `coverage.json` + `test-output/`.
+- `packages/hardhat-diamonds/.travis.yml` — Deleted (legacy Travis CI; replaced by M4 GitHub Actions).
+- `packages/hardhat-diamonds/tslint.json` — Deleted (TSLint deprecated 2019).
+- `packages/hardhat-diamonds/.eslintrc.json` **or** `eslint.config.mjs` — One deleted (keep the lint-green resolver).
+- `packages/hardhat-diamonds/notes/` — Becomes tracked (future home of the M5 release runbook).
+- `packages/hardhat-diamonds/.project/` — Becomes tracked (this planning tree).
+- `packages/hardhat-diamonds/package.json` — Read-only here (provides `lint`/`build` scripts); **not** modified.
+- Submodule git repo + branch `chore/m0-repo-hygiene-baseline` — where all M0 changes land.
+- `…/Milestone-00/Epic-01/CHANGELOG.md` — Epic change log to create/append on completion.
+
+### Notes
+
+- **The branch is the snapshot.** `main` stays untouched until the PR merges, so no separate backup is needed; every step is reversible via `git`.
+- All actions are **local repo hygiene** — no npm publish, no credentials, no infrastructure, no production. The one approval gate is **OP-0** (secret review before tracking `notes/`/`.project/`).
+- Validation commands are **read-only** health checks (`git check-ignore`, `ls`, `yarn lint`/`yarn build` exit codes) — the exact command is listed per check.
+- **Do not widen scope:** no `package.json`/`exports`/`.npmignore` changes (M2), no eslint-9/flat migration (M2), no GitHub Actions (M4), no test fixes (M0-E2 only records).
+
+## Tasks
+
+- [x] 0.0 Prepare & safeguard
+  - [x] 0.1 In `packages/hardhat-diamonds`, confirm the submodule is on `main`, clean, and up to date: `git fetch && git status` (expect clean tree, `main` even with `origin/main`). — **On `main`, even with `origin/main`. Working tree had pre-staged `.project/` planning docs (ours — carried to the branch) + a staged `coverage.json` (cruft → unstaged in 1.0).**
+  - [x] 0.2 Create and checkout the shared M0 branch: `git checkout -b chore/m0-repo-hygiene-baseline`. (No separate backup — the branch is the snapshot.) — **Switched to `chore/m0-repo-hygiene-baseline`; staged planning docs carried over.**
+  - [x] 0.3 Capture a pre-change baseline to compare against later: save `git status --ignored`, a top-level `ls -a`, and the **active eslint config** via `yarn exec eslint --print-config src/index.ts` to a scratch file (this also feeds M0-E2's inventory). — **FINDING: eslint 8.57.1 resolves the FLAT config (`eslint.config.mjs`) — debug: `Using flat config? true`, `Loading config from …/eslint.config.mjs`; `.eslintrc.json` is dead. So 2.x keeps `eslint.config.mjs`, deletes `.eslintrc.json`. `globals` confirmed installed (print-config exit 0). M2 flat-migration follow-up is now moot.**
+
+- [x] 1.0 Correct `.gitignore`
+  - [x] 1.1 Remove the `notes` entry (and its `# random notes` comment) from `.gitignore`. — **Removed lines 66-67.**
+  - [x] 1.2 Add `coverage.json` and `test-output/` under a clear comment; confirm `*.tgz`, `.nyc_output`, `coverage`, `dist/`, and `*.tsbuildinfo` patterns remain intact. — **Added `coverage.json` to coverage section + `test-output/`; existing patterns intact.**
+  - [x] 1.3 Verify: `git check-ignore notes` → empty; `git check-ignore .project` → empty; `git check-ignore coverage.json test-output` → both reported as ignored. — **All confirmed: notes/.project NOT ignored; coverage.json/test-output/coverage/package.tgz ignored.**
+
+- [x] 2.0 Remove legacy cruft & consolidate the eslint config
+  - [x] 2.1 Confirm `.travis.yml` and `tslint.json` are unreferenced: grep `package.json` scripts and the monorepo for `travis` / `tslint` (expect no hits). — **Only inert hits: `.ignore` search-list, generated `typechain-types/*` `/* tslint:disable */` headers, one double-commented test line. No tooling consumes either file; `.eslintrc.json` has zero refs.**
+  - [x] 2.2 Delete `.travis.yml` and `tslint.json` (`git rm`). — **Done.**
+  - [x] 2.3 Identify the eslint config that eslint `^8.57` actually resolves — **Done in 0.3: FLAT `eslint.config.mjs` resolves (debug confirmed), NOT `.eslintrc.json`. (Note: opposite of the usual eslint-8 default — verified empirically.)**
+  - [x] 2.4 Delete the **non-resolving** eslint config; keep the lint-green one. Confirm `globals` is installed. — **Deleted dead `.eslintrc.json`; kept `eslint.config.mjs`; `globals@13.24.0` confirmed installed.**
+  - [x] 2.5 Confirm exactly one eslint config remains. — **Only `eslint.config.mjs` remains. No eslint bump / no flat-forcing (correct — flat already active).**
+
+- [x] 3.0 Verify the package still lints & builds — ✅ **Gate relaxed to "no worse than baseline" (user decision). Both failures are PRE-EXISTING and DEFERRED; M0-E1 introduces no regression.**
+  - [x] 3.1 Run `yarn lint`. — **RESULT: exit 1, 225 `prettier/prettier` errors, ALL in untouched `src/` files. PRE-EXISTING on `main` (this branch changed only `.gitignore` + `.project/`; `src/utils.ts` byte-identical to main). Flat config was already the resolver, so the eslintrc deletion did not change lint. NOT caused by M0-E1. → DEFERRED to new follow-up epic M0-E3 (prettier formatting pass).**
+  - [x] 3.2 Run `yarn build`. — **RESULT: exit 2 — `src/lib/LocalDiamondDeployer.ts(164,5): error TS2740` (`Signer` vs `HardhatEthersSigner`). File untouched by this branch → PRE-EXISTING build break on `main`. NOT caused by M0-E1. → DEFERRED to new epic M2-E4 (fix tsc build); flagged as a v1.2.0 RELEASE BLOCKER in the project plan risk register.**
+
+- [x] 4.0 Secret review (OP-0) & commit / open PR — *4.1–4.3 done. 4.4 (push/PR/merge) **deferred to release time** per user direction: do not merge to `main` until the whole productization project is release-ready. Work stays on `chore/m0-repo-hygiene-baseline`.*
+  - [x] 4.1 **OP-0 (human approval):** enumerate files under `notes/` and `.project/`; confirm none contain secrets. — **`notes/` empty; `.project/` = 7 planning docs only; secret-pattern scan found only doc references to the *concept* of secrets, no real credentials. OP-0 satisfied.**
+  - [x] 4.2 Stage the intended changes only. — **Done across commits; cruft (`coverage.json`/`.tgz`) explicitly never staged (guarded).**
+  - [x] 4.3 Commit using Conventional Commits. — **5 commits on `chore/m0-repo-hygiene-baseline`: planning tree, gitignore, cruft/eslint removal, follow-up registration.**
+  - [~] 4.4 Push the branch and open a PR into `main`. — **DEFERRED to release time (user direction): no push/PR/merge to `main` until the project is ready for a full release. Commits remain local on `chore/m0-repo-hygiene-baseline`.**
+
+- [x] 5.0 Validate the change — *all local read-only checks pass; PR-open is a release-time item (4.4), not part of this epic's local completion.*
+  - [x] 5.1 Run the PRD §9 read-only checks. — **ALL PASS: `notes`/`.project` not ignored; `coverage.json`/`test-output` ignored; `.travis.yml`/`tslint.json` absent; exactly one eslint config (`eslint.config.mjs`).**
+  - [x] 5.2 Re-run `yarn lint`/`yarn build`. — **Per amended gate: both red at PRE-EXISTING baseline (M0-E1 introduces no regression). Deferred to M0-E3 / M2-E4.**
+  - [x] 5.3 Final `git status` clean and intentional (no stray/secret files). — **Working tree clean. (PR-open confirmation deferred to 4.4.)**
+
+- [x] 6.0 Record the change
+  - [x] 6.1 Create/append `…/Milestone-00/Epic-01/CHANGELOG.md`. — **Done: per-task entries incl. gitignore fix, travis/tslint/eslintrc removal (kept `eslint.config.mjs`), baseline findings, validation, OP-0.**
+  - [x] 6.2 Tick the satisfied acceptance-criteria checkboxes in the PRD and epic overview; record **which eslint config was kept**. — **Epic overview §3 ticked; lint/build amended to "no worse than baseline"; kept `eslint.config.mjs`.**
+  - [x] 6.3 Note the follow-up against M2 in the milestone overview / project plan. — **Done: flat config already active (M2 eslint migration moot); registered M0-E3 (formatting) and M2-E4 (tsc build, release blocker).**

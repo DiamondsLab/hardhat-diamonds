@@ -12,10 +12,12 @@ import "./diamond-abi-typechain";
 
 // Re-export task-related types and utilities for external use
 export type {
-    DiamondAbiGenerationOptions,
-    DiamondAbiGenerationResult, DiamondAbiTaskArgs,
-    DiamondAbiTypechainTaskArgs, TypeChainGenerationOptions,
-    TypeChainGenerationResult
+  DiamondAbiGenerationOptions,
+  DiamondAbiGenerationResult,
+  DiamondAbiTaskArgs,
+  DiamondAbiTypechainTaskArgs,
+  TypeChainGenerationOptions,
+  TypeChainGenerationResult,
 } from "./shared/TaskOptions";
 
 export { ProgressIndicator, TaskHelpers } from "./shared/TaskHelpers";
@@ -23,13 +25,13 @@ export { TaskValidation } from "./shared/TaskValidation";
 
 // Re-export library functions for programmatic use
 export {
-    HardhatDiamondAbiGenerator,
-    generateDiamondAbi
+  HardhatDiamondAbiGenerator,
+  generateDiamondAbi,
 } from "../lib/DiamondAbiGenerator";
 
 export {
-    HardhatTypeChainIntegration,
-    generateTypeChainTypes
+  HardhatTypeChainIntegration,
+  generateTypeChainTypes,
 } from "../lib/TypeChainIntegration";
 
 // NOTE: LocalDiamondDeployer is exported from lib/index.ts instead

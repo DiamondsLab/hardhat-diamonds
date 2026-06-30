@@ -1,9 +1,36 @@
 {
   "name": "@diamondslab/hardhat-diamonds",
-  "version": "1.1.15",
+  "version": "1.2.0",
   "description": "Tools for deploying and interfacing with ERC-2535 Diamond Proxies",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "default": "./dist/utils.js"
+    },
+    "./lib": {
+      "types": "./dist/lib/index.d.ts",
+      "default": "./dist/lib/index.js"
+    },
+    "./dist/utils": {
+      "types": "./dist/utils.d.ts",
+      "default": "./dist/utils.js"
+    },
+    "./dist/lib": {
+      "types": "./dist/lib/index.d.ts",
+      "default": "./dist/lib/index.js"
+    },
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    },
+    "./package.json": "./package.json"
+  },
   "keywords": [
     "ethereum",
     "smart-contracts",
@@ -15,19 +42,29 @@
     "blockchain",
     "erc-2535"
   ],
-  "authors": [
-    "Am0rfu5"
-  ],
+  "author": "Am0rfu5",
   "license": "MIT",
-  "repository": "github:diamondslab/hardhat-diamonds",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DiamondsLab/hardhat-diamonds.git"
+  },
   "bugs": {
-    "url": "https://github.com/diamondslab/hardhat-diamonds/issues"
+    "url": "https://github.com/DiamondsLab/hardhat-diamonds/issues"
+  },
+  "homepage": "https://github.com/DiamondsLab/hardhat-diamonds#readme",
+  "engines": {
+    "node": ">=18",
+    "yarn": ">=4"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && yarn exec eslint --fix 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "lint": "yarn exec eslint 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "build": "tsc",
     "watch": "tsc -w",
+    "prepack": "tsc --build --force",
     "prepublishOnly": "npm run build",
     "test": "yarn exec hardhat test",
     "test:comprehensive": "yarn exec hardhat test test/unit/core/DiamondsConfig.test.ts test/unit/core/HardhatPlugin.test.ts test/integration/e2e/ConfigurationManagement.test.ts",
@@ -37,12 +74,13 @@
   },
   "files": [
     "dist/",
-    "docs/",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "docs/VERSIONING.md"
   ],
   "devDependencies": {
-    "@diamondslab/diamonds": "^1.0.0",
+    "@diamondslab/diamonds": "1.4.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
     "@nomicfoundation/hardhat-ignition": "^0.15.0",
@@ -83,6 +121,6 @@
   },
   "packageManager": "yarn@4.10.3",
   "dependencies": {
-    "chalk": "^5.6.2"
+    "chalk": "^4.1.2"
   }
 }

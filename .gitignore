@@ -16,9 +16,13 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+coverage.json
 
 # nyc test coverage
 .nyc_output
+
+# Test runner output
+test-output/
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
@@ -62,9 +66,6 @@ typings/
 
 # flatten files
 flat/
-
-# random notes
-notes
 
 # dist folder for built files
 dist/
