@@ -1,6 +1,6 @@
 {
   "name": "@diamondslab/hardhat-diamonds",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Tools for deploying and interfacing with ERC-2535 Diamond Proxies",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

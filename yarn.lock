@@ -21,15 +21,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@diamondslab/diamonds@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@diamondslab/diamonds@npm:1.4.0"
+"@diamondslab/diamonds@npm:^1.4.0":
+  version: 1.4.1
+  resolution: "@diamondslab/diamonds@npm:1.4.1"
   dependencies:
     "@ethersproject/abstract-signer": "npm:^5.8.0"
     axios: "npm:^1.12.0"
     debug: "npm:^4.4.1"
     fs-extra: "npm:^11.3.0"
     lodash: "npm:^4.17.21"
+    zod: "npm:^4.0.2"
   peerDependencies:
     ethers: ^6.0.0
     hardhat: ^2.0.0
@@ -37,7 +38,7 @@ __metadata:
     typescript: ^5.0.0
   bin:
     diamond-abi: dist/cli/diamond-abi-cli.js
-  checksum: 10c0/abdfaa91b6c077eca3d98c9baf8dd1c254420b92bbb2e09c4f54bed522e37070b1218e722cdbd152ca0c7772d6ff81a3d9ac62d514158590865d27fa1927c6f7
+  checksum: 10c0/86839859e220ce1b09f4ba90244b8332bd113e86b7ec814cbc06c4e381b68a0230621af400016030243baeab630d1e677cae9e2edd810bca34cd5099d6f6abcc
   languageName: node
   linkType: hard
 
@@ -45,7 +46,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@diamondslab/hardhat-diamonds@workspace:."
   dependencies:
-    "@diamondslab/diamonds": "npm:1.4.0"
+    "@diamondslab/diamonds": "npm:^1.4.0"
     "@nomicfoundation/hardhat-chai-matchers": "npm:^2.0.0"
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
     "@nomicfoundation/hardhat-ignition": "npm:^0.15.0"
@@ -80,7 +81,7 @@ __metadata:
     typechain: "npm:^8.3.0"
     typescript: "npm:^5.6.2"
   peerDependencies:
-    "@diamondslab/diamonds": ^1.0.0
+    "@diamondslab/diamonds": ^1.4.0
     ethers: ^6.0.0
     hardhat: ^2.0.0
   languageName: unknown
@@ -6482,5 +6483,12 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10c0/dceb44c28578b31641e13695d200d34ec4ab3966a5729814d5445b194933c096b7ced71494ce53a0e8820685d1d010df8b2422e5bf2cdea7e469d97ffbea306f
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.0.2":
+  version: 4.4.3
+  resolution: "zod@npm:4.4.3"
+  checksum: 10c0/7ea31b558e88f9faf44f31dd185e2e1cbf51fed3081787fb96cc2534749b50c0acfc6da7f0922a7353ed092dd358c7d50c28ea96c94d04af64191bd33152eca3
   languageName: node
   linkType: hard
